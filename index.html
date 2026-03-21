@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAX — Verified Agent Exchange</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #08080f;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    h1 span { color: #6366f1; }
+    .subtitle {
+      font-size: 1.125rem;
+      color: #94a3b8;
+      margin-bottom: 3rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      width: 100%;
+      max-width: 720px;
+    }
+    .grid a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.25rem 1.5rem;
+      background: #12121c;
+      border: 1px solid #1e1e2e;
+      border-radius: 12px;
+      color: #e2e8f0;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .grid a:hover {
+      border-color: #6366f1;
+      background: #16162a;
+    }
+    .grid a .icon { font-size: 1.5rem; }
+  </style>
+</head>
+<body>
+  <h1><span>VAX</span> — Verified Agent Exchange</h1>
+  <p class="subtitle">Proven ROI Agents Only</p>
+  <div class="grid">
+    <a href="dashboard/index.html">
+      <span class="icon">📊</span> Dashboard
+    </a>
+    <a href="dashboard/hp.html">
+      <span class="icon">🏠</span> Homepage
+    </a>
+    <a href="dashboard/lp.html">
+      <span class="icon">🚀</span> For Sellers (LP)
+    </a>
+    <a href="dashboard/overview.html">
+      <span class="icon">📋</span> Business Overview
+    </a>
+    <a href="dashboard/plan.html">
+      <span class="icon">📈</span> Business Plan
+    </a>
+  </div>
+</body>
+</html>
