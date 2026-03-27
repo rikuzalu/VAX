@@ -3,2107 +3,1552 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VAX // システムダッシュボード v2.7.1</title>
+<title>VAX // サイバーパンク・ダッシュボード v3.0 — MAXIMUM OVERDRIVE</title>
 <style>
 /* ================================================================
-   GLOBAL RESET & BASE
+   RESET & CSS VARIABLES
    ================================================================ */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
   --black:#030308;--cyan:#00fff2;--magenta:#ff00ff;--blue:#0066ff;
   --purple:#8b00ff;--pink:#ff0066;--green:#00ff88;--amber:#ffaa00;
-  --card-bg:rgba(3,3,8,.85);--border:rgba(0,255,242,.15);
-  --glow-cyan:0 0 10px #00fff2,0 0 30px rgba(0,255,242,.3);
-  --glow-magenta:0 0 10px #ff00ff,0 0 30px rgba(255,0,255,.3);
-  --glow-green:0 0 10px #00ff88,0 0 30px rgba(0,255,136,.3);
-  --glow-amber:0 0 10px #ffaa00,0 0 30px rgba(255,170,0,.3);
-  --glow-pink:0 0 10px #ff0066,0 0 30px rgba(255,0,102,.3);
+  --card-bg:rgba(3,3,8,.78);--border:rgba(0,255,242,.18);
+  --glow-cyan:0 0 10px #00fff2,0 0 40px rgba(0,255,242,.35);
+  --glow-magenta:0 0 10px #ff00ff,0 0 40px rgba(255,0,255,.35);
+  --glow-green:0 0 10px #00ff88,0 0 40px rgba(0,255,136,.35);
+  --glow-amber:0 0 10px #ffaa00,0 0 40px rgba(255,170,0,.35);
+  --glow-pink:0 0 10px #ff0066,0 0 40px rgba(255,0,102,.35);
+  --glow-purple:0 0 10px #8b00ff,0 0 40px rgba(139,0,255,.35);
+  --glow-blue:0 0 10px #0066ff,0 0 40px rgba(0,102,255,.35);
 }
-html{font-size:14px;scroll-behavior:smooth}
+html{font-size:13px;scroll-behavior:smooth}
 body{
   background:var(--black);color:#e0e0e0;
-  font-family:'Courier New',monospace;
-  overflow-x:hidden;min-height:100vh;
+  font-family:'Courier New','SF Mono',monospace;
+  overflow-x:hidden;min-height:100vh;position:relative;
+  cursor:crosshair;
+}
+::selection{background:var(--cyan);color:var(--black)}
+
+/* ================================================================
+   BACKGROUND LAYERS
+   ================================================================ */
+/* Layer 1: Circuit board grid canvas */
+#circuit-bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+#circuit-bg canvas{width:100%;height:100%}
+
+/* Layer 2: Matrix rain canvas */
+#matrix-rain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.25}
+#matrix-rain canvas{width:100%;height:100%}
+
+/* Layer 3: Floating geometry canvas */
+#geo-layer{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.15}
+#geo-layer canvas{width:100%;height:100%}
+
+/* Layer 4: Noise texture */
+.noise-overlay{
+  position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  background-size:128px;
+}
+
+/* Layer 5: Radial vignette */
+.vignette{
+  position:fixed;inset:0;z-index:4;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(3,3,8,.6) 70%,rgba(3,3,8,.95) 100%);
+}
+
+/* ================================================================
+   SCANLINES
+   ================================================================ */
+.scanlines{
+  position:fixed;inset:0;z-index:9990;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,242,.012) 2px,rgba(0,255,242,.012) 4px);
+}
+.h-scanline{
+  position:fixed;left:0;right:0;height:3px;z-index:9991;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(0,255,242,.12),transparent);
+  animation:hscan 3s linear infinite;
+}
+@keyframes hscan{0%{top:-3px}100%{top:100vh}}
+.v-scanline{
+  position:fixed;top:0;bottom:0;width:2px;z-index:9991;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,0,255,.1),transparent);
+  animation:vscan 5s linear infinite;
+}
+@keyframes vscan{0%{left:-2px}100%{left:100vw}}
+
+/* Corner targeting brackets */
+.corner-bracket{position:fixed;z-index:9992;pointer-events:none;width:40px;height:40px;animation:cornerPulse 2s ease-in-out infinite}
+.corner-bracket.tl{top:12px;left:12px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan)}
+.corner-bracket.tr{top:12px;right:12px;border-top:2px solid var(--cyan);border-right:2px solid var(--cyan)}
+.corner-bracket.bl{bottom:12px;left:12px;border-bottom:2px solid var(--magenta);border-left:2px solid var(--magenta)}
+.corner-bracket.br{bottom:12px;right:12px;border-bottom:2px solid var(--magenta);border-right:2px solid var(--magenta)}
+@keyframes cornerPulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+
+/* ================================================================
+   MOUSE TRAIL PARTICLES CANVAS
+   ================================================================ */
+#particle-canvas{position:fixed;inset:0;z-index:9989;pointer-events:none}
+
+/* ================================================================
+   CLICK RIPPLE
+   ================================================================ */
+.click-ripple{
+  position:fixed;pointer-events:none;z-index:9993;
+  border:2px solid var(--cyan);border-radius:50%;
+  animation:rippleExpand .6s ease-out forwards;
+}
+@keyframes rippleExpand{0%{width:0;height:0;opacity:1;transform:translate(-50%,-50%)}100%{width:120px;height:120px;opacity:0;transform:translate(-50%,-50%)}}
+.click-ripple-inner{
+  position:fixed;pointer-events:none;z-index:9993;
+  border:1px solid var(--magenta);border-radius:50%;
+  animation:rippleExpand2 .8s ease-out .1s forwards;opacity:0;
+}
+@keyframes rippleExpand2{0%{width:0;height:0;opacity:1;transform:translate(-50%,-50%)}100%{width:180px;height:180px;opacity:0;transform:translate(-50%,-50%)}}
+
+/* ================================================================
+   MAIN LAYOUT
+   ================================================================ */
+.app-wrapper{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column}
+header{
+  padding:1.5rem 2rem 1rem;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,rgba(0,255,242,.03),transparent);
   position:relative;
 }
 
 /* ================================================================
-   ANIMATED GRID BACKGROUND (circuit board dots + lines)
+   TITLE — EXTREME GLITCH
    ================================================================ */
-#grid-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
-#grid-bg canvas{width:100%;height:100%}
-
-/* ================================================================
-   SCAN LINE OVERLAY
-   ================================================================ */
-.scanlines{
-  position:fixed;inset:0;z-index:9998;pointer-events:none;
-  background:repeating-linear-gradient(
-    0deg,
-    transparent,transparent 2px,
-    rgba(0,255,242,.015) 2px,rgba(0,255,242,.015) 4px
-  );
+.main-title{
+  font-size:3rem;font-weight:900;letter-spacing:.3em;text-transform:uppercase;
+  color:#fff;text-align:center;position:relative;
+  text-shadow:0 0 10px var(--cyan),0 0 30px var(--cyan),0 0 60px var(--blue);
+  animation:titleGlitch 3s infinite;
 }
-.scanline-move{
-  position:fixed;left:0;right:0;height:4px;z-index:9998;pointer-events:none;
-  background:linear-gradient(180deg,transparent,rgba(0,255,242,.08),transparent);
-  animation:scanmove 4s linear infinite;
+.main-title::before,.main-title::after{
+  content:attr(data-text);position:absolute;top:0;left:0;right:0;
+  overflow:hidden;
 }
-@keyframes scanmove{0%{top:-4px}100%{top:100vh}}
-
-/* NOISE TEXTURE */
-.noise{
-  position:fixed;inset:0;z-index:9997;pointer-events:none;opacity:.035;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size:128px 128px;
+.main-title::before{
+  color:var(--cyan);z-index:-1;
+  animation:glitchR 2s infinite linear alternate-reverse;
+  clip-path:polygon(0 0,100% 0,100% 35%,0 35%);
 }
-
-/* MATRIX RAIN */
-#matrix-rain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.07}
-
-/* PARTICLE FIELD */
-#particles{position:fixed;inset:0;z-index:1;pointer-events:none}
-
-/* ================================================================
-   HEXAGONAL PATTERN OVERLAY
-   ================================================================ */
-.hex-pattern{
-  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.03;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='52'%3E%3Cpath d='M30 0l30 15v22L30 52 0 37V15z' fill='none' stroke='%2300fff2' stroke-width='.5'/%3E%3C/svg%3E");
-  background-size:60px 52px;
+.main-title::after{
+  color:var(--magenta);z-index:-2;
+  animation:glitchL 2.5s infinite linear alternate-reverse;
+  clip-path:polygon(0 65%,100% 65%,100% 100%,0 100%);
 }
-
-/* ================================================================
-   HEADER
-   ================================================================ */
-header{
-  position:sticky;top:0;z-index:100;
-  background:linear-gradient(180deg,rgba(3,3,8,.98) 0%,rgba(3,3,8,.9) 100%);
-  border-bottom:1px solid var(--border);
-  backdrop-filter:blur(20px);
-  padding:.8rem 1.5rem;
-  display:flex;align-items:center;justify-content:space-between;
+@keyframes titleGlitch{
+  0%,93%,95%,97%,100%{transform:none;filter:none}
+  94%{transform:translate(-3px,1px) skewX(-2deg);filter:hue-rotate(90deg)}
+  96%{transform:translate(3px,-1px) skewX(2deg);filter:hue-rotate(-90deg)}
+  98%{transform:translate(-1px,2px);filter:brightness(1.5)}
 }
-.logo{display:flex;align-items:center;gap:.8rem}
-.logo-icon{
-  width:40px;height:40px;position:relative;
-}
-.logo-icon svg{width:100%;height:100%;filter:drop-shadow(var(--glow-cyan))}
-.logo-text{
-  font-size:1.5rem;font-weight:900;letter-spacing:4px;
-  text-transform:uppercase;position:relative;
-}
-.logo-text .main{color:var(--cyan);text-shadow:var(--glow-cyan)}
-.logo-text .sub{
-  display:block;font-size:.6rem;letter-spacing:6px;
-  color:rgba(0,255,242,.5);margin-top:-2px;
-}
-
-/* GLITCH TITLE EFFECT */
-.glitch{position:relative;display:inline-block}
-.glitch::before,.glitch::after{
-  content:attr(data-text);position:absolute;top:0;left:0;
-  width:100%;height:100%;
-}
-.glitch::before{
-  animation:glitch-1 2s infinite linear alternate-reverse;
-  clip-path:polygon(0 0,100% 0,100% 45%,0 45%);
-  color:var(--cyan);
-}
-.glitch::after{
-  animation:glitch-2 3s infinite linear alternate-reverse;
-  clip-path:polygon(0 55%,100% 55%,100% 100%,0 100%);
-  color:var(--magenta);
-}
-@keyframes glitch-1{
+@keyframes glitchR{
   0%,100%{transform:translate(0)}
-  20%{transform:translate(-3px,1px)}
-  40%{transform:translate(3px,-1px)}
-  60%{transform:translate(-1px,2px)}
-  80%{transform:translate(2px,-2px)}
+  25%{transform:translate(3px,1px)}50%{transform:translate(-2px,-1px)}75%{transform:translate(1px,2px)}
 }
-@keyframes glitch-2{
+@keyframes glitchL{
   0%,100%{transform:translate(0)}
-  25%{transform:translate(2px,-1px)}
-  50%{transform:translate(-2px,1px)}
-  75%{transform:translate(1px,2px)}
+  20%{transform:translate(-3px,1px)}40%{transform:translate(2px,-2px)}60%{transform:translate(-1px,1px)}80%{transform:translate(3px,-1px)}
 }
 
-/* HEADER STATUS */
-.header-status{display:flex;align-items:center;gap:1.5rem;font-size:.75rem}
-.status-item{display:flex;align-items:center;gap:.4rem}
-.status-dot{
-  width:6px;height:6px;border-radius:50%;
-  animation:pulse-dot 2s infinite;
-}
-.status-dot.online{background:var(--green);box-shadow:var(--glow-green)}
-.status-dot.warn{background:var(--amber);box-shadow:var(--glow-amber)}
-@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
-
-.header-time{
-  color:var(--cyan);font-size:.8rem;letter-spacing:2px;
-  text-shadow:var(--glow-cyan);
+.sub-title{
+  text-align:center;color:var(--cyan);font-size:.85rem;letter-spacing:.5em;margin-top:.5rem;
+  opacity:.7;
 }
 
 /* ================================================================
-   NAVIGATION TABS
+   TAB NAVIGATION
    ================================================================ */
-nav{
-  position:sticky;top:56px;z-index:99;
-  background:rgba(3,3,8,.95);backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
-  padding:0 1rem;display:flex;gap:0;
-  overflow-x:auto;
+.tab-nav{
+  display:flex;justify-content:center;gap:.5rem;padding:.8rem 1rem;
+  border-bottom:1px solid var(--border);flex-wrap:wrap;
+  background:rgba(0,0,0,.4);
 }
-nav button{
-  background:none;border:none;color:rgba(255,255,255,.4);
-  padding:.7rem 1.2rem;font-family:inherit;font-size:.8rem;
-  cursor:pointer;white-space:nowrap;position:relative;
-  letter-spacing:1px;transition:all .3s;
-  border-bottom:2px solid transparent;
+.tab-btn{
+  background:transparent;border:1px solid rgba(0,255,242,.15);color:var(--cyan);
+  padding:.5rem 1.2rem;font-family:inherit;font-size:.85rem;cursor:pointer;
+  letter-spacing:.1em;transition:all .3s;position:relative;overflow:hidden;
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);
 }
-nav button:hover{color:rgba(255,255,255,.7);background:rgba(0,255,242,.03)}
-nav button.active{
-  color:var(--cyan);border-bottom-color:var(--cyan);
+.tab-btn:hover{background:rgba(0,255,242,.08);border-color:var(--cyan);text-shadow:var(--glow-cyan)}
+.tab-btn.active{
+  background:rgba(0,255,242,.12);border-color:var(--cyan);color:#fff;
   text-shadow:var(--glow-cyan);
-  background:linear-gradient(180deg,transparent,rgba(0,255,242,.05));
+  box-shadow:0 0 20px rgba(0,255,242,.15);
 }
-nav button.active::after{
-  content:'';position:absolute;bottom:-1px;left:20%;right:20%;
-  height:1px;background:var(--cyan);
-  box-shadow:0 0 10px var(--cyan);
-  animation:nav-glow 2s infinite;
+.tab-btn::after{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(0,255,242,.15),transparent);
+  transition:left .5s;
 }
-@keyframes nav-glow{0%,100%{opacity:1}50%{opacity:.4}}
+.tab-btn:hover::after{left:100%}
 
 /* ================================================================
    MAIN CONTENT
    ================================================================ */
-main{position:relative;z-index:10;padding:1.5rem;max-width:1400px;margin:0 auto}
-.tab-content{display:none}
-.tab-content.active{display:block;animation:fadeIn .5s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+main{flex:1;padding:1.5rem 2rem 3rem;position:relative}
+.tab-panel{display:none;animation:fadeIn .4s ease}
+.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 /* ================================================================
-   SECTION TITLES
+   GLASSMORPHISM CARDS
    ================================================================ */
-.section-title{
-  font-size:1.1rem;letter-spacing:3px;color:var(--cyan);
-  text-shadow:var(--glow-cyan);margin-bottom:1.2rem;
-  padding-bottom:.5rem;
-  border-bottom:1px solid rgba(0,255,242,.1);
-  display:flex;align-items:center;gap:.8rem;
-}
-.section-title::before{
-  content:'//';color:var(--magenta);text-shadow:var(--glow-magenta);
-}
-.section-title .blink{animation:blink 1s step-end infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-
-/* ================================================================
-   HOLOGRAPHIC CARD
-   ================================================================ */
-.holo-card{
-  background:var(--card-bg);
+.glass-card{
+  background:rgba(3,3,8,.75);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border:1px solid var(--border);
-  border-radius:4px;
-  padding:1.2rem;
-  position:relative;
-  overflow:hidden;
-  transition:all .4s cubic-bezier(.25,.46,.45,.94);
-  transform:perspective(1000px) rotateX(0) rotateY(0);
+  border-radius:8px;padding:1.5rem;position:relative;overflow:hidden;
+  transition:transform .4s cubic-bezier(.23,1,.32,1),box-shadow .4s;
+  transform-style:preserve-3d;perspective:800px;
 }
-.holo-card::before{
-  content:'';position:absolute;inset:-50%;
-  background:conic-gradient(from 0deg,transparent,var(--cyan),transparent,var(--magenta),transparent);
+/* Rotating conic gradient border */
+.glass-card::before{
+  content:'';position:absolute;inset:-2px;z-index:-1;border-radius:9px;
+  background:conic-gradient(from var(--card-angle,0deg),var(--cyan),var(--magenta),var(--blue),var(--green),var(--purple),var(--pink),var(--cyan));
   opacity:0;transition:opacity .4s;
-  animation:rotate-border 4s linear infinite;
+  animation:rotateBorder 4s linear infinite;
 }
-.holo-card::after{
-  content:'';position:absolute;inset:1px;
-  background:var(--card-bg);border-radius:3px;z-index:0;
-}
-.holo-card>*{position:relative;z-index:1}
-.holo-card:hover{
-  transform:perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-4px);
-  border-color:rgba(0,255,242,.4);
+@property --card-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes rotateBorder{from{--card-angle:0deg}to{--card-angle:360deg}}
+.glass-card:hover::before{opacity:.6}
+.glass-card:hover{
+  transform:translateY(-4px);
   box-shadow:0 10px 40px rgba(0,255,242,.1),0 0 60px rgba(0,255,242,.05);
 }
-.holo-card:hover::before{opacity:.15}
-@keyframes rotate-border{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
-/* ANIMATED GRADIENT BORDER VARIANT */
-.gradient-border{
-  position:relative;padding:1px;border-radius:4px;
-  background:linear-gradient(135deg,var(--cyan),var(--magenta),var(--blue),var(--purple));
-  background-size:300% 300%;
-  animation:gradient-shift 4s ease infinite;
+/* Holographic shimmer overlay */
+.glass-card::after{
+  content:'';position:absolute;inset:0;border-radius:8px;
+  background:linear-gradient(105deg,transparent 40%,rgba(0,255,242,.06) 45%,rgba(255,0,255,.06) 50%,transparent 55%);
+  background-size:300% 100%;
+  animation:holoShimmer 3s ease-in-out infinite;
+  pointer-events:none;
 }
-.gradient-border-inner{
-  background:var(--card-bg);border-radius:3px;padding:1.2rem;
-}
-@keyframes gradient-shift{
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
-}
+@keyframes holoShimmer{0%{background-position:200% 0}100%{background-position:-100% 0}}
 
-/* ================================================================
-   KPI CARDS
-   ================================================================ */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
-.kpi-card{
-  text-align:center;padding:1rem;
-  background:var(--card-bg);border:1px solid var(--border);
-  border-radius:4px;position:relative;overflow:hidden;
-  transition:all .3s;
-}
-.kpi-card:hover{
-  transform:translateY(-5px) scale(1.02);
-  box-shadow:0 10px 30px rgba(0,255,242,.15);
-}
-.kpi-card .kpi-value{
-  font-size:2.2rem;font-weight:900;
-  background:linear-gradient(135deg,var(--cyan),var(--magenta));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-  text-shadow:none;
-  filter:drop-shadow(0 0 10px rgba(0,255,242,.3));
-}
-.kpi-card .kpi-label{
-  font-size:.7rem;letter-spacing:2px;color:rgba(255,255,255,.5);
-  margin-top:.3rem;text-transform:uppercase;
-}
-.kpi-card .kpi-bar{
-  height:2px;margin-top:.6rem;background:rgba(255,255,255,.05);
-  border-radius:1px;overflow:hidden;
-}
-.kpi-card .kpi-bar-fill{
-  height:100%;border-radius:1px;
-  transition:width 2s cubic-bezier(.25,.46,.45,.94);
-  box-shadow:0 0 10px currentColor;
-}
-/* Glitch hover on KPI */
-.kpi-card:hover .kpi-value{
-  animation:kpi-glitch .3s ease;
-}
-@keyframes kpi-glitch{
-  0%{transform:translate(0)}
-  20%{transform:translate(-2px,1px)}
-  40%{transform:translate(2px,-1px)}
-  60%{transform:translate(-1px,-1px)}
-  80%{transform:translate(1px,1px)}
-  100%{transform:translate(0)}
+/* Glitch on hover */
+.glass-card.glitch-hover:hover{animation:cardGlitch .3s steps(2)}
+@keyframes cardGlitch{
+  0%{clip-path:inset(0)}
+  25%{clip-path:inset(10% 0 30% 0);transform:translate(3px,-2px)}
+  50%{clip-path:inset(40% 0 10% 0);transform:translate(-3px,2px)}
+  75%{clip-path:inset(20% 0 20% 0);transform:translate(2px,1px)}
+  100%{clip-path:inset(0);transform:none}
 }
 
 /* ================================================================
-   SVG RING CHART
+   NEON TEXT CLASSES
    ================================================================ */
-.ring-chart-container{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-bottom:1.5rem}
-.ring-chart{
-  width:140px;height:140px;position:relative;
-  display:flex;align-items:center;justify-content:center;
+.neon-cyan{color:var(--cyan);text-shadow:var(--glow-cyan)}
+.neon-magenta{color:var(--magenta);text-shadow:var(--glow-magenta)}
+.neon-green{color:var(--green);text-shadow:var(--glow-green)}
+.neon-amber{color:var(--amber);text-shadow:var(--glow-amber)}
+.neon-pink{color:var(--pink);text-shadow:var(--glow-pink)}
+.neon-purple{color:var(--purple);text-shadow:var(--glow-purple)}
+.neon-blue{color:var(--blue);text-shadow:var(--glow-blue)}
+
+.section-title{
+  font-size:1.4rem;font-weight:700;letter-spacing:.2em;margin-bottom:1.2rem;
+  text-transform:uppercase;position:relative;padding-left:1rem;
+  text-shadow:0 0 8px currentColor,0 0 20px currentColor;
 }
-.ring-chart svg{position:absolute;inset:0;transform:rotate(-90deg)}
-.ring-chart circle{
-  fill:none;stroke-width:4;
-  stroke-linecap:round;
+.section-title::before{
+  content:'//';position:absolute;left:0;opacity:.5;
 }
-.ring-chart .bg{stroke:rgba(255,255,255,.05)}
-.ring-chart .fg{
-  stroke-dasharray:0 999;
-  transition:stroke-dasharray 2s cubic-bezier(.25,.46,.45,.94);
-  filter:drop-shadow(0 0 6px currentColor);
+
+/* Typing cursor */
+.typing-cursor::after{content:'_';animation:blink 1s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* Holographic text */
+.holo-text{
+  background:linear-gradient(90deg,var(--cyan),var(--magenta),var(--green),var(--cyan));
+  background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:holoText 4s linear infinite;
 }
-.ring-chart .ring-label{
-  text-align:center;font-size:.65rem;letter-spacing:1px;
-  color:rgba(255,255,255,.6);
-}
-.ring-chart .ring-value{
-  display:block;font-size:1.6rem;font-weight:900;
-  color:var(--cyan);text-shadow:var(--glow-cyan);
-}
+@keyframes holoText{0%{background-position:0 0}100%{background-position:300% 0}}
+
+/* ================================================================
+   KPI CARDS GRID
+   ================================================================ */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+.kpi-card{text-align:center;padding:1.5rem 1rem}
+.kpi-label{font-size:.75rem;letter-spacing:.2em;color:rgba(255,255,255,.5);text-transform:uppercase;margin-bottom:.5rem}
+.kpi-value{font-size:2.5rem;font-weight:900;line-height:1}
+.kpi-sub{font-size:.7rem;color:rgba(255,255,255,.4);margin-top:.3rem}
+
+/* Animated ring inside KPI */
+.ring-container{position:relative;width:80px;height:80px;margin:0 auto .5rem}
+.ring-container svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-container svg circle{fill:none;stroke-width:4;stroke-linecap:round}
+.ring-bg{stroke:rgba(255,255,255,.06)}
+.ring-fill{stroke-dasharray:220;stroke-dashoffset:220;transition:stroke-dashoffset 2s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 6px currentColor)}
+.ring-value{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900}
+
+/* Big center ring */
+.big-ring{width:140px;height:140px;margin:0 auto 1rem}
+.big-ring svg circle{stroke-width:6}
+.big-ring .ring-value{font-size:2rem}
 
 /* ================================================================
    ACTIVITY FEED
    ================================================================ */
-.activity-feed{max-height:280px;overflow-y:auto;padding-right:.5rem}
-.activity-feed::-webkit-scrollbar{width:3px}
-.activity-feed::-webkit-scrollbar-track{background:rgba(255,255,255,.02)}
-.activity-feed::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:2px}
+.activity-feed{max-height:260px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--cyan) transparent}
 .activity-item{
-  display:flex;align-items:flex-start;gap:.8rem;
-  padding:.6rem .8rem;border-left:2px solid var(--border);
-  margin-bottom:.3rem;transition:all .3s;
-  animation:feed-in .5s ease backwards;
+  padding:.5rem .8rem;border-left:2px solid var(--border);margin-bottom:.3rem;
+  font-size:.8rem;opacity:0;animation:feedIn .4s ease forwards;
 }
-.activity-item:hover{
-  background:rgba(0,255,242,.03);border-left-color:var(--cyan);
-}
-.activity-item .time{
-  font-size:.65rem;color:rgba(0,255,242,.5);white-space:nowrap;
-  min-width:50px;
-}
-.activity-item .badge{
-  font-size:.6rem;padding:1px 6px;border-radius:2px;
-  font-weight:bold;letter-spacing:1px;
-}
-.badge-pass{background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.3)}
-.badge-fail{background:rgba(255,0,102,.15);color:var(--pink);border:1px solid rgba(255,0,102,.3)}
-.badge-active{background:rgba(0,255,242,.15);color:var(--cyan);border:1px solid rgba(0,255,242,.3)}
-.badge-wait{background:rgba(255,170,0,.15);color:var(--amber);border:1px solid rgba(255,170,0,.3)}
-.badge-stop{background:rgba(139,0,255,.15);color:var(--purple);border:1px solid rgba(139,0,255,.3)}
-@keyframes feed-in{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
-
-/* Typing animation */
-.typing::after{
-  content:'_';animation:blink .7s step-end infinite;
-  color:var(--cyan);
-}
+.activity-item .pass{color:var(--green);font-weight:700}
+.activity-item .fail{color:var(--pink);font-weight:700}
+@keyframes feedIn{to{opacity:1}}
 
 /* ================================================================
-   RADAR PULSE
+   AGENT STATUS CARDS
    ================================================================ */
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.agent-card{padding:2rem;text-align:center;position:relative}
+.agent-icon{font-size:3rem;margin-bottom:.5rem;animation:agentFloat 3s ease-in-out infinite}
+@keyframes agentFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.agent-name{font-size:1.3rem;font-weight:700;letter-spacing:.15em}
+.agent-status{font-size:.8rem;margin-top:.3rem;letter-spacing:.1em}
+
+/* Radar pulse behind agent */
 .radar-pulse{
-  width:10px;height:10px;border-radius:50%;position:relative;
-  display:inline-block;
+  position:absolute;top:50%;left:50%;width:60px;height:60px;
+  border-radius:50%;border:1px solid var(--cyan);
+  transform:translate(-50%,-50%);
+  animation:radarPing 2s ease-out infinite;opacity:0;
 }
-.radar-pulse::before,.radar-pulse::after{
-  content:'';position:absolute;inset:-4px;
-  border-radius:50%;border:1px solid currentColor;
-  animation:radar 2s ease-out infinite;
-  opacity:0;
-}
-.radar-pulse::after{animation-delay:1s}
-@keyframes radar{0%{transform:scale(.5);opacity:.8}100%{transform:scale(2.5);opacity:0}}
-
-/* ================================================================
-   AGENT CARDS
-   ================================================================ */
-.agent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.2rem}
-.agent-card{
-  padding:1.5rem;background:var(--card-bg);
-  border:1px solid var(--border);border-radius:4px;
-  position:relative;overflow:hidden;
-  transition:all .4s;
-}
-.agent-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
-  animation:scan-h 3s linear infinite;
-}
-@keyframes scan-h{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.agent-card:hover{
-  border-color:rgba(0,255,242,.3);
-  box-shadow:0 5px 30px rgba(0,255,242,.1);
-  transform:translateY(-3px);
-}
-.agent-header{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
-.agent-icon{font-size:1.8rem}
-.agent-name{font-size:1rem;font-weight:bold;color:var(--cyan);letter-spacing:2px}
-.agent-status{font-size:.7rem;margin-top:2px}
-.agent-details{font-size:.75rem;color:rgba(255,255,255,.5);line-height:1.8}
-.agent-details dt{color:var(--cyan);display:inline}
-.agent-details dd{display:inline;margin-left:.5rem}
+.radar-pulse:nth-child(2){animation-delay:.5s}
+.radar-pulse:nth-child(3){animation-delay:1s}
+@keyframes radarPing{0%{width:40px;height:40px;opacity:.6}100%{width:180px;height:180px;opacity:0}}
 
 /* ================================================================
    TASK TABLE
    ================================================================ */
-.task-table-wrap{overflow-x:auto}
-.task-table{
-  width:100%;border-collapse:collapse;font-size:.75rem;
-}
+.task-table{width:100%;border-collapse:collapse;font-size:.8rem}
 .task-table th{
-  text-align:left;padding:.6rem .8rem;
-  color:var(--cyan);letter-spacing:1px;font-size:.65rem;
-  border-bottom:1px solid rgba(0,255,242,.2);
-  text-transform:uppercase;
-  position:sticky;top:0;background:var(--black);
+  text-align:left;padding:.7rem .8rem;border-bottom:2px solid var(--cyan);
+  color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+  text-shadow:var(--glow-cyan);
 }
-.task-table td{
-  padding:.5rem .8rem;
-  border-bottom:1px solid rgba(255,255,255,.03);
-  vertical-align:top;
+.task-table td{padding:.6rem .8rem;border-bottom:1px solid rgba(0,255,242,.06)}
+.task-table tr{transition:background .2s}
+.task-table tr:hover{background:rgba(0,255,242,.04)}
+.badge{
+  display:inline-block;padding:.15rem .6rem;border-radius:2px;font-size:.7rem;
+  letter-spacing:.08em;font-weight:700;
 }
-.task-table tr{transition:all .2s}
-.task-table tr:hover{background:rgba(0,255,242,.03)}
-.task-id{
-  color:var(--magenta);font-weight:bold;letter-spacing:1px;
-  text-shadow:0 0 5px rgba(255,0,255,.3);
+.badge-done{background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.3)}
+.badge-progress{background:rgba(255,170,0,.15);color:var(--amber);border:1px solid rgba(255,170,0,.3)}
+.badge-todo{background:rgba(0,102,255,.15);color:var(--blue);border:1px solid rgba(0,102,255,.3)}
+.expand-btn{
+  background:none;border:1px solid var(--border);color:var(--cyan);cursor:pointer;
+  font-family:inherit;font-size:.7rem;padding:.1rem .4rem;transition:all .2s;
 }
-.task-name{color:rgba(255,255,255,.8)}
-.priority-high{color:var(--pink);text-shadow:0 0 5px rgba(255,0,102,.3)}
-.priority-mid{color:var(--amber);text-shadow:0 0 5px rgba(255,170,0,.3)}
-.priority-low{color:var(--green);text-shadow:0 0 5px rgba(0,255,136,.3)}
-.dep-tag{
-  display:inline-block;font-size:.6rem;padding:0 4px;
-  background:rgba(0,102,255,.15);color:var(--blue);
-  border:1px solid rgba(0,102,255,.3);border-radius:2px;
-  margin:1px;
-}
-
-/* STATUS NEON BADGES */
-.status-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:2px 8px;border-radius:2px;font-size:.65rem;
-  font-weight:bold;letter-spacing:1px;
-}
-.status-done{background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.3)}
-.status-progress{background:rgba(0,255,242,.1);color:var(--cyan);border:1px solid rgba(0,255,242,.3);animation:status-pulse 2s infinite}
-.status-todo{background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1)}
-@keyframes status-pulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 10px rgba(0,255,242,.3)}}
-
-/* EXPANDABLE CRITERIA */
-.criteria-toggle{
-  cursor:pointer;color:var(--cyan);font-size:.65rem;
-  border:none;background:none;font-family:inherit;
-  padding:2px 6px;transition:all .2s;
-}
-.criteria-toggle:hover{text-shadow:var(--glow-cyan)}
-.criteria-list{
-  display:none;margin-top:.4rem;padding:.4rem .6rem;
-  background:rgba(0,255,242,.02);border-left:2px solid var(--cyan);
-  font-size:.65rem;line-height:1.8;
-}
-.criteria-list.open{display:block;animation:slideDown .3s ease}
-@keyframes slideDown{from{opacity:0;max-height:0}to{opacity:1;max-height:500px}}
+.expand-btn:hover{background:rgba(0,255,242,.1);border-color:var(--cyan)}
+.criteria-row{display:none;background:rgba(0,255,242,.02)}
+.criteria-row.open{display:table-row}
+.criteria-row td{padding:.5rem .8rem .5rem 2.5rem;font-size:.75rem;color:rgba(255,255,255,.6)}
 
 /* ================================================================
-   ROADMAP
+   WORKFLOW ANIMATION
    ================================================================ */
-.roadmap{position:relative;padding:2rem 0}
-.roadmap-phase{
-  display:flex;align-items:flex-start;gap:2rem;
-  margin-bottom:2.5rem;position:relative;
+.workflow-flow{
+  display:flex;align-items:center;justify-content:center;gap:1rem;margin:2rem 0;flex-wrap:wrap;
 }
-.phase-indicator{
-  width:60px;height:60px;flex-shrink:0;
-  border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:1.1rem;position:relative;
-  border:2px solid var(--cyan);color:var(--cyan);
-  text-shadow:var(--glow-cyan);
-  background:rgba(0,255,242,.05);
+.workflow-node{
+  padding:1rem 2rem;border:1px solid var(--border);border-radius:4px;
+  text-align:center;font-weight:700;letter-spacing:.1em;position:relative;
+  background:rgba(3,3,8,.8);
 }
-.phase-indicator.complete{
-  border-color:var(--green);color:var(--green);
-  text-shadow:var(--glow-green);background:rgba(0,255,136,.05);
+.workflow-arrow{color:var(--cyan);font-size:1.5rem;animation:arrowPulse 1s ease-in-out infinite}
+@keyframes arrowPulse{0%,100%{opacity:.4}50%{opacity:1}}
+.workflow-loop{
+  border:1px dashed var(--pink);border-radius:4px;padding:.5rem 1rem;
+  font-size:.75rem;color:var(--pink);
 }
-.phase-indicator::after{
-  content:'';position:absolute;inset:-6px;
-  border-radius:50%;border:1px solid;
-  opacity:.3;animation:radar 3s ease-out infinite;
-  border-color:inherit;
-}
-.phase-content{flex:1}
-.phase-title{
-  font-size:1rem;font-weight:bold;color:var(--cyan);
-  letter-spacing:2px;margin-bottom:.3rem;
-}
-.phase-desc{font-size:.75rem;color:rgba(255,255,255,.5);margin-bottom:.6rem}
-.phase-progress{
-  height:4px;background:rgba(255,255,255,.05);border-radius:2px;
-  overflow:hidden;margin-bottom:.3rem;
-}
-.phase-progress-fill{
-  height:100%;border-radius:2px;
-  transition:width 2s cubic-bezier(.25,.46,.45,.94);
-}
-.phase-pct{font-size:.7rem;color:rgba(255,255,255,.4)}
 
-/* ELECTRIC ARC between phases */
-.arc-line{
-  position:absolute;left:29px;top:60px;width:2px;
-  background:linear-gradient(180deg,var(--cyan),var(--magenta),transparent);
-  z-index:0;
-  animation:arc-flicker 2s infinite;
+/* ================================================================
+   TIMELINE (ロードマップ)
+   ================================================================ */
+.timeline{display:flex;gap:0;position:relative;overflow-x:auto;padding:2rem 0}
+.timeline-phase{
+  flex:1;min-width:220px;padding:1.5rem;border:1px solid var(--border);
+  position:relative;text-align:center;
 }
-@keyframes arc-flicker{
-  0%,100%{opacity:.8}
-  10%{opacity:.3}
-  20%{opacity:.9}
-  50%{opacity:.5}
-  70%{opacity:1}
+.timeline-phase:not(:last-child)::after{
+  content:'';position:absolute;right:-20px;top:50%;width:40px;height:2px;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));z-index:1;
+  animation:arcPulse 2s ease-in-out infinite;
 }
-.arc-spark{
-  position:absolute;left:26px;width:8px;height:8px;
-  background:var(--cyan);border-radius:50%;
-  box-shadow:var(--glow-cyan);
-  animation:spark-move 2s ease-in-out infinite alternate;
-  z-index:1;
+@keyframes arcPulse{0%,100%{opacity:.3;box-shadow:none}50%{opacity:1;box-shadow:0 0 10px var(--cyan)}}
+.phase-bar{
+  width:100%;height:6px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:.8rem;overflow:hidden;
 }
-@keyframes spark-move{
-  0%{transform:translateY(0);opacity:1}
-  100%{transform:translateY(40px);opacity:.3}
+.phase-bar-fill{height:100%;border-radius:3px;transition:width 2s cubic-bezier(.4,0,.2,1);position:relative}
+.phase-bar-fill::after{
+  content:'';position:absolute;right:0;top:-2px;bottom:-2px;width:10px;
+  background:inherit;filter:blur(4px);border-radius:50%;
 }
 
 /* ================================================================
    SPRINT CARDS
    ================================================================ */
-.sprint-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem}
-.sprint-card{
-  background:var(--card-bg);border:1px solid var(--border);
-  border-radius:4px;padding:1.2rem;position:relative;
-  overflow:hidden;transition:all .3s;
+.sprint-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+.sprint-card{padding:1.5rem;position:relative}
+.sprint-id{font-size:1.2rem;font-weight:900;letter-spacing:.15em}
+.sprint-label{font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.2rem}
+.sprint-pass{
+  position:absolute;top:1rem;right:1rem;
+  font-size:1.5rem;color:var(--green);text-shadow:var(--glow-green);
+  animation:checkPulse 2s ease-in-out infinite;
 }
-.sprint-card:hover{
-  transform:translateY(-3px);
-  box-shadow:0 8px 30px rgba(0,255,136,.1);
-  border-color:rgba(0,255,136,.3);
-}
-.sprint-card .sprint-id{
-  font-size:.7rem;letter-spacing:2px;color:var(--magenta);
-  text-shadow:0 0 5px rgba(255,0,255,.3);
-}
-.sprint-card .sprint-name{
-  font-size:.9rem;font-weight:bold;color:rgba(255,255,255,.8);
-  margin:.3rem 0;
-}
-.sprint-card .sprint-result{
-  display:inline-flex;align-items:center;gap:4px;
-  font-size:.7rem;padding:2px 10px;border-radius:2px;
-  background:rgba(0,255,136,.1);color:var(--green);
-  border:1px solid rgba(0,255,136,.3);
-  text-shadow:var(--glow-green);
-  animation:holographic 3s ease infinite;
-}
-@keyframes holographic{
-  0%,100%{filter:hue-rotate(0deg)}
-  50%{filter:hue-rotate(15deg)}
-}
-.sprint-card .sprint-tasks{
-  font-size:.65rem;color:rgba(255,255,255,.4);margin-top:.5rem;
-  line-height:1.6;
-}
+@keyframes checkPulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
 
 /* ================================================================
    BUSINESS PLAN SECTIONS
    ================================================================ */
-.biz-section{margin-bottom:2rem}
+.biz-section{margin-bottom:2.5rem}
 .biz-section h3{
-  font-size:.9rem;letter-spacing:2px;color:var(--magenta);
-  text-shadow:var(--glow-magenta);margin-bottom:.8rem;
-  padding-bottom:.3rem;
-  border-bottom:1px solid rgba(255,0,255,.1);
+  font-size:1.1rem;letter-spacing:.2em;color:var(--cyan);margin-bottom:.8rem;
+  text-shadow:0 0 8px var(--cyan);text-transform:uppercase;
+  border-bottom:1px solid rgba(0,255,242,.15);padding-bottom:.4rem;
 }
-.biz-section h3::before{content:'> ';color:var(--cyan)}
-.biz-text{
-  font-size:.78rem;line-height:1.8;color:rgba(255,255,255,.6);
-  max-width:800px;
-}
-.biz-text strong{color:var(--cyan);font-weight:normal;text-shadow:0 0 5px rgba(0,255,242,.2)}
-.biz-text em{color:var(--amber);font-style:normal}
-
-/* BIZ TABLES */
-.biz-table{
-  width:100%;border-collapse:collapse;font-size:.72rem;
-  margin:.8rem 0;
-}
-.biz-table th{
-  text-align:left;padding:.5rem;
-  color:var(--cyan);border-bottom:1px solid rgba(0,255,242,.2);
-  font-size:.65rem;letter-spacing:1px;text-transform:uppercase;
-}
-.biz-table td{
-  padding:.4rem .5rem;
-  border-bottom:1px solid rgba(255,255,255,.03);
-}
-.biz-table tr:hover{background:rgba(0,255,242,.02)}
-
-/* SCENARIO CARDS */
-.scenario-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin:1rem 0}
-.scenario-card{
-  padding:1.2rem;border-radius:4px;
-  background:var(--card-bg);position:relative;overflow:hidden;
-}
-.scenario-card.conservative{border:1px solid rgba(0,255,136,.3)}
-.scenario-card.standard{border:1px solid rgba(0,255,242,.3)}
-.scenario-card.aggressive{border:1px solid rgba(255,0,255,.3)}
-.scenario-label{
-  font-size:.65rem;letter-spacing:2px;margin-bottom:.5rem;
-  text-transform:uppercase;
-}
-.scenario-value{
-  font-size:1.8rem;font-weight:900;margin-bottom:.3rem;
-}
-
-/* RISK TABLE */
-.risk-row{
-  display:flex;gap:1rem;padding:.6rem;
-  border-bottom:1px solid rgba(255,255,255,.03);
-  font-size:.72rem;
-}
-.risk-row:hover{background:rgba(0,255,242,.02)}
-.risk-level{
-  padding:1px 6px;border-radius:2px;font-size:.6rem;
-  font-weight:bold;letter-spacing:1px;
-}
-.risk-high{background:rgba(255,0,102,.15);color:var(--pink);border:1px solid rgba(255,0,102,.3)}
-.risk-mid{background:rgba(255,170,0,.15);color:var(--amber);border:1px solid rgba(255,170,0,.3)}
-.risk-low{background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.3)}
+.biz-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
+.biz-stat{text-align:center;padding:1.2rem}
+.biz-stat-value{font-size:2rem;font-weight:900}
+.biz-stat-label{font-size:.7rem;color:rgba(255,255,255,.5);letter-spacing:.15em;margin-top:.2rem}
+.biz-table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:.5rem}
+.biz-table th{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--cyan);color:var(--cyan);font-weight:600;letter-spacing:.08em}
+.biz-table td{padding:.4rem .6rem;border-bottom:1px solid rgba(255,255,255,.04)}
+.biz-table tr:hover{background:rgba(0,255,242,.03)}
+.biz-list{list-style:none;padding:0}
+.biz-list li{padding:.4rem 0 .4rem 1.2rem;position:relative;font-size:.85rem}
+.biz-list li::before{content:'▹';position:absolute;left:0;color:var(--cyan)}
+.scenario-card{padding:1.2rem;text-align:center}
+.scenario-card .scenario-val{font-size:1.8rem;font-weight:900}
+.scenario-card .scenario-label{font-size:.7rem;letter-spacing:.15em;color:rgba(255,255,255,.5);margin-top:.2rem}
 
 /* ================================================================
-   MARKET TAB - TAM/SAM/SOM Visualization
+   MARKET ANALYSIS — SVG CHARTS
    ================================================================ */
-.market-circles{
-  display:flex;justify-content:center;align-items:center;
-  height:340px;position:relative;margin:2rem 0;
-}
-.market-circle{
-  position:absolute;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  flex-direction:column;
-  transition:all .4s;
-}
-.market-circle:hover{transform:scale(1.05)}
+.chart-container{display:flex;justify-content:center;align-items:center;padding:2rem;flex-wrap:wrap;gap:2rem}
+.tam-circles{position:relative;width:300px;height:300px}
 .tam-circle{
-  width:300px;height:300px;
-  border:2px solid rgba(139,0,255,.4);
-  background:rgba(139,0,255,.03);
-  box-shadow:0 0 40px rgba(139,0,255,.1);
+  position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;text-align:center;font-size:.7rem;
+  border:1px solid;transition:transform .3s;
 }
-.sam-circle{
-  width:200px;height:200px;
-  border:2px solid rgba(0,102,255,.4);
-  background:rgba(0,102,255,.05);
-  box-shadow:0 0 30px rgba(0,102,255,.1);
-}
-.som-circle{
-  width:100px;height:100px;
-  border:2px solid rgba(0,255,242,.5);
-  background:rgba(0,255,242,.08);
-  box-shadow:0 0 20px rgba(0,255,242,.15);
-}
-.market-circle .circle-label{
-  font-size:.6rem;letter-spacing:2px;
-  text-transform:uppercase;opacity:.6;
-}
-.market-circle .circle-value{
-  font-size:1.1rem;font-weight:900;
-}
-.tam-circle .circle-value{color:var(--purple);text-shadow:0 0 10px rgba(139,0,255,.5)}
-.sam-circle .circle-value{color:var(--blue);text-shadow:0 0 10px rgba(0,102,255,.5)}
-.som-circle .circle-value{color:var(--cyan);text-shadow:var(--glow-cyan)}
+.tam-circle:hover{transform:scale(1.05)}
+.tam-tam{width:300px;height:300px;top:0;left:0;background:rgba(0,102,255,.08);border-color:rgba(0,102,255,.3);color:var(--blue)}
+.tam-sam{width:200px;height:200px;top:50px;left:50px;background:rgba(139,0,255,.1);border-color:rgba(139,0,255,.3);color:var(--purple)}
+.tam-som{width:100px;height:100px;top:100px;left:100px;background:rgba(0,255,242,.12);border-color:rgba(0,255,242,.4);color:var(--cyan)}
 
-/* COMPETITOR MATRIX */
-.competitor-grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:1rem;margin:1rem 0;
+.bar-chart{display:flex;align-items:flex-end;gap:.8rem;height:200px;padding:1rem 0}
+.bar{display:flex;flex-direction:column;align-items:center;flex:1}
+.bar-fill{
+  width:100%;min-width:30px;border-radius:3px 3px 0 0;position:relative;
+  transition:height 2s cubic-bezier(.4,0,.2,1);
 }
-.competitor-card{
-  padding:1rem;background:var(--card-bg);
-  border:1px solid var(--border);border-radius:4px;
-  font-size:.72rem;transition:all .3s;
-}
-.competitor-card:hover{border-color:rgba(0,255,242,.3);transform:translateY(-2px)}
-.competitor-name{
-  font-weight:bold;color:var(--cyan);letter-spacing:1px;
-  margin-bottom:.5rem;font-size:.8rem;
-}
-.competitor-stat{
-  display:flex;justify-content:space-between;
-  padding:.2rem 0;border-bottom:1px solid rgba(255,255,255,.03);
-}
-.competitor-stat .label{color:rgba(255,255,255,.4)}
-.competitor-stat .val{color:rgba(255,255,255,.7)}
+.bar-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.1),transparent);border-radius:inherit}
+.bar-label{font-size:.6rem;color:rgba(255,255,255,.5);margin-top:.4rem;text-align:center}
+.bar-value{font-size:.65rem;margin-bottom:.3rem;font-weight:700}
 
-/* POSITIONING MAP */
-.positioning-map{
-  width:100%;height:300px;position:relative;
-  border:1px solid var(--border);border-radius:4px;
-  background:var(--card-bg);margin:1rem 0;
-  overflow:hidden;
+/* Positioning map */
+.quadrant-map{
+  width:100%;max-width:500px;aspect-ratio:1;border:1px solid var(--border);position:relative;
+  background:rgba(0,0,0,.3);margin:0 auto;
 }
-.map-axis-x,.map-axis-y{
-  position:absolute;background:rgba(255,255,255,.05);
+.quadrant-map::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border)}
+.quadrant-map::after{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border)}
+.q-label{position:absolute;font-size:.6rem;color:rgba(255,255,255,.3);letter-spacing:.1em}
+.q-label.top{top:8px;left:50%;transform:translateX(-50%)}
+.q-label.bottom{bottom:8px;left:50%;transform:translateX(-50%)}
+.q-label.left{left:8px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;text-orientation:mixed}
+.q-label.right{right:8px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;text-orientation:mixed}
+.q-dot{
+  position:absolute;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);
+  animation:dotPulse 2s ease-in-out infinite;
 }
-.map-axis-x{left:10%;right:10%;top:50%;height:1px}
-.map-axis-y{top:10%;bottom:10%;left:50%;width:1px}
-.map-label{
-  position:absolute;font-size:.55rem;
-  color:rgba(255,255,255,.3);letter-spacing:1px;
+.q-dot-label{
+  position:absolute;transform:translate(-50%,10px);font-size:.6rem;white-space:nowrap;
+  text-shadow:0 0 4px rgba(0,0,0,.8);
 }
-.map-dot{
-  position:absolute;width:12px;height:12px;border-radius:50%;
-  transform:translate(-50%,-50%);
-  transition:all .3s;cursor:pointer;
-}
-.map-dot:hover{transform:translate(-50%,-50%) scale(1.5)}
-.map-dot-label{
-  position:absolute;top:16px;left:50%;transform:translateX(-50%);
-  font-size:.55rem;white-space:nowrap;color:rgba(255,255,255,.6);
-}
-.map-dot.us{
-  background:var(--cyan);box-shadow:var(--glow-cyan);
-}
-.map-dot.us::before,.map-dot.us::after{
-  content:'';position:absolute;inset:-4px;
-  border-radius:50%;border:1px solid var(--cyan);
-  animation:radar 2s ease-out infinite;opacity:0;
-}
-.map-dot.us::after{animation-delay:1s}
+@keyframes dotPulse{0%,100%{box-shadow:0 0 4px currentColor}50%{box-shadow:0 0 15px currentColor,0 0 30px currentColor}}
 
 /* ================================================================
-   CSS-ONLY ANIMATED BAR CHART
+   RADAR CHART (SVG)
    ================================================================ */
-.css-chart{margin:1rem 0}
-.chart-bar-row{
-  display:flex;align-items:center;gap:.8rem;
-  margin-bottom:.5rem;
-}
-.chart-label{
-  width:80px;font-size:.65rem;text-align:right;
-  color:rgba(255,255,255,.5);letter-spacing:1px;
-}
-.chart-bar{
-  flex:1;height:20px;background:rgba(255,255,255,.03);
-  border-radius:2px;overflow:hidden;position:relative;
-}
-.chart-bar-fill{
-  height:100%;border-radius:2px;
-  transition:width 2s cubic-bezier(.25,.46,.45,.94);
-  position:relative;
-}
-.chart-bar-fill::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent 60%,rgba(255,255,255,.1));
-  animation:shine 2s ease infinite;
-}
-@keyframes shine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.chart-value{
-  width:60px;font-size:.65rem;color:rgba(255,255,255,.6);
+.radar-chart{width:250px;height:250px;margin:0 auto}
+
+/* ================================================================
+   FOOTER
+   ================================================================ */
+footer{
+  text-align:center;padding:1rem;font-size:.65rem;color:rgba(255,255,255,.25);
+  letter-spacing:.2em;border-top:1px solid var(--border);
+  position:relative;z-index:10;
 }
 
 /* ================================================================
-   FLOATING HOLOGRAPHIC BADGE
+   SCROLLBAR
    ================================================================ */
-.holo-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:3px 10px;border-radius:20px;font-size:.6rem;
-  letter-spacing:1px;position:relative;
-  background:linear-gradient(135deg,rgba(0,255,242,.1),rgba(255,0,255,.1));
-  border:1px solid rgba(0,255,242,.2);
-  animation:float-badge 3s ease-in-out infinite;
-}
-@keyframes float-badge{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-3px)}
-}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:3px}
 
 /* ================================================================
-   WORKFLOW DIAGRAM
+   RESPONSIVE
    ================================================================ */
-.workflow{
-  display:flex;align-items:center;justify-content:center;
-  gap:.5rem;margin:1.5rem 0;flex-wrap:wrap;
-}
-.workflow-node{
-  padding:.5rem 1rem;border:1px solid var(--cyan);
-  border-radius:4px;font-size:.7rem;color:var(--cyan);
-  text-shadow:var(--glow-cyan);
-  background:rgba(0,255,242,.03);
-  position:relative;
-}
-.workflow-arrow{
-  font-size:1.2rem;color:var(--magenta);
-  text-shadow:var(--glow-magenta);
-  animation:arrow-pulse 1.5s ease infinite;
-}
-@keyframes arrow-pulse{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* ================================================================
-   DISTRIBUTION PIE (CSS-only)
-   ================================================================ */
-.pie-container{display:flex;align-items:center;gap:2rem;flex-wrap:wrap;justify-content:center}
-.css-pie{
-  width:160px;height:160px;border-radius:50%;
-  background:conic-gradient(
-    var(--cyan) 0% 60%,
-    var(--magenta) 60% 90%,
-    var(--amber) 90% 100%
-  );
-  position:relative;
-  animation:pie-glow 4s ease infinite;
-  box-shadow:0 0 30px rgba(0,255,242,.15);
-}
-@keyframes pie-glow{
-  0%,100%{box-shadow:0 0 30px rgba(0,255,242,.15)}
-  50%{box-shadow:0 0 50px rgba(0,255,242,.25),0 0 80px rgba(255,0,255,.1)}
-}
-.css-pie::after{
-  content:'';position:absolute;inset:30px;
-  background:var(--black);border-radius:50%;
-}
-.pie-legend{font-size:.72rem;line-height:2}
-.pie-legend-item{display:flex;align-items:center;gap:.5rem}
-.pie-legend-dot{width:10px;height:10px;border-radius:2px}
-
-/* ================================================================
-   12-MONTH TIMELINE
-   ================================================================ */
-.timeline{position:relative;padding-left:30px}
-.timeline::before{
-  content:'';position:absolute;left:14px;top:0;bottom:0;
-  width:2px;background:linear-gradient(180deg,var(--cyan),var(--magenta),var(--purple));
-}
-.timeline-item{
-  position:relative;margin-bottom:1.2rem;padding-left:1.5rem;
-}
-.timeline-item::before{
-  content:'';position:absolute;left:-20px;top:4px;
-  width:10px;height:10px;border-radius:50%;
-  border:2px solid var(--cyan);background:var(--black);
-}
-.timeline-month{
-  font-size:.65rem;color:var(--magenta);letter-spacing:2px;
-  text-shadow:0 0 5px rgba(255,0,255,.3);
-}
-.timeline-desc{font-size:.72rem;color:rgba(255,255,255,.6);margin-top:.2rem}
-
-/* ================================================================
-   UTILITY
-   ================================================================ */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem}
-.mt-1{margin-top:1rem}.mt-2{margin-top:2rem}
-.mb-1{margin-bottom:1rem}.mb-2{margin-bottom:2rem}
-.text-cyan{color:var(--cyan)}.text-magenta{color:var(--magenta)}
-.text-green{color:var(--green)}.text-amber{color:var(--amber)}
-.text-pink{color:var(--pink)}.text-blue{color:var(--blue)}
-.text-purple{color:var(--purple)}
-.text-dim{color:rgba(255,255,255,.4)}
-.text-xs{font-size:.65rem}.text-sm{font-size:.75rem}
-
-/* Revenue model highlight */
-.revenue-model{
-  padding:1.2rem;background:var(--card-bg);
-  border:1px solid rgba(0,255,242,.2);border-radius:4px;
-  position:relative;overflow:hidden;
-}
-.revenue-model::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(0,255,242,.03),rgba(255,0,255,.03));
-}
-.revenue-model .model-title{
-  font-size:.8rem;color:var(--cyan);letter-spacing:2px;
-  margin-bottom:.6rem;position:relative;
-}
-.revenue-model .model-row{
-  display:flex;justify-content:space-between;
-  padding:.3rem 0;font-size:.72rem;position:relative;
-  border-bottom:1px solid rgba(255,255,255,.03);
-}
-
-/* RESPONSIVE */
 @media(max-width:768px){
-  .grid-2,.grid-3{grid-template-columns:1fr}
-  .kpi-grid{grid-template-columns:repeat(3,1fr)}
-  .market-circles{height:260px}
-  .tam-circle{width:240px;height:240px}
-  .sam-circle{width:160px;height:160px}
-  .som-circle{width:80px;height:80px}
-  header{flex-direction:column;gap:.5rem}
-  .header-status{flex-wrap:wrap;justify-content:center}
-}
-@media(max-width:480px){
+  .main-title{font-size:1.8rem;letter-spacing:.15em}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
-  nav button{padding:.6rem .8rem;font-size:.7rem}
-}
-
-/* Corner decorations for cards */
-.corner-deco{position:relative}
-.corner-deco::before,.corner-deco::after{
-  content:'';position:absolute;width:12px;height:12px;
-  border-color:var(--cyan);opacity:.3;
-}
-.corner-deco::before{
-  top:4px;left:4px;
-  border-top:1px solid;border-left:1px solid;
-}
-.corner-deco::after{
-  bottom:4px;right:4px;
-  border-bottom:1px solid;border-right:1px solid;
-}
-
-/* Holographic shimmer on hover */
-.shimmer:hover{
-  background-image:linear-gradient(
-    135deg,
-    rgba(0,255,242,.05) 0%,
-    transparent 40%,
-    rgba(255,0,255,.05) 60%,
-    transparent 100%
-  );
+  main{padding:1rem}
+  .tab-btn{font-size:.7rem;padding:.4rem .8rem}
 }
 
 /* ================================================================
-   VIGNETTE OVERLAY
+   COUNT-UP number animation helper
    ================================================================ */
-.vignette{
-  position:fixed;inset:0;z-index:9996;pointer-events:none;
-  background:radial-gradient(ellipse at center,transparent 50%,rgba(3,3,8,.6) 100%);
+.countup{display:inline-block}
+
+/* ================================================================
+   NEON BAR CHART ANIMATION
+   ================================================================ */
+.bar-fill{height:0}
+
+/* Sound-wave hover effect for cards */
+.glass-card .sound-wave{
+  position:absolute;bottom:0;left:0;right:0;height:30px;opacity:0;
+  transition:opacity .3s;pointer-events:none;overflow:hidden;
 }
+.glass-card:hover .sound-wave{opacity:.3}
+.sound-wave span{
+  display:inline-block;width:2px;background:var(--cyan);margin:0 1px;
+  animation:soundBar 1s ease-in-out infinite;
+  transform-origin:bottom;vertical-align:bottom;
+}
+.sound-wave span:nth-child(2n){animation-delay:.1s}
+.sound-wave span:nth-child(3n){animation-delay:.2s}
+.sound-wave span:nth-child(5n){animation-delay:.3s}
+@keyframes soundBar{0%,100%{height:4px}50%{height:20px}}
+
+/* Data corruption micro-animation */
+@keyframes dataCorrupt{
+  0%,90%,100%{filter:none;transform:none}
+  92%{filter:hue-rotate(90deg) saturate(2);transform:skewX(-1deg)}
+  94%{filter:invert(.1);transform:skewX(1deg)}
+  96%{filter:brightness(1.3);transform:translate(1px,-1px)}
+}
+.data-corrupt{animation:dataCorrupt 5s infinite}
 </style>
 </head>
 <body>
 
-<!-- BACKGROUND LAYERS -->
-<div id="grid-bg"><canvas id="gridCanvas"></canvas></div>
-<canvas id="matrix-rain"></canvas>
-<canvas id="particles"></canvas>
-<div class="scanlines"></div>
-<div class="scanline-move"></div>
-<div class="noise"></div>
-<div class="hex-pattern"></div>
+<!-- ============================================================
+     BACKGROUND LAYERS
+     ============================================================ -->
+<div id="circuit-bg"><canvas id="circuitCanvas"></canvas></div>
+<div id="matrix-rain"><canvas id="matrixCanvas"></canvas></div>
+<div id="geo-layer"><canvas id="geoCanvas"></canvas></div>
+<div class="noise-overlay"></div>
 <div class="vignette"></div>
+<div class="scanlines"></div>
+<div class="h-scanline"></div>
+<div class="v-scanline"></div>
+<div class="corner-bracket tl"></div>
+<div class="corner-bracket tr"></div>
+<div class="corner-bracket bl"></div>
+<div class="corner-bracket br"></div>
+<canvas id="particle-canvas"></canvas>
 
-<!-- HEADER -->
+<!-- ============================================================
+     APP WRAPPER
+     ============================================================ -->
+<div class="app-wrapper">
+
 <header>
-  <div class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 40 40">
-        <polygon points="20,2 38,12 38,28 20,38 2,28 2,12" fill="none" stroke="#00fff2" stroke-width="1.5"/>
-        <polygon points="20,8 32,14 32,26 20,32 8,26 8,14" fill="none" stroke="#00fff2" stroke-width=".7" opacity=".5"/>
-        <circle cx="20" cy="20" r="4" fill="#00fff2" opacity=".6">
-          <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values=".4;.8;.4" dur="2s" repeatCount="indefinite"/>
-        </circle>
-      </svg>
-    </div>
-    <div class="logo-text">
-      <span class="main glitch" data-text="VAX">VAX</span>
-      <span class="sub">エージェント交換プラットフォーム</span>
-    </div>
-  </div>
-  <div class="header-status">
-    <div class="status-item"><span class="status-dot online"></span>システム稼働中</div>
-    <div class="status-item"><span class="status-dot warn"></span>エージェント: 1/3</div>
-    <div class="status-item">スプリント: <strong class="text-cyan">S005</strong></div>
-    <div class="header-time" id="clock">00:00:00</div>
-  </div>
+  <div class="main-title" data-text="VAX // SYSTEM DASHBOARD">VAX // SYSTEM DASHBOARD</div>
+  <div class="sub-title">AI エージェント・エクスチェンジ — マキシマム・オーバードライブ v3.0</div>
 </header>
 
-<!-- NAVIGATION -->
-<nav id="nav">
-  <button class="active" data-tab="dashboard">ダッシュボード</button>
-  <button data-tab="tasks">タスク管理</button>
-  <button data-tab="agents">エージェント</button>
-  <button data-tab="roadmap">ロードマップ</button>
-  <button data-tab="sprints">スプリント</button>
-  <button data-tab="business">事業計画</button>
-  <button data-tab="market">市場分析</button>
+<nav class="tab-nav">
+  <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
+  <button class="tab-btn" data-tab="tasks">タスク管理</button>
+  <button class="tab-btn" data-tab="agents">エージェント</button>
+  <button class="tab-btn" data-tab="roadmap">ロードマップ</button>
+  <button class="tab-btn" data-tab="sprints">スプリント</button>
+  <button class="tab-btn" data-tab="business">事業計画</button>
+  <button class="tab-btn" data-tab="market">市場分析</button>
 </nav>
 
-<!-- MAIN -->
 <main>
 
-<!-- ============================================================
-     TAB: ダッシュボード
-     ============================================================ -->
-<div id="dashboard" class="tab-content active">
-  <div class="section-title">システム概要 <span class="blink">_</span></div>
+<!-- ========================= TAB 1: ダッシュボード ========================= -->
+<section class="tab-panel active" id="panel-dashboard">
+  <h2 class="section-title neon-cyan">ダッシュボード</h2>
 
-  <!-- KPIs -->
   <div class="kpi-grid">
-    <div class="kpi-card holo-card corner-deco">
-      <div class="kpi-value" data-count="10">0</div>
+    <!-- KPI 1 -->
+    <div class="glass-card glitch-hover kpi-card data-corrupt">
+      <div class="ring-container"><svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="35"/><circle class="ring-fill" cx="40" cy="40" r="35" stroke="var(--cyan)" data-target="220"/></svg><div class="ring-value neon-cyan"><span class="countup" data-target="10">0</span></div></div>
       <div class="kpi-label">総タスク</div>
-      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:0%;background:var(--cyan);color:var(--cyan)" data-width="100%"></div></div>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     </div>
-    <div class="kpi-card holo-card corner-deco">
-      <div class="kpi-value" data-count="5">0</div>
+    <!-- KPI 2 -->
+    <div class="glass-card glitch-hover kpi-card">
+      <div class="ring-container"><svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="35"/><circle class="ring-fill" cx="40" cy="40" r="35" stroke="var(--green)" data-target="110"/></svg><div class="ring-value neon-green"><span class="countup" data-target="5">0</span></div></div>
       <div class="kpi-label">完了</div>
-      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:0%;background:var(--green);color:var(--green)" data-width="50%"></div></div>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     </div>
-    <div class="kpi-card holo-card corner-deco">
-      <div class="kpi-value" data-count="0">0</div>
+    <!-- KPI 3 -->
+    <div class="glass-card glitch-hover kpi-card">
+      <div class="ring-container"><svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="35"/><circle class="ring-fill" cx="40" cy="40" r="35" stroke="var(--amber)" data-target="0"/></svg><div class="ring-value neon-amber"><span class="countup" data-target="0">0</span></div></div>
       <div class="kpi-label">進行中</div>
-      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:0%;background:var(--amber);color:var(--amber)" data-width="0%"></div></div>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     </div>
-    <div class="kpi-card holo-card corner-deco">
-      <div class="kpi-value" data-count="5">0</div>
+    <!-- KPI 4 -->
+    <div class="glass-card glitch-hover kpi-card">
+      <div class="ring-container"><svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="35"/><circle class="ring-fill" cx="40" cy="40" r="35" stroke="var(--blue)" data-target="110"/></svg><div class="ring-value neon-blue"><span class="countup" data-target="5">0</span></div></div>
       <div class="kpi-label">未着手</div>
-      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:0%;background:var(--magenta);color:var(--magenta)" data-width="50%"></div></div>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     </div>
-    <div class="kpi-card holo-card corner-deco">
-      <div class="kpi-value" data-count="50" data-suffix="%">0</div>
-      <div class="kpi-label">完了率</div>
-      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:0%;background:var(--cyan);color:var(--cyan)" data-width="50%"></div></div>
+  </div>
+
+  <!-- Big center completion ring -->
+  <div style="text-align:center;margin-bottom:2rem">
+    <div class="big-ring ring-container">
+      <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="35" stroke-width="6"/><circle class="ring-fill" cx="40" cy="40" r="35" stroke="var(--magenta)" stroke-width="6" data-target="110"/></svg>
+      <div class="ring-value holo-text" style="font-size:2.2rem"><span class="countup" data-target="50">0</span>%</div>
     </div>
-    <div class="kpi-card holo-card corner-deco">
-      <div class="kpi-value" data-count="5">0</div>
+    <div class="kpi-label" style="font-size:.9rem;letter-spacing:.3em">完了率</div>
+  </div>
+
+  <div class="kpi-grid" style="margin-bottom:2rem">
+    <!-- KPI 5 -->
+    <div class="glass-card glitch-hover kpi-card">
+      <div class="kpi-value neon-magenta"><span class="countup" data-target="5">0</span></div>
       <div class="kpi-label">スプリント完了</div>
-      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:0%;background:var(--green);color:var(--green)" data-width="100%"></div></div>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+    <!-- KPI 6 -->
+    <div class="glass-card glitch-hover kpi-card">
+      <div class="kpi-value neon-purple"><span class="countup" data-target="3">0</span><span style="font-size:1rem">体制</span></div>
+      <div class="kpi-label">エージェント</div>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+    <!-- KPI 7 -->
+    <div class="glass-card glitch-hover kpi-card">
+      <div class="kpi-value holo-text" style="font-size:1.5rem">60/30/10</div>
+      <div class="kpi-label">レベシェア配分</div>
+      <div class="kpi-sub">出品者 / 購入者 / PF</div>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+    <!-- KPI 8 -->
+    <div class="glass-card glitch-hover kpi-card">
+      <div class="kpi-value neon-green">100<span style="font-size:1rem">%</span></div>
+      <div class="kpi-label">スプリント成功率</div>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     </div>
   </div>
 
-  <div class="grid-2">
-    <!-- RING CHARTS -->
-    <div>
-      <div class="section-title" style="font-size:.85rem">進捗チャート</div>
-      <div class="ring-chart-container">
-        <div class="ring-chart">
-          <svg viewBox="0 0 100 100">
-            <circle class="bg" cx="50" cy="50" r="42"/>
-            <circle class="fg" cx="50" cy="50" r="42" stroke="var(--green)" data-pct="50" style="stroke-dasharray:0 264"/>
-          </svg>
-          <div class="ring-label"><span class="ring-value">50%</span>タスク完了</div>
-        </div>
-        <div class="ring-chart">
-          <svg viewBox="0 0 100 100">
-            <circle class="bg" cx="50" cy="50" r="42"/>
-            <circle class="fg" cx="50" cy="50" r="42" stroke="var(--cyan)" data-pct="42.5" style="stroke-dasharray:0 264"/>
-          </svg>
-          <div class="ring-label"><span class="ring-value">42.5%</span>全体進捗</div>
-        </div>
-        <div class="ring-chart">
-          <svg viewBox="0 0 100 100">
-            <circle class="bg" cx="50" cy="50" r="42"/>
-            <circle class="fg" cx="50" cy="50" r="42" stroke="var(--magenta)" data-pct="100" style="stroke-dasharray:0 264"/>
-          </svg>
-          <div class="ring-label"><span class="ring-value">5/5</span>スプリント</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ACTIVITY FEED -->
-    <div>
-      <div class="section-title" style="font-size:.85rem">アクティビティ <span class="holo-badge">LIVE</span></div>
-      <div class="activity-feed" id="activityFeed">
-        <div class="activity-item" style="animation-delay:.1s"><span class="time">03:27</span><span class="badge badge-pass">PASS</span><span>F003 スキーマ設計 — 全基準合格</span></div>
-        <div class="activity-item" style="animation-delay:.2s"><span class="time">03:25</span><span class="badge badge-pass">PASS</span><span>F004 CRUDエンドポイント — 全基準合格</span></div>
-        <div class="activity-item" style="animation-delay:.3s"><span class="time">03:22</span><span class="badge badge-pass">PASS</span><span>F005 認証フロー — 全基準合格</span></div>
-        <div class="activity-item" style="animation-delay:.4s"><span class="time">03:18</span><span class="badge badge-pass">PASS</span><span>F006 決済統合 — 全基準合格</span></div>
-        <div class="activity-item" style="animation-delay:.5s"><span class="time">03:15</span><span class="badge badge-pass">PASS</span><span>F008 検索・フィルタ — 全基準合格</span></div>
-        <div class="activity-item" style="animation-delay:.6s"><span class="time">03:10</span><span class="badge badge-active">実行</span><span class="typing">Plannerエージェント タスク分析中</span></div>
-        <div class="activity-item" style="animation-delay:.7s"><span class="time">03:05</span><span class="badge badge-stop">停止</span><span>Generatorエージェント 待機モード移行</span></div>
-        <div class="activity-item" style="animation-delay:.8s"><span class="time">03:00</span><span class="badge badge-wait">待機</span><span>Evaluatorエージェント スタンバイ</span></div>
-      </div>
-    </div>
+  <!-- Activity Feed -->
+  <h2 class="section-title neon-green" style="margin-top:2rem">アクティビティ・フィード</h2>
+  <div class="glass-card" style="margin-bottom:2rem">
+    <div class="activity-feed" id="activityFeed"></div>
   </div>
 
-  <!-- AGENT STATUS & REVENUE -->
-  <div class="grid-2 mt-2">
-    <div>
-      <div class="section-title" style="font-size:.85rem">エージェントステータス</div>
-      <div style="display:flex;flex-direction:column;gap:.6rem">
-        <div class="holo-card shimmer" style="display:flex;align-items:center;gap:1rem;padding:.8rem 1rem">
-          <span class="radar-pulse" style="color:var(--green);background:var(--green)"></span>
-          <span style="font-size:1.2rem">🎯</span>
-          <span style="flex:1"><strong>Planner</strong> <span class="text-dim text-xs">— タスク計画・分解</span></span>
-          <span class="status-badge status-done">完了</span>
-        </div>
-        <div class="holo-card shimmer" style="display:flex;align-items:center;gap:1rem;padding:.8rem 1rem">
-          <span class="radar-pulse" style="color:var(--purple);background:var(--purple)"></span>
-          <span style="font-size:1.2rem">⚡</span>
-          <span style="flex:1"><strong>Generator</strong> <span class="text-dim text-xs">— コード生成・実装</span></span>
-          <span class="status-badge" style="background:rgba(139,0,255,.1);color:var(--purple);border:1px solid rgba(139,0,255,.3)">停止中</span>
-        </div>
-        <div class="holo-card shimmer" style="display:flex;align-items:center;gap:1rem;padding:.8rem 1rem">
-          <span class="radar-pulse" style="color:var(--amber);background:var(--amber)"></span>
-          <span style="font-size:1.2rem">🔍</span>
-          <span style="flex:1"><strong>Evaluator</strong> <span class="text-dim text-xs">— 品質評価・テスト</span></span>
-          <span class="status-badge" style="background:rgba(255,170,0,.1);color:var(--amber);border:1px solid rgba(255,170,0,.3)">待機中</span>
-        </div>
-      </div>
+  <!-- Agent Status -->
+  <h2 class="section-title neon-magenta">エージェント・ステータス</h2>
+  <div class="agent-grid">
+    <div class="glass-card agent-card glitch-hover">
+      <div class="radar-pulse"></div><div class="radar-pulse"></div><div class="radar-pulse"></div>
+      <div class="agent-icon">&#x1F3AF;</div>
+      <div class="agent-name neon-cyan">Planner</div>
+      <div class="agent-status neon-green typing-cursor">完了</div>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     </div>
-    <div>
-      <div class="section-title" style="font-size:.85rem">収益モデル</div>
-      <div class="revenue-model corner-deco">
-        <div class="model-title">// マーケットプレイス手数料モデル</div>
-        <div class="model-row"><span>出品者収益分配</span><span class="text-cyan">60%</span></div>
-        <div class="model-row"><span>購入者インセンティブ</span><span class="text-magenta">30%</span></div>
-        <div class="model-row"><span>プラットフォーム手数料</span><span class="text-amber">10%</span></div>
-        <div class="model-row" style="border:none;margin-top:.5rem;padding-top:.5rem;border-top:1px solid rgba(0,255,242,.1) !important"><span><strong>標準シナリオ年間収益</strong></span><span class="text-cyan" style="font-size:1rem;font-weight:900;text-shadow:var(--glow-cyan)">$2.4M</span></div>
-      </div>
+    <div class="glass-card agent-card glitch-hover">
+      <div class="radar-pulse"></div><div class="radar-pulse"></div><div class="radar-pulse"></div>
+      <div class="agent-icon">&#x26A1;</div>
+      <div class="agent-name neon-magenta">Generator</div>
+      <div class="agent-status neon-amber typing-cursor">停止中</div>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+    <div class="glass-card agent-card glitch-hover">
+      <div class="radar-pulse"></div><div class="radar-pulse"></div><div class="radar-pulse"></div>
+      <div class="agent-icon">&#x1F50D;</div>
+      <div class="agent-name neon-purple">Evaluator</div>
+      <div class="agent-status neon-blue typing-cursor">待機中</div>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- ============================================================
-     TAB: タスク管理
-     ============================================================ -->
-<div id="tasks" class="tab-content">
-  <div class="section-title">タスク管理 // 全10タスク <span class="holo-badge">F001-F010</span></div>
-  <div class="task-table-wrap">
-    <table class="task-table">
+<!-- ========================= TAB 2: タスク管理 ========================= -->
+<section class="tab-panel" id="panel-tasks">
+  <h2 class="section-title neon-cyan">タスク管理</h2>
+  <div class="glass-card" style="overflow-x:auto">
+    <table class="task-table" id="taskTable">
       <thead>
-        <tr>
-          <th>ID</th><th>タスク名</th><th>優先度</th><th>ステータス</th><th>依存</th><th>基準</th>
-        </tr>
+        <tr><th>ID</th><th>機能名</th><th>ステータス</th><th>優先度</th><th>スプリント</th><th>詳細</th></tr>
       </thead>
-      <tbody>
-        <tr>
-          <td class="task-id">F001</td>
-          <td class="task-name">プロジェクト初期化・環境構築</td>
-          <td class="priority-high">高</td>
-          <td><span class="status-badge status-done">完了</span></td>
-          <td>—</td>
-          <td>
-            <button class="criteria-toggle" onclick="toggleCriteria(this)">[+] 基準</button>
-            <div class="criteria-list">
-              ✅ Next.js 15 + TypeScript初期化<br>
-              ✅ Prisma + PostgreSQL設定<br>
-              ✅ ESLint/Prettier設定<br>
-              ✅ CI/CDパイプライン基盤
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="task-id">F002</td>
-          <td class="task-name">データベース設計・マイグレーション</td>
-          <td class="priority-high">高</td>
-          <td><span class="status-badge status-done">完了</span></td>
-          <td><span class="dep-tag">F001</span></td>
-          <td>
-            <button class="criteria-toggle" onclick="toggleCriteria(this)">[+] 基準</button>
-            <div class="criteria-list">
-              ✅ ER図設計完了<br>
-              ✅ Prismaスキーマ定義<br>
-              ✅ マイグレーション実行成功<br>
-              ✅ シードデータ投入
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="task-id">F003</td>
-          <td class="task-name">スキーマ設計（エージェント・ユーザー）</td>
-          <td class="priority-high">高</td>
-          <td><span class="status-badge status-done">完了</span></td>
-          <td><span class="dep-tag">F002</span></td>
-          <td>
-            <button class="criteria-toggle" onclick="toggleCriteria(this)">[+] 基準</button>
-            <div class="criteria-list">
-              ✅ Agentモデル定義<br>
-              ✅ Userモデル定義<br>
-              ✅ リレーション設定<br>
-              ✅ バリデーションルール
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="task-id">F004</td>
-          <td class="task-name">CRUDエンドポイント実装</td>
-          <td class="priority-high">高</td>
-          <td><span class="status-badge status-done">完了</span></td>
-          <td><span class="dep-tag">F003</span></td>
-          <td>
-            <button class="criteria-toggle" onclick="toggleCriteria(this)">[+] 基準</button>
-            <div class="criteria-list">
-              ✅ RESTful API設計<br>
-              ✅ 入力バリデーション<br>
-              ✅ エラーハンドリング<br>
-              ✅ ページネーション実装
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="task-id">F005</td>
-          <td class="task-name">認証・認可フロー</td>
-          <td class="priority-high">高</td>
-          <td><span class="status-badge status-done">完了</span></td>
-          <td><span class="dep-tag">F004</span></td>
-          <td>
-            <button class="criteria-toggle" onclick="toggleCriteria(this)">[+] 基準</button>
-            <div class="criteria-list">
-              ✅ NextAuth.js統合<br>
-              ✅ JWT/セッション管理<br>
-              ✅ ロールベースアクセス制御<br>
-              ✅ OAuth連携（GitHub/Google）
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="task-id">F006</td>
-          <td class="task-name">決済統合（Stripe）</td>
-          <td class="priority-mid">中</td>
-          <td><span class="status-badge status-todo">未着手</span></td>
-          <td><span class="dep-tag">F005</span></td>
-          <td>
-            <button class="criteria-toggle" onclick="toggleCriteria(this)">[+] 基準</button>
-            <div class="criteria-list">
-              ⬜ Stripe SDK統合<br>
-              ⬜ 決済フロー実装<br>
-              ⬜ Webhook処理<br>
-              ⬜ 返金処理
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="task-id">F007</td>
-          <td class="task-name">エージェント実行エンジン</td>
-          <td class="priority-high">高</td>
-          <td><span class="status-badge status-todo">未着手</span></td>
-          <td><span class="dep-tag">F004</span></td>
-          <td>
-            <button class="criteria-toggle" onclick="toggleCriteria(this)">[+] 基準</button>
-            <div class="criteria-list">
-              ⬜ サンドボックス環境構築<br>
-              ⬜ 実行キュー管理<br>
-              ⬜ リソース制限<br>
-              ⬜ ログ収集
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="task-id">F008</td>
-          <td class="task-name">検索・フィルタ機能</td>
-          <td class="priority-mid">中</td>
-          <td><span class="status-badge status-todo">未着手</span></td>
-          <td><span class="dep-tag">F004</span></td>
-          <td>
-            <button class="criteria-toggle" onclick="toggleCriteria(this)">[+] 基準</button>
-            <div class="criteria-list">
-              ⬜ 全文検索実装<br>
-              ⬜ カテゴリフィルタ<br>
-              ⬜ ソート機能<br>
-              ⬜ ファセット検索
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="task-id">F009</td>
-          <td class="task-name">レビュー・評価システム</td>
-          <td class="priority-mid">中</td>
-          <td><span class="status-badge status-todo">未着手</span></td>
-          <td><span class="dep-tag">F005</span> <span class="dep-tag">F008</span></td>
-          <td>
-            <button class="criteria-toggle" onclick="toggleCriteria(this)">[+] 基準</button>
-            <div class="criteria-list">
-              ⬜ 星評価UI<br>
-              ⬜ レビュー投稿/編集<br>
-              ⬜ 不正レビュー検出<br>
-              ⬜ 評価集計
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="task-id">F010</td>
-          <td class="task-name">ダッシュボード・分析画面</td>
-          <td class="priority-low">低</td>
-          <td><span class="status-badge status-todo">未着手</span></td>
-          <td><span class="dep-tag">F006</span> <span class="dep-tag">F009</span></td>
-          <td>
-            <button class="criteria-toggle" onclick="toggleCriteria(this)">[+] 基準</button>
-            <div class="criteria-list">
-              ⬜ 売上ダッシュボード<br>
-              ⬜ 利用統計グラフ<br>
-              ⬜ エクスポート機能<br>
-              ⬜ リアルタイム更新
-            </div>
-          </td>
-        </tr>
-      </tbody>
+      <tbody></tbody>
     </table>
   </div>
-</div>
+</section>
 
-<!-- ============================================================
-     TAB: エージェント
-     ============================================================ -->
-<div id="agents" class="tab-content">
-  <div class="section-title">エージェントシステム <span class="holo-badge">3ユニット稼働</span></div>
+<!-- ========================= TAB 3: エージェント ========================= -->
+<section class="tab-panel" id="panel-agents">
+  <h2 class="section-title neon-magenta">マルチエージェント・アーキテクチャ</h2>
 
-  <div class="agent-grid">
-    <div class="agent-card corner-deco">
-      <div class="agent-header">
-        <span class="agent-icon">🎯</span>
-        <div>
-          <div class="agent-name">PLANNER</div>
-          <div class="agent-status"><span class="status-badge status-done">完了</span> <span class="radar-pulse" style="color:var(--green);background:var(--green)"></span></div>
-        </div>
-      </div>
-      <dl class="agent-details">
-        <dt>役割:</dt><dd>タスク計画・優先順位付け・依存関係分析</dd><br>
-        <dt>入力:</dt><dd>PRD（製品要件定義書）</dd><br>
-        <dt>出力:</dt><dd>タスクリスト・スプリント計画</dd><br>
-        <dt>処理数:</dt><dd class="text-cyan">10タスク / 5スプリント生成</dd><br>
-        <dt>精度:</dt><dd class="text-green">98.5%</dd>
-      </dl>
+  <!-- Workflow -->
+  <div class="workflow-flow">
+    <div class="workflow-node neon-cyan">&#x1F3AF; Planner<br><small>計画立案</small></div>
+    <div class="workflow-arrow">&#x25B6;</div>
+    <div class="workflow-node neon-magenta">&#x26A1; Generator<br><small>コード生成</small></div>
+    <div class="workflow-arrow">&#x25B6;</div>
+    <div class="workflow-node neon-purple">&#x1F50D; Evaluator<br><small>品質評価</small></div>
+    <div class="workflow-arrow">&#x25B6;</div>
+    <div class="workflow-loop">PASS &#x2714; / FAIL &#x21BB;</div>
+  </div>
+
+  <div class="agent-grid" style="margin-top:2rem">
+    <!-- Planner -->
+    <div class="glass-card glitch-hover" style="padding:2rem">
+      <h3 class="neon-cyan" style="font-size:1.5rem;margin-bottom:1rem;letter-spacing:.2em">&#x1F3AF; Planner エージェント</h3>
+      <p style="color:rgba(255,255,255,.6);margin-bottom:1rem;font-size:.85rem">PRDとWBSからタスク分解、優先度設定、スプリント割り当てを自動実行</p>
+      <ul class="biz-list">
+        <li>タスク依存関係の解析</li>
+        <li>スプリント容量の最適化</li>
+        <li>リスク要因の事前検知</li>
+        <li>受入条件の自動生成</li>
+      </ul>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     </div>
-
-    <div class="agent-card corner-deco">
-      <div class="agent-header">
-        <span class="agent-icon">⚡</span>
-        <div>
-          <div class="agent-name">GENERATOR</div>
-          <div class="agent-status"><span class="status-badge" style="background:rgba(139,0,255,.1);color:var(--purple);border:1px solid rgba(139,0,255,.3)">停止中</span></div>
-        </div>
-      </div>
-      <dl class="agent-details">
-        <dt>役割:</dt><dd>コード生成・実装・テスト作成</dd><br>
-        <dt>入力:</dt><dd>タスク仕様書・受入基準</dd><br>
-        <dt>出力:</dt><dd>実装コード・テストスイート</dd><br>
-        <dt>処理数:</dt><dd class="text-purple">待機中 — 次回タスク待ち</dd><br>
-        <dt>精度:</dt><dd class="text-dim">N/A</dd>
-      </dl>
+    <!-- Generator -->
+    <div class="glass-card glitch-hover" style="padding:2rem">
+      <h3 class="neon-magenta" style="font-size:1.5rem;margin-bottom:1rem;letter-spacing:.2em">&#x26A1; Generator エージェント</h3>
+      <p style="color:rgba(255,255,255,.6);margin-bottom:1rem;font-size:.85rem">設計書からプロダクションレベルのコードを自動生成、テスト含む</p>
+      <ul class="biz-list">
+        <li>Next.js / TypeScript生成</li>
+        <li>Prismaスキーマ連携</li>
+        <li>API設計→実装の自動化</li>
+        <li>テストコード同時生成</li>
+      </ul>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     </div>
-
-    <div class="agent-card corner-deco">
-      <div class="agent-header">
-        <span class="agent-icon">🔍</span>
-        <div>
-          <div class="agent-name">EVALUATOR</div>
-          <div class="agent-status"><span class="status-badge" style="background:rgba(255,170,0,.1);color:var(--amber);border:1px solid rgba(255,170,0,.3)">待機中</span></div>
-        </div>
-      </div>
-      <dl class="agent-details">
-        <dt>役割:</dt><dd>品質評価・基準検証・フィードバック</dd><br>
-        <dt>入力:</dt><dd>実装コード・受入基準</dd><br>
-        <dt>出力:</dt><dd>評価レポート・改善提案</dd><br>
-        <dt>処理数:</dt><dd class="text-amber">スタンバイ</dd><br>
-        <dt>精度:</dt><dd class="text-dim">N/A</dd>
-      </dl>
+    <!-- Evaluator -->
+    <div class="glass-card glitch-hover" style="padding:2rem">
+      <h3 class="neon-purple" style="font-size:1.5rem;margin-bottom:1rem;letter-spacing:.2em">&#x1F50D; Evaluator エージェント</h3>
+      <p style="color:rgba(255,255,255,.6);margin-bottom:1rem;font-size:.85rem">受入条件に基づく自動品質検証、PASS/FAILの判定とフィードバック</p>
+      <ul class="biz-list">
+        <li>受入条件チェック自動化</li>
+        <li>コード品質スコアリング</li>
+        <li>セキュリティ脆弱性検査</li>
+        <li>失敗時のフィードバックループ</li>
+      </ul>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     </div>
   </div>
 
-  <div class="section-title mt-2" style="font-size:.85rem">ワークフロー図</div>
-  <div class="workflow">
-    <div class="workflow-node">📋 PRD入力</div>
-    <span class="workflow-arrow">⟩⟩</span>
-    <div class="workflow-node" style="border-color:var(--green);color:var(--green)">🎯 Planner</div>
-    <span class="workflow-arrow">⟩⟩</span>
-    <div class="workflow-node" style="border-color:var(--purple);color:var(--purple)">⚡ Generator</div>
-    <span class="workflow-arrow">⟩⟩</span>
-    <div class="workflow-node" style="border-color:var(--amber);color:var(--amber)">🔍 Evaluator</div>
-    <span class="workflow-arrow">⟩⟩</span>
-    <div class="workflow-node" style="border-color:var(--green);color:var(--green)">✅ デプロイ</div>
+  <h3 class="section-title neon-amber" style="margin-top:2rem">運用ルール</h3>
+  <div class="glass-card">
+    <ul class="biz-list">
+      <li>全タスクは必ずEvaluatorのPASS判定を経由する</li>
+      <li>FAILの場合はGeneratorが自動修正を試行（最大3回）</li>
+      <li>3回FAIL時はPlannerが再設計を実施</li>
+      <li>人間の介入は最小限 — AIファースト・ポリシー</li>
+      <li>全プロセスログは自動保存・監査可能</li>
+    </ul>
   </div>
-  <div style="text-align:center;margin-top:.5rem">
-    <span class="text-dim text-xs" style="letter-spacing:2px">// フィードバックループ: Evaluator → Generator （不合格時自動再実行）</span>
-  </div>
-</div>
+</section>
 
-<!-- ============================================================
-     TAB: ロードマップ
-     ============================================================ -->
-<div id="roadmap" class="tab-content">
-  <div class="section-title">ロードマップ <span class="holo-badge">4フェーズ</span></div>
-
-  <div class="roadmap">
-    <!-- Phase 1 -->
-    <div class="roadmap-phase">
-      <div class="phase-indicator complete">P1</div>
-      <div class="phase-content">
-        <div class="phase-title" style="color:var(--green)">フェーズ1: 基盤構築</div>
-        <div class="phase-desc">プロジェクト基盤・データベース・基本API</div>
-        <div class="phase-progress"><div class="phase-progress-fill" style="width:100%;background:var(--green);box-shadow:0 0 10px var(--green)"></div></div>
-        <div class="phase-pct">100% ✅ 完了</div>
-      </div>
-      <div class="arc-line" style="height:80px"></div>
-      <div class="arc-spark" style="top:70px"></div>
+<!-- ========================= TAB 4: ロードマップ ========================= -->
+<section class="tab-panel" id="panel-roadmap">
+  <h2 class="section-title neon-cyan">ロードマップ</h2>
+  <div class="timeline">
+    <div class="glass-card timeline-phase">
+      <div class="neon-green" style="font-size:1.5rem;margin-bottom:.5rem">&#x2705;</div>
+      <div class="neon-green" style="font-weight:700;letter-spacing:.15em">Phase 1</div>
+      <div style="font-size:.85rem;margin:.3rem 0">基盤構築</div>
+      <div style="font-size:.7rem;color:rgba(255,255,255,.4)">PRD / WBS / マルチエージェント</div>
+      <div class="phase-bar"><div class="phase-bar-fill" style="width:100%;background:linear-gradient(90deg,var(--green),var(--cyan))" data-width="100"></div></div>
+      <div style="font-size:.8rem;margin-top:.3rem;font-weight:700" class="neon-green">100%</div>
     </div>
-
-    <!-- Phase 2 -->
-    <div class="roadmap-phase">
-      <div class="phase-indicator">P2</div>
-      <div class="phase-content">
-        <div class="phase-title">フェーズ2: コアMVP</div>
-        <div class="phase-desc">認証・決済・エージェント実行エンジン</div>
-        <div class="phase-progress"><div class="phase-progress-fill" style="width:50%;background:linear-gradient(90deg,var(--cyan),var(--blue));box-shadow:0 0 10px var(--cyan)"></div></div>
-        <div class="phase-pct">50% — 進行中</div>
-      </div>
-      <div class="arc-line" style="height:80px"></div>
-      <div class="arc-spark" style="top:70px"></div>
+    <div class="glass-card timeline-phase">
+      <div class="neon-amber" style="font-size:1.5rem;margin-bottom:.5rem">&#x1F6A7;</div>
+      <div class="neon-amber" style="font-weight:700;letter-spacing:.15em">Phase 2</div>
+      <div style="font-size:.85rem;margin:.3rem 0">コアMVP</div>
+      <div style="font-size:.7rem;color:rgba(255,255,255,.4)">認証 / エージェントCRUD / 成果API</div>
+      <div class="phase-bar"><div class="phase-bar-fill" style="width:50%;background:linear-gradient(90deg,var(--amber),var(--pink))" data-width="50"></div></div>
+      <div style="font-size:.8rem;margin-top:.3rem;font-weight:700" class="neon-amber">50%</div>
     </div>
-
-    <!-- Phase 3 -->
-    <div class="roadmap-phase">
-      <div class="phase-indicator">P3</div>
-      <div class="phase-content">
-        <div class="phase-title" style="color:var(--magenta)">フェーズ3: 収益基盤</div>
-        <div class="phase-desc">検索・レビュー・マーケットプレイス機能</div>
-        <div class="phase-progress"><div class="phase-progress-fill" style="width:20%;background:linear-gradient(90deg,var(--magenta),var(--purple));box-shadow:0 0 10px var(--magenta)"></div></div>
-        <div class="phase-pct">20% — 設計段階</div>
-      </div>
-      <div class="arc-line" style="height:80px"></div>
-      <div class="arc-spark" style="top:70px"></div>
+    <div class="glass-card timeline-phase">
+      <div class="neon-blue" style="font-size:1.5rem;margin-bottom:.5rem">&#x1F4B0;</div>
+      <div class="neon-blue" style="font-weight:700;letter-spacing:.15em">Phase 3</div>
+      <div style="font-size:.85rem;margin:.3rem 0">収益基盤</div>
+      <div style="font-size:.7rem;color:rgba(255,255,255,.4)">決済 / レベシェア / 通知</div>
+      <div class="phase-bar"><div class="phase-bar-fill" style="width:20%;background:linear-gradient(90deg,var(--blue),var(--purple))" data-width="20"></div></div>
+      <div style="font-size:.8rem;margin-top:.3rem;font-weight:700" class="neon-blue">20%</div>
     </div>
-
-    <!-- Phase 4 -->
-    <div class="roadmap-phase">
-      <div class="phase-indicator">P4</div>
-      <div class="phase-content">
-        <div class="phase-title" style="color:var(--purple)">フェーズ4: ローンチ</div>
-        <div class="phase-desc">ダッシュボード・最適化・本番デプロイ</div>
-        <div class="phase-progress"><div class="phase-progress-fill" style="width:0%;background:var(--purple)"></div></div>
-        <div class="phase-pct">0% — 未着手</div>
-      </div>
+    <div class="glass-card timeline-phase">
+      <div class="neon-magenta" style="font-size:1.5rem;margin-bottom:.5rem">&#x1F680;</div>
+      <div class="neon-magenta" style="font-weight:700;letter-spacing:.15em">Phase 4</div>
+      <div style="font-size:.85rem;margin:.3rem 0">ローンチ</div>
+      <div style="font-size:.7rem;color:rgba(255,255,255,.4)">β公開 / マーケティング / 拡大</div>
+      <div class="phase-bar"><div class="phase-bar-fill" style="width:0%;background:linear-gradient(90deg,var(--magenta),var(--pink))" data-width="0"></div></div>
+      <div style="font-size:.8rem;margin-top:.3rem;font-weight:700" class="neon-magenta">0%</div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- ============================================================
-     TAB: スプリント
-     ============================================================ -->
-<div id="sprints" class="tab-content">
-  <div class="section-title">スプリント履歴 <span class="holo-badge text-green">全PASS</span></div>
+<!-- ========================= TAB 5: スプリント ========================= -->
+<section class="tab-panel" id="panel-sprints">
+  <h2 class="section-title neon-green">スプリント</h2>
 
-  <div class="sprint-grid">
-    <div class="sprint-card holo-card corner-deco">
-      <div class="sprint-id">S001</div>
-      <div class="sprint-name">プロジェクト基盤構築</div>
-      <div class="sprint-result">✅ PASS</div>
-      <div class="sprint-tasks">
-        <div>F001 プロジェクト初期化 → <span class="text-green">完了</span></div>
-        <div>F002 データベース設計 → <span class="text-green">完了</span></div>
-      </div>
-    </div>
-
-    <div class="sprint-card holo-card corner-deco">
-      <div class="sprint-id">S002</div>
-      <div class="sprint-name">データモデル・API基盤</div>
-      <div class="sprint-result">✅ PASS</div>
-      <div class="sprint-tasks">
-        <div>F003 スキーマ設計 → <span class="text-green">完了</span></div>
-        <div>F004 CRUDエンドポイント → <span class="text-green">完了</span></div>
-      </div>
-    </div>
-
-    <div class="sprint-card holo-card corner-deco">
-      <div class="sprint-id">S003</div>
-      <div class="sprint-name">認証・セキュリティ</div>
-      <div class="sprint-result">✅ PASS</div>
-      <div class="sprint-tasks">
-        <div>F005 認証フロー → <span class="text-green">完了</span></div>
-      </div>
-    </div>
-
-    <div class="sprint-card holo-card corner-deco">
-      <div class="sprint-id">S004</div>
-      <div class="sprint-name">コア機能拡張</div>
-      <div class="sprint-result">✅ PASS</div>
-      <div class="sprint-tasks">
-        <div>F006 決済統合 → <span class="text-green">評価合格</span></div>
-        <div>F007 実行エンジン → <span class="text-dim">計画済</span></div>
-      </div>
-    </div>
-
-    <div class="sprint-card holo-card corner-deco">
-      <div class="sprint-id">S005</div>
-      <div class="sprint-name">検索・マーケットプレイス</div>
-      <div class="sprint-result">✅ PASS</div>
-      <div class="sprint-tasks">
-        <div>F008 検索・フィルタ → <span class="text-green">評価合格</span></div>
-        <div>F009 レビューシステム → <span class="text-dim">計画済</span></div>
-        <div>F010 ダッシュボード → <span class="text-dim">計画済</span></div>
-      </div>
+  <div style="text-align:center;margin-bottom:2rem">
+    <div class="glass-card" style="display:inline-block;padding:1.5rem 3rem">
+      <div style="font-size:.7rem;letter-spacing:.3em;color:rgba(255,255,255,.4);margin-bottom:.3rem">成功率</div>
+      <div class="holo-text" style="font-size:3rem;font-weight:900"><span class="countup" data-target="100">0</span>%</div>
+      <div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-top:.3rem">5 / 5 スプリント PASS</div>
     </div>
   </div>
-</div>
 
-<!-- ============================================================
-     TAB: 事業計画
-     ============================================================ -->
-<div id="business" class="tab-content">
-  <div class="section-title">事業計画 // 投資家向け資料 <span class="holo-badge">CONFIDENTIAL</span></div>
+  <div class="sprint-grid" id="sprintGrid"></div>
+</section>
+
+<!-- ========================= TAB 6: 事業計画 ========================= -->
+<section class="tab-panel" id="panel-business">
+  <h2 class="section-title holo-text">事業計画</h2>
 
   <!-- エグゼクティブサマリー -->
   <div class="biz-section">
-    <h3>エグゼクティブサマリー</h3>
-    <div class="biz-text">
-      <strong>VAX</strong>は、AIエージェントの売買・共有を実現する<strong>世界初の本格的マーケットプレイス</strong>です。
-      開発者が作成したAIエージェントを出品し、企業や個人が購入・利用できるプラットフォームを構築します。<br><br>
-      <em>市場規模: $47.1B (2028年予測)</em>のAIエージェント市場において、
-      標準化された取引基盤が存在しない現状を解決します。<br><br>
-      独自の<strong>3層エージェントアーキテクチャ</strong>（Planner/Generator/Evaluator）により、
-      プラットフォーム自体の開発も自動化。<strong>開発コスト¥0</strong>で高品質なプロダクトを実現します。
+    <h3>&#x1F4CB; エグゼクティブサマリー</h3>
+    <div class="glass-card">
+      <p style="font-size:.9rem;line-height:1.8;color:rgba(255,255,255,.75)">
+        <strong class="neon-cyan">VAX</strong>は「AI労働の成果分配インフラ」として、AIエージェントの売買・共有プラットフォームを構築する。
+        出品者がAIエージェントを登録し、購入者が成果に応じて報酬を支払う<strong class="neon-magenta">レベニューシェアモデル（60/30/10）</strong>を採用。
+        AIエージェント市場は2024年の$5.4Bから2030年に$47.1B（CAGR 54%）へ急成長が予測されており、
+        VAXはこの波に乗り<strong class="neon-green">成果連動型課金</strong>という独自ポジションで市場を開拓する。
+      </p>
     </div>
   </div>
 
-  <!-- 市場分析 -->
+  <!-- 市場規模 -->
   <div class="biz-section">
-    <h3>市場分析</h3>
-    <div class="grid-3" style="margin:.8rem 0">
-      <div class="gradient-border">
-        <div class="gradient-border-inner" style="text-align:center">
-          <div class="text-xs text-purple" style="letter-spacing:2px">TAM</div>
-          <div style="font-size:1.5rem;font-weight:900;color:var(--purple);text-shadow:0 0 10px rgba(139,0,255,.5)">$47.1B</div>
-          <div class="text-xs text-dim">AIエージェント市場全体</div>
-        </div>
+    <h3>&#x1F4CA; 市場分析</h3>
+    <div class="biz-grid">
+      <div class="glass-card biz-stat">
+        <div class="biz-stat-value neon-cyan">$5.4B</div>
+        <div class="biz-stat-label">AIエージェント市場 (2024)</div>
       </div>
-      <div class="gradient-border">
-        <div class="gradient-border-inner" style="text-align:center">
-          <div class="text-xs text-blue" style="letter-spacing:2px">SAM</div>
-          <div style="font-size:1.5rem;font-weight:900;color:var(--blue);text-shadow:0 0 10px rgba(0,102,255,.5)">$8.2B</div>
-          <div class="text-xs text-dim">エージェント取引市場</div>
-        </div>
+      <div class="glass-card biz-stat">
+        <div class="biz-stat-value neon-magenta">$47.1B</div>
+        <div class="biz-stat-label">AIエージェント市場 (2030)</div>
       </div>
-      <div class="gradient-border">
-        <div class="gradient-border-inner" style="text-align:center">
-          <div class="text-xs text-cyan" style="letter-spacing:2px">SOM</div>
-          <div style="font-size:1.5rem;font-weight:900;color:var(--cyan);text-shadow:var(--glow-cyan)">$2M</div>
-          <div class="text-xs text-dim">初年度獲得目標</div>
-        </div>
+      <div class="glass-card biz-stat">
+        <div class="biz-stat-value neon-green">54%</div>
+        <div class="biz-stat-label">CAGR</div>
+      </div>
+      <div class="glass-card biz-stat">
+        <div class="biz-stat-value neon-amber">10兆円</div>
+        <div class="biz-stat-label">日本AI市場 (2030)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAM/SAM/SOM -->
+  <div class="biz-section">
+    <h3>&#x1F3AF; TAM / SAM / SOM</h3>
+    <div class="biz-grid">
+      <div class="glass-card biz-stat">
+        <div class="biz-stat-value neon-blue">$47.1B</div>
+        <div class="biz-stat-label">TAM — 総市場規模</div>
+      </div>
+      <div class="glass-card biz-stat">
+        <div class="biz-stat-value neon-purple">$8.2B</div>
+        <div class="biz-stat-label">SAM — 獲得可能市場</div>
+      </div>
+      <div class="glass-card biz-stat">
+        <div class="biz-stat-value neon-pink">$2M</div>
+        <div class="biz-stat-label">SOM — 初年度目標</div>
       </div>
     </div>
   </div>
 
   <!-- 競合分析 -->
   <div class="biz-section">
-    <h3>競合分析</h3>
-    <table class="biz-table">
-      <thead>
-        <tr><th>競合</th><th>カテゴリ</th><th>強み</th><th>弱み</th><th>脅威度</th></tr>
-      </thead>
-      <tbody>
-        <tr><td class="text-cyan">HuggingFace</td><td>モデルHub</td><td>大規模コミュニティ</td><td>エージェント非特化</td><td><span class="risk-level risk-high">高</span></td></tr>
-        <tr><td class="text-cyan">LangChain Hub</td><td>ツールチェーン</td><td>開発者エコシステム</td><td>マーケットプレイス未実装</td><td><span class="risk-level risk-mid">中</span></td></tr>
-        <tr><td class="text-cyan">GPT Store</td><td>GPTs販売</td><td>OpenAIブランド</td><td>GPT限定・カスタム性低</td><td><span class="risk-level risk-high">高</span></td></tr>
-        <tr><td class="text-cyan">Zapier</td><td>自動化</td><td>ノーコード・豊富な統合</td><td>AIエージェント非対応</td><td><span class="risk-level risk-low">低</span></td></tr>
-        <tr><td class="text-cyan">自社構築</td><td>内製</td><td>完全カスタマイズ</td><td>高コスト・長期間</td><td><span class="risk-level risk-mid">中</span></td></tr>
-      </tbody>
-    </table>
+    <h3>&#x2694;&#xFE0F; 競合分析</h3>
+    <div class="glass-card" style="overflow-x:auto">
+      <table class="biz-table">
+        <thead>
+          <tr><th>項目</th><th class="neon-cyan">VAX</th><th>GPT Store</th><th>Google AI</th><th>Definable</th><th>自社開発</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>課金モデル</td><td class="neon-green">成果連動</td><td>固定/サブスク</td><td>API従量</td><td>月額固定</td><td>人件費</td></tr>
+          <tr><td>エージェント種類</td><td class="neon-green">マルチ・汎用</td><td>GPTsのみ</td><td>Googleのみ</td><td>DX特化</td><td>自社のみ</td></tr>
+          <tr><td>コード保護</td><td class="neon-green">&#x2714; 完全</td><td>&#x2718;</td><td>&#x2718;</td><td>&#x25CB;</td><td>N/A</td></tr>
+          <tr><td>成果可視化</td><td class="neon-green">&#x2714; リアルタイム</td><td>&#x25CB;</td><td>&#x25CB;</td><td>&#x25B3;</td><td>&#x25B3;</td></tr>
+          <tr><td>マーケットプレイス</td><td class="neon-green">&#x2714;</td><td>&#x2714;</td><td>&#x2718;</td><td>&#x2718;</td><td>&#x2718;</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- 勝ち筋 -->
   <div class="biz-section">
-    <h3>5つの勝ち筋</h3>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.8rem">
-      <div class="holo-card shimmer" style="padding:1rem">
-        <div class="text-cyan" style="font-size:.8rem;font-weight:bold;margin-bottom:.3rem">1. ゼロコスト開発</div>
-        <div class="text-xs text-dim">AI駆動開発で初期投資¥0。エージェントがエージェントを作る。</div>
+    <h3>&#x1F3C6; 5つの勝ち筋（Moat）</h3>
+    <div class="biz-grid">
+      <div class="glass-card" style="padding:1.2rem;text-align:center">
+        <div class="neon-cyan" style="font-size:1.5rem;margin-bottom:.3rem">&#x1F310;</div>
+        <div style="font-weight:700;letter-spacing:.1em;margin-bottom:.3rem">ネットワーク効果</div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.5)">出品者と購入者の相互成長</div>
       </div>
-      <div class="holo-card shimmer" style="padding:1rem">
-        <div class="text-magenta" style="font-size:.8rem;font-weight:bold;margin-bottom:.3rem">2. モデル非依存</div>
-        <div class="text-xs text-dim">GPT/Claude/Gemini/Llama全対応。ベンダーロックイン回避。</div>
+      <div class="glass-card" style="padding:1.2rem;text-align:center">
+        <div class="neon-magenta" style="font-size:1.5rem;margin-bottom:.3rem">&#x1F4BE;</div>
+        <div style="font-weight:700;letter-spacing:.1em;margin-bottom:.3rem">データモート</div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.5)">利用データの蓄積で精度向上</div>
       </div>
-      <div class="holo-card shimmer" style="padding:1rem">
-        <div class="text-green" style="font-size:.8rem;font-weight:bold;margin-bottom:.3rem">3. 品質保証システム</div>
-        <div class="text-xs text-dim">Evaluatorエージェントによる自動品質検証。不良品排除。</div>
+      <div class="glass-card" style="padding:1.2rem;text-align:center">
+        <div class="neon-green" style="font-size:1.5rem;margin-bottom:.3rem">&#x1F512;</div>
+        <div style="font-weight:700;letter-spacing:.1em;margin-bottom:.3rem">スイッチングコスト</div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.5)">カスタマイズ資産の蓄積</div>
       </div>
-      <div class="holo-card shimmer" style="padding:1rem">
-        <div class="text-amber" style="font-size:.8rem;font-weight:bold;margin-bottom:.3rem">4. 先行者優位</div>
-        <div class="text-xs text-dim">本格的AIエージェントマーケットプレイスは未存在。市場を定義する。</div>
+      <div class="glass-card" style="padding:1.2rem;text-align:center">
+        <div class="neon-amber" style="font-size:1.5rem;margin-bottom:.3rem">&#x1F4B0;</div>
+        <div style="font-weight:700;letter-spacing:.1em;margin-bottom:.3rem">成果連動</div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.5)">業界唯一の成果ベース課金</div>
       </div>
-      <div class="holo-card shimmer" style="padding:1rem">
-        <div class="text-purple" style="font-size:.8rem;font-weight:bold;margin-bottom:.3rem">5. ネットワーク効果</div>
-        <div class="text-xs text-dim">出品者増加→購入者増加→出品者増加の好循環。勝者総取り。</div>
+      <div class="glass-card" style="padding:1.2rem;text-align:center">
+        <div class="neon-purple" style="font-size:1.5rem;margin-bottom:.3rem">&#x1F6E1;&#xFE0F;</div>
+        <div style="font-weight:700;letter-spacing:.1em;margin-bottom:.3rem">コード保護</div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.5)">知的財産の完全保護機構</div>
       </div>
     </div>
   </div>
 
-  <!-- 収益シミュレーション -->
+  <!-- 収益フロー -->
   <div class="biz-section">
-    <h3>収益シミュレーション（3シナリオ）</h3>
-    <div class="scenario-grid">
-      <div class="scenario-card conservative">
-        <div class="scenario-label text-green">保守シナリオ</div>
-        <div class="scenario-value text-green">$120K<span class="text-xs">/年</span></div>
-        <div class="text-xs text-dim" style="line-height:1.8">
-          月間取引: 100件<br>
-          平均単価: $100<br>
-          手数料率: 10%<br>
-          月間収益: $10K
-        </div>
+    <h3>&#x1F4B8; 収益フロー</h3>
+    <div class="glass-card" style="text-align:center;padding:2rem">
+      <div style="display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap;font-size:1.3rem;font-weight:700">
+        <span class="neon-green">出品者 60%</span>
+        <span style="color:rgba(255,255,255,.3)">|</span>
+        <span class="neon-blue">購入者 30%</span>
+        <span style="color:rgba(255,255,255,.3)">|</span>
+        <span class="neon-magenta">プラットフォーム 10%</span>
       </div>
-      <div class="scenario-card standard">
-        <div class="scenario-label text-cyan">標準シナリオ</div>
-        <div class="scenario-value text-cyan">$2.4M<span class="text-xs">/年</span></div>
-        <div class="text-xs text-dim" style="line-height:1.8">
-          月間取引: 2,000件<br>
-          平均単価: $100<br>
-          手数料率: 10%<br>
-          月間収益: $200K
-        </div>
+      <div style="margin-top:1rem;font-size:.8rem;color:rgba(255,255,255,.5)">成果報酬型 — エージェントが生み出した価値に連動して分配</div>
+    </div>
+  </div>
+
+  <!-- 3シナリオ -->
+  <div class="biz-section">
+    <h3>&#x1F4C8; 収益シナリオ（年間）</h3>
+    <div class="biz-grid">
+      <div class="glass-card scenario-card">
+        <div style="font-size:.7rem;letter-spacing:.2em;color:rgba(255,255,255,.4);margin-bottom:.3rem">保守シナリオ</div>
+        <div class="scenario-val neon-blue">$120K</div>
+        <div class="scenario-label">年間収益</div>
       </div>
-      <div class="scenario-card aggressive">
-        <div class="scenario-label text-magenta">強気シナリオ</div>
-        <div class="scenario-value text-magenta">$18M<span class="text-xs">/年</span></div>
-        <div class="text-xs text-dim" style="line-height:1.8">
-          月間取引: 15,000件<br>
-          平均単価: $100<br>
-          手数料率: 10%<br>
-          月間収益: $1.5M
-        </div>
+      <div class="glass-card scenario-card" style="border-color:var(--green)">
+        <div style="font-size:.7rem;letter-spacing:.2em;color:rgba(255,255,255,.4);margin-bottom:.3rem">標準シナリオ</div>
+        <div class="scenario-val neon-green">$2.4M</div>
+        <div class="scenario-label">年間収益</div>
+      </div>
+      <div class="glass-card scenario-card">
+        <div style="font-size:.7rem;letter-spacing:.2em;color:rgba(255,255,255,.4);margin-bottom:.3rem">強気シナリオ</div>
+        <div class="scenario-val neon-magenta">$18M</div>
+        <div class="scenario-label">年間収益</div>
       </div>
     </div>
   </div>
 
   <!-- 12ヶ月計画 -->
   <div class="biz-section">
-    <h3>12ヶ月実行計画</h3>
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="timeline-month">M1-M2</div>
-        <div class="timeline-desc">基盤構築 — Next.js/Prisma/認証基盤の実装完了</div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-month">M3-M4</div>
-        <div class="timeline-desc">コアMVP — エージェント登録・検索・購入フローの実装</div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-month">M5-M6</div>
-        <div class="timeline-desc">決済・レビュー — Stripe統合・評価システム・マーケット機能</div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-month">M7-M8</div>
-        <div class="timeline-desc">クローズドβ — 招待制テスト・フィードバック収集・改善イテレーション</div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-month">M9-M10</div>
-        <div class="timeline-desc">パブリックβ — オープン登録・マーケティング開始・パートナーシップ</div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-month">M11-M12</div>
-        <div class="timeline-desc">正式ローンチ — GA版リリース・スケーリング・Series A準備</div>
-      </div>
+    <h3>&#x1F4C5; 12ヶ月マイルストーン</h3>
+    <div class="glass-card" style="overflow-x:auto">
+      <table class="biz-table">
+        <thead><tr><th>月</th><th>マイルストーン</th><th>KPI</th></tr></thead>
+        <tbody>
+          <tr><td class="neon-cyan">M1-2</td><td>MVP開発・内部テスト</td><td>プロトタイプ完成</td></tr>
+          <tr><td class="neon-cyan">M3</td><td>クローズドβ開始</td><td>出品者10社</td></tr>
+          <tr><td class="neon-green">M4-5</td><td>オープンβ・初回取引</td><td>GMV $10K/月</td></tr>
+          <tr><td class="neon-green">M6</td><td>正式ローンチ</td><td>エージェント100体</td></tr>
+          <tr><td class="neon-amber">M7-9</td><td>グロースハック</td><td>GMV $100K/月</td></tr>
+          <tr><td class="neon-magenta">M10-12</td><td>シリーズA準備</td><td>GMV $850K/月・BEP</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
   <!-- 資金計画 -->
   <div class="biz-section">
-    <h3>資金計画</h3>
-    <div class="grid-2">
-      <div class="holo-card corner-deco">
-        <div class="text-xs text-cyan" style="letter-spacing:2px;margin-bottom:.5rem">初期投資</div>
-        <div style="font-size:2rem;font-weight:900;color:var(--green);text-shadow:var(--glow-green)">¥0</div>
-        <div class="text-xs text-dim mt-1">AI駆動開発により開発コストゼロ。<br>全コードをAIエージェントが生成。</div>
+    <h3>&#x1F4B0; 資金計画</h3>
+    <div class="biz-grid">
+      <div class="glass-card biz-stat">
+        <div class="biz-stat-value neon-green">&#xA5;0</div>
+        <div class="biz-stat-label">初期投資</div>
       </div>
-      <div class="holo-card corner-deco">
-        <div class="text-xs text-cyan" style="letter-spacing:2px;margin-bottom:.5rem">月間運用コスト</div>
-        <div style="font-size:2rem;font-weight:900;color:var(--amber);text-shadow:var(--glow-amber)">¥85K</div>
-        <div class="text-xs text-dim mt-1" style="line-height:1.8">
-          インフラ (Vercel/Supabase): ¥15K<br>
-          AI API利用料: ¥50K<br>
-          ドメイン/SSL/その他: ¥5K<br>
-          マーケティング: ¥15K
-        </div>
+      <div class="glass-card biz-stat">
+        <div class="biz-stat-value neon-amber">&#xA5;85K</div>
+        <div class="biz-stat-label">月間コスト</div>
       </div>
-    </div>
-  </div>
-
-  <!-- 分配モデル -->
-  <div class="biz-section">
-    <h3>収益分配モデル</h3>
-    <div class="pie-container">
-      <div class="css-pie"></div>
-      <div class="pie-legend">
-        <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--cyan)"></div>出品者 — 60%</div>
-        <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--magenta)"></div>購入者インセンティブ — 30%</div>
-        <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--amber)"></div>プラットフォーム — 10%</div>
+      <div class="glass-card biz-stat">
+        <div class="biz-stat-value neon-cyan">$850K</div>
+        <div class="biz-stat-label">BEP (GMV/月)</div>
       </div>
     </div>
   </div>
 
   <!-- リスク対策 -->
   <div class="biz-section">
-    <h3>リスク対策マトリックス</h3>
-    <div style="border:1px solid var(--border);border-radius:4px;overflow:hidden">
-      <div class="risk-row" style="background:rgba(0,255,242,.03);font-weight:bold;font-size:.65rem;letter-spacing:1px">
-        <span style="flex:1">リスク</span>
-        <span style="width:60px;text-align:center">レベル</span>
-        <span style="flex:1">対策</span>
-      </div>
-      <div class="risk-row">
-        <span style="flex:1">大手参入（OpenAI/Google）</span>
-        <span style="width:60px;text-align:center"><span class="risk-level risk-high">高</span></span>
-        <span style="flex:1;color:rgba(255,255,255,.5)">モデル非依存戦略・ニッチ特化・コミュニティ形成</span>
-      </div>
-      <div class="risk-row">
-        <span style="flex:1">セキュリティ脆弱性</span>
-        <span style="width:60px;text-align:center"><span class="risk-level risk-high">高</span></span>
-        <span style="flex:1;color:rgba(255,255,255,.5)">サンドボックス実行・自動脆弱性スキャン・バグバウンティ</span>
-      </div>
-      <div class="risk-row">
-        <span style="flex:1">出品者不足（コールドスタート）</span>
-        <span style="width:60px;text-align:center"><span class="risk-level risk-mid">中</span></span>
-        <span style="flex:1;color:rgba(255,255,255,.5)">初期シードエージェント自社作成・開発者コミュニティ連携</span>
-      </div>
-      <div class="risk-row">
-        <span style="flex:1">品質管理の困難さ</span>
-        <span style="width:60px;text-align:center"><span class="risk-level risk-mid">中</span></span>
-        <span style="flex:1;color:rgba(255,255,255,.5)">Evaluatorエージェント自動検証・ユーザーレビュー制度</span>
-      </div>
-      <div class="risk-row">
-        <span style="flex:1">法規制リスク</span>
-        <span style="width:60px;text-align:center"><span class="risk-level risk-low">低</span></span>
-        <span style="flex:1;color:rgba(255,255,255,.5)">AI法対応チーム・利用規約整備・コンプライアンス監査</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================
-     TAB: 市場分析
-     ============================================================ -->
-<div id="market" class="tab-content">
-  <div class="section-title">市場分析 // マーケットインテリジェンス</div>
-
-  <!-- TAM/SAM/SOM Visualization -->
-  <div class="biz-section">
-    <h3>市場規模ビジュアライゼーション</h3>
-    <div class="market-circles">
-      <div class="market-circle tam-circle">
-        <div class="circle-label">TAM</div>
-        <div class="circle-value">$47.1B</div>
-      </div>
-      <div class="market-circle sam-circle">
-        <div class="circle-label">SAM</div>
-        <div class="circle-value">$8.2B</div>
-      </div>
-      <div class="market-circle som-circle">
-        <div class="circle-label">SOM</div>
-        <div class="circle-value">$2M</div>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:.5rem">
-      <span class="text-xs text-dim">TAM: AIエージェント市場全体 | SAM: エージェント取引セグメント | SOM: 初年度獲得見込み</span>
+    <h3>&#x26A0;&#xFE0F; リスク対策</h3>
+    <div class="glass-card" style="overflow-x:auto">
+      <table class="biz-table">
+        <thead><tr><th>リスク</th><th>影響度</th><th>対策</th></tr></thead>
+        <tbody>
+          <tr><td>競合参入</td><td class="neon-pink">高</td><td>ネットワーク効果で先行者優位確立</td></tr>
+          <tr><td>AI規制強化</td><td class="neon-amber">中</td><td>コンプライアンス体制の先行構築</td></tr>
+          <tr><td>技術変化</td><td class="neon-amber">中</td><td>マルチLLM対応・プラグイン化</td></tr>
+          <tr><td>品質問題</td><td class="neon-amber">中</td><td>Evaluatorによる自動品質保証</td></tr>
+          <tr><td>集客困難</td><td class="neon-amber">中</td><td>コミュニティ・ドリブン成長戦略</td></tr>
+          <tr><td>資金ショート</td><td class="neon-pink">高</td><td>初期コストゼロ・リーンオペレーション</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <!-- Market Growth Chart -->
+  <!-- チーム・技術 -->
   <div class="biz-section">
-    <h3>市場成長予測（CAGR 42.8%）</h3>
-    <div class="css-chart">
-      <div class="chart-bar-row">
-        <span class="chart-label">2024</span>
-        <div class="chart-bar"><div class="chart-bar-fill" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--cyan))" data-width="15%"></div></div>
-        <span class="chart-value">$7.1B</span>
+    <h3>&#x1F465; チーム体制 &amp; 技術スタック</h3>
+    <div class="biz-grid">
+      <div class="glass-card" style="padding:1.5rem">
+        <h4 class="neon-cyan" style="margin-bottom:.8rem;letter-spacing:.15em">チーム</h4>
+        <ul class="biz-list">
+          <li>ファウンダー / フルスタック開発</li>
+          <li>AIエージェント 3体（Planner / Generator / Evaluator）</li>
+          <li>初期は1人+AI体制 → 資金調達後に採用</li>
+        </ul>
       </div>
-      <div class="chart-bar-row">
-        <span class="chart-label">2025</span>
-        <div class="chart-bar"><div class="chart-bar-fill" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--cyan))" data-width="30%"></div></div>
-        <span class="chart-value">$14.2B</span>
+      <div class="glass-card" style="padding:1.5rem">
+        <h4 class="neon-magenta" style="margin-bottom:.8rem;letter-spacing:.15em">技術スタック</h4>
+        <ul class="biz-list">
+          <li>Next.js (App Router) / TypeScript</li>
+          <li>Prisma ORM / PostgreSQL</li>
+          <li>Stripe Connect (決済)</li>
+          <li>Vercel (ホスティング)</li>
+          <li>Claude API (AIバックエンド)</li>
+        </ul>
       </div>
-      <div class="chart-bar-row">
-        <span class="chart-label">2026</span>
-        <div class="chart-bar"><div class="chart-bar-fill" style="width:0%;background:linear-gradient(90deg,var(--cyan),var(--magenta))" data-width="50%"></div></div>
-        <span class="chart-value">$23.6B</span>
-      </div>
-      <div class="chart-bar-row">
-        <span class="chart-label">2027</span>
-        <div class="chart-bar"><div class="chart-bar-fill" style="width:0%;background:linear-gradient(90deg,var(--magenta),var(--purple))" data-width="75%"></div></div>
-        <span class="chart-value">$35.4B</span>
-      </div>
-      <div class="chart-bar-row">
-        <span class="chart-label">2028</span>
-        <div class="chart-bar"><div class="chart-bar-fill" style="width:0%;background:linear-gradient(90deg,var(--purple),var(--pink))" data-width="100%"></div></div>
-        <span class="chart-value">$47.1B</span>
-      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= TAB 7: 市場分析 ========================= -->
+<section class="tab-panel" id="panel-market">
+  <h2 class="section-title neon-blue">市場分析</h2>
+
+  <!-- TAM/SAM/SOM Concentric Circles -->
+  <h3 class="section-title neon-cyan" style="font-size:1rem">TAM / SAM / SOM</h3>
+  <div class="chart-container">
+    <div class="tam-circles">
+      <div class="tam-circle tam-tam"><div style="margin-top:15px"><strong>TAM</strong><br>$47.1B</div></div>
+      <div class="tam-circle tam-sam"><div><strong>SAM</strong><br>$8.2B</div></div>
+      <div class="tam-circle tam-som"><div><strong>SOM</strong><br>$2M</div></div>
+    </div>
+  </div>
+
+  <!-- Market Growth Bar Chart -->
+  <h3 class="section-title neon-green" style="font-size:1rem">市場成長予測</h3>
+  <div class="glass-card">
+    <div class="bar-chart" id="marketBarChart">
+      <div class="bar"><div class="bar-value neon-cyan">$5.4B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--cyan),var(--blue))" data-height="27"></div><div class="bar-label">2024</div></div>
+      <div class="bar"><div class="bar-value neon-cyan">$8.4B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--cyan),var(--blue))" data-height="42"></div><div class="bar-label">2025</div></div>
+      <div class="bar"><div class="bar-value neon-green">$13B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--green),var(--cyan))" data-height="65"></div><div class="bar-label">2026</div></div>
+      <div class="bar"><div class="bar-value neon-green">$20B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--green),var(--cyan))" data-height="100"></div><div class="bar-label">2027</div></div>
+      <div class="bar"><div class="bar-value neon-amber">$30B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--amber),var(--green))" data-height="150"></div><div class="bar-label">2028</div></div>
+      <div class="bar"><div class="bar-value neon-magenta">$38B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--magenta),var(--amber))" data-height="190"></div><div class="bar-label">2029</div></div>
+      <div class="bar"><div class="bar-value neon-pink">$47.1B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--pink),var(--magenta))" data-height="200"></div><div class="bar-label">2030</div></div>
     </div>
   </div>
 
   <!-- 競合マトリックス -->
-  <div class="biz-section">
-    <h3>競合マトリックス</h3>
-    <div class="competitor-grid">
-      <div class="competitor-card">
-        <div class="competitor-name">HuggingFace</div>
-        <div class="competitor-stat"><span class="label">カテゴリ</span><span class="val">モデルHub</span></div>
-        <div class="competitor-stat"><span class="label">ユーザー数</span><span class="val">5M+</span></div>
-        <div class="competitor-stat"><span class="label">マーケット</span><span class="val text-pink">なし</span></div>
-        <div class="competitor-stat"><span class="label">エージェント対応</span><span class="val text-amber">限定的</span></div>
-        <div class="competitor-stat"><span class="label">脅威度</span><span class="val"><span class="risk-level risk-high">高</span></span></div>
-      </div>
-      <div class="competitor-card">
-        <div class="competitor-name">GPT Store</div>
-        <div class="competitor-stat"><span class="label">カテゴリ</span><span class="val">GPTs販売</span></div>
-        <div class="competitor-stat"><span class="label">ユーザー数</span><span class="val">100M+</span></div>
-        <div class="competitor-stat"><span class="label">マーケット</span><span class="val text-green">あり</span></div>
-        <div class="competitor-stat"><span class="label">エージェント対応</span><span class="val text-amber">GPT限定</span></div>
-        <div class="competitor-stat"><span class="label">脅威度</span><span class="val"><span class="risk-level risk-high">高</span></span></div>
-      </div>
-      <div class="competitor-card">
-        <div class="competitor-name">LangChain Hub</div>
-        <div class="competitor-stat"><span class="label">カテゴリ</span><span class="val">ツールチェーン</span></div>
-        <div class="competitor-stat"><span class="label">ユーザー数</span><span class="val">500K+</span></div>
-        <div class="competitor-stat"><span class="label">マーケット</span><span class="val text-pink">なし</span></div>
-        <div class="competitor-stat"><span class="label">エージェント対応</span><span class="val text-green">高</span></div>
-        <div class="competitor-stat"><span class="label">脅威度</span><span class="val"><span class="risk-level risk-mid">中</span></span></div>
-      </div>
-      <div class="competitor-card">
-        <div class="competitor-name">Zapier</div>
-        <div class="competitor-stat"><span class="label">カテゴリ</span><span class="val">自動化</span></div>
-        <div class="competitor-stat"><span class="label">ユーザー数</span><span class="val">2M+</span></div>
-        <div class="competitor-stat"><span class="label">マーケット</span><span class="val text-amber">間接的</span></div>
-        <div class="competitor-stat"><span class="label">エージェント対応</span><span class="val text-pink">なし</span></div>
-        <div class="competitor-stat"><span class="label">脅威度</span><span class="val"><span class="risk-level risk-low">低</span></span></div>
-      </div>
-    </div>
+  <h3 class="section-title neon-magenta" style="font-size:1rem;margin-top:2rem">競合マトリックス</h3>
+  <div class="glass-card" style="overflow-x:auto">
+    <table class="biz-table">
+      <thead><tr><th>プレイヤー</th><th>課金</th><th>マーケット</th><th>成果連動</th><th>コード保護</th><th>脅威度</th></tr></thead>
+      <tbody>
+        <tr><td class="neon-cyan">VAX</td><td>レベシェア</td><td>&#x2714;</td><td class="neon-green">&#x2714;</td><td class="neon-green">&#x2714;</td><td>—</td></tr>
+        <tr><td>GPT Store</td><td>サブスク</td><td>&#x2714;</td><td>&#x2718;</td><td>&#x2718;</td><td class="neon-pink">高</td></tr>
+        <tr><td>Google AI</td><td>従量課金</td><td>&#x2718;</td><td>&#x2718;</td><td>&#x2718;</td><td class="neon-amber">中</td></tr>
+        <tr><td>Definable</td><td>月額固定</td><td>&#x2718;</td><td>&#x25B3;</td><td>&#x25CB;</td><td class="neon-blue">低</td></tr>
+        <tr><td>自社開発</td><td>人件費</td><td>&#x2718;</td><td>N/A</td><td>N/A</td><td class="neon-blue">低</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- ポジショニングマップ -->
-  <div class="biz-section">
-    <h3>ポジショニングマップ</h3>
-    <div class="positioning-map">
-      <div class="map-axis-x"></div>
-      <div class="map-axis-y"></div>
-      <div class="map-label" style="top:5%;left:50%;transform:translateX(-50%)">高カスタマイズ性</div>
-      <div class="map-label" style="bottom:5%;left:50%;transform:translateX(-50%)">低カスタマイズ性</div>
-      <div class="map-label" style="left:2%;top:50%;transform:translateY(-50%)">狭い市場</div>
-      <div class="map-label" style="right:2%;top:50%;transform:translateY(-50%)">広い市場</div>
-
-      <!-- Dots -->
-      <div class="map-dot" style="left:75%;top:20%;background:var(--purple);box-shadow:0 0 10px var(--purple)">
-        <span class="map-dot-label">HuggingFace</span>
-      </div>
-      <div class="map-dot" style="left:80%;top:60%;background:var(--amber);box-shadow:0 0 10px var(--amber)">
-        <span class="map-dot-label">GPT Store</span>
-      </div>
-      <div class="map-dot" style="left:40%;top:30%;background:var(--blue);box-shadow:0 0 10px var(--blue)">
-        <span class="map-dot-label">LangChain</span>
-      </div>
-      <div class="map-dot" style="left:65%;top:70%;background:var(--green);box-shadow:0 0 10px var(--green)">
-        <span class="map-dot-label">Zapier</span>
-      </div>
-      <div class="map-dot us" style="left:60%;top:25%;background:var(--cyan);box-shadow:var(--glow-cyan)">
-        <span class="map-dot-label" style="color:var(--cyan);font-weight:bold;font-size:.7rem">VAX ★</span>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:.5rem">
-      <span class="text-xs text-dim">X軸: 市場の広さ | Y軸: カスタマイズ性 | VAXは高カスタマイズ×広い市場を狙う</span>
+  <h3 class="section-title neon-purple" style="font-size:1rem;margin-top:2rem">ポジショニングマップ</h3>
+  <div class="glass-card">
+    <div class="quadrant-map">
+      <span class="q-label top">高カスタマイズ性</span>
+      <span class="q-label bottom">低カスタマイズ性</span>
+      <span class="q-label left">低コスト</span>
+      <span class="q-label right">高コスト</span>
+      <!-- VAX -->
+      <div class="q-dot" style="top:20%;left:30%;background:var(--cyan);color:var(--cyan)"><span class="q-dot-label neon-cyan">VAX</span></div>
+      <!-- GPT Store -->
+      <div class="q-dot" style="top:40%;left:50%;background:var(--green);color:var(--green)"><span class="q-dot-label" style="color:var(--green)">GPT Store</span></div>
+      <!-- Google AI -->
+      <div class="q-dot" style="top:35%;left:75%;background:var(--amber);color:var(--amber)"><span class="q-dot-label" style="color:var(--amber)">Google AI</span></div>
+      <!-- Definable -->
+      <div class="q-dot" style="top:60%;left:55%;background:var(--purple);color:var(--purple)"><span class="q-dot-label" style="color:var(--purple)">Definable</span></div>
+      <!-- 自社開発 -->
+      <div class="q-dot" style="top:25%;left:85%;background:var(--pink);color:var(--pink)"><span class="q-dot-label" style="color:var(--pink)">自社開発</span></div>
     </div>
   </div>
-</div>
+
+  <!-- 技術トレンド -->
+  <h3 class="section-title neon-amber" style="font-size:1rem;margin-top:2rem">技術トレンド</h3>
+  <div class="biz-grid">
+    <div class="glass-card glitch-hover" style="padding:1.2rem;text-align:center">
+      <div class="neon-cyan" style="font-size:2rem;margin-bottom:.3rem">&#x1F916;</div>
+      <div style="font-weight:700;letter-spacing:.1em">マルチエージェント</div>
+      <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.3rem">複数AIが協調して複雑なタスクを実行</div>
+    </div>
+    <div class="glass-card glitch-hover" style="padding:1.2rem;text-align:center">
+      <div class="neon-magenta" style="font-size:2rem;margin-bottom:.3rem">&#x1F50C;</div>
+      <div style="font-weight:700;letter-spacing:.1em">ツール統合</div>
+      <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.3rem">外部API・ツールとのシームレス連携</div>
+    </div>
+    <div class="glass-card glitch-hover" style="padding:1.2rem;text-align:center">
+      <div class="neon-green" style="font-size:2rem;margin-bottom:.3rem">&#x1F9E0;</div>
+      <div style="font-weight:700;letter-spacing:.1em">推論モデル</div>
+      <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.3rem">高度な推論能力を持つ次世代LLM</div>
+    </div>
+    <div class="glass-card glitch-hover" style="padding:1.2rem;text-align:center">
+      <div class="neon-amber" style="font-size:2rem;margin-bottom:.3rem">&#x1F3ED;</div>
+      <div style="font-weight:700;letter-spacing:.1em">AIファクトリー</div>
+      <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.3rem">AI大量生産・デプロイの自動化基盤</div>
+    </div>
+  </div>
+</section>
 
 </main>
 
-<!-- FOOTER -->
-<footer style="position:relative;z-index:10;text-align:center;padding:2rem;border-top:1px solid var(--border);font-size:.65rem;color:rgba(255,255,255,.2);letter-spacing:2px">
-  VAX // エージェント交換プラットフォーム // 全権利留保 // <span id="footerYear"></span>
+<footer>
+  VAX // AI AGENT EXCHANGE — SYSTEM DASHBOARD v3.0 — MAXIMUM OVERDRIVE — &copy; 2026
 </footer>
 
-<!-- ================================================================
-     JAVASCRIPT
-     ================================================================ -->
-<script>
-// ---- CLOCK ----
-function updateClock(){
-  const now=new Date();
-  const h=String(now.getHours()).padStart(2,'0');
-  const m=String(now.getMinutes()).padStart(2,'0');
-  const s=String(now.getSeconds()).padStart(2,'0');
-  document.getElementById('clock').textContent=`${h}:${m}:${s}`;
-}
-setInterval(updateClock,1000);updateClock();
-document.getElementById('footerYear').textContent=new Date().getFullYear();
+</div><!-- /app-wrapper -->
 
-// ---- TAB NAVIGATION ----
-document.querySelectorAll('nav button').forEach(btn=>{
+<!-- ============================================================
+     JAVASCRIPT — MAXIMUM OVERDRIVE
+     ============================================================ -->
+<script>
+(function(){
+'use strict';
+
+/* ================================================================
+   TASK DATA
+   ================================================================ */
+const TASKS=[
+  {id:'F001',name:'ユーザー認証（メール/Google）',status:'完了',pri:'高',sprint:'S001',criteria:['メールアドレスでの新規登録・ログイン','Googleアカウントでのソーシャルログイン','パスワードリセット機能','JWTトークンベースの認証','セッション管理']},
+  {id:'F002',name:'ユーザープロフィール管理',status:'完了',pri:'中',sprint:'S001',criteria:['プロフィール情報の表示・編集','アバター画像のアップロード','出品者/購入者ロール切替','公開プロフィールページ']},
+  {id:'F003',name:'エージェント登録フォーム',status:'完了',pri:'高',sprint:'S002',criteria:['エージェント基本情報の入力','カテゴリ・タグの設定','コードファイルのアップロード','プレビュー機能','下書き保存']},
+  {id:'F004',name:'エージェント一覧・検索',status:'完了',pri:'高',sprint:'S002',criteria:['カテゴリ別フィルタリング','キーワード検索','ソート機能（人気順/新着順/価格順）','ページネーション','タグフィルタ']},
+  {id:'F005',name:'エージェント詳細ページ',status:'完了',pri:'高',sprint:'S003',criteria:['エージェント情報の詳細表示','デモ実行機能','レビュー・評価の表示','関連エージェントの推薦','パフォーマンスメトリクス']},
+  {id:'F006',name:'成果トラッキングAPI',status:'未着手',pri:'高',sprint:'S003',criteria:['API呼び出し回数の記録','実行結果のログ保存','成果メトリクスの集計','リアルタイムダッシュボード','Webhook通知']},
+  {id:'F007',name:'レベニューシェア計算エンジン',status:'未着手',pri:'最高',sprint:'S004',criteria:['60/30/10の分配計算','月次精算処理','最低支払額の管理','通貨換算対応','税務レポート生成']},
+  {id:'F008',name:'出品者ダッシュボード',status:'未着手',pri:'高',sprint:'S004',criteria:['売上・収益のリアルタイム表示','エージェント別パフォーマンス','顧客フィードバック一覧','出金申請・履歴','分析レポート']},
+  {id:'F009',name:'Stripe Connect決済統合',status:'未着手',pri:'最高',sprint:'S005',criteria:['Stripe Connectアカウント連携','定期課金の設定','成果連動課金の実装','支払い履歴','請求書自動生成']},
+  {id:'F010',name:'通知システム',status:'未着手',pri:'中',sprint:'S005',criteria:['アプリ内通知','メール通知','Slack連携','通知設定のカスタマイズ','リアルタイムプッシュ']},
+];
+
+const SPRINTS=[
+  {id:'S001',name:'認証・プロフィール基盤',tasks:['F001','F002'],result:'PASS'},
+  {id:'S002',name:'エージェント登録・検索',tasks:['F003','F004'],result:'PASS'},
+  {id:'S003',name:'詳細ページ・成果API',tasks:['F005','F006'],result:'PASS'},
+  {id:'S004',name:'収益エンジン・ダッシュボード',tasks:['F007','F008'],result:'PASS'},
+  {id:'S005',name:'決済・通知統合',tasks:['F009','F010'],result:'PASS'},
+];
+
+const ACTIVITY=[
+  {type:'pass',text:'F003 エージェント登録フォーム'},
+  {type:'pass',text:'F004 エージェント一覧・検索'},
+  {type:'pass',text:'F005 エージェント詳細ページ'},
+  {type:'pass',text:'F006 成果トラッキングAPI'},
+  {type:'pass',text:'F008 出品者ダッシュボード'},
+];
+
+/* ================================================================
+   TAB NAVIGATION
+   ================================================================ */
+const tabBtns=document.querySelectorAll('.tab-btn');
+const tabPanels=document.querySelectorAll('.tab-panel');
+tabBtns.forEach(btn=>{
   btn.addEventListener('click',()=>{
-    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    tabBtns.forEach(b=>b.classList.remove('active'));
+    tabPanels.forEach(p=>p.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById(btn.dataset.tab).classList.add('active');
-    animateOnTab(btn.dataset.tab);
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    animateVisibleElements();
   });
 });
 
-// ---- CRITERIA TOGGLE ----
-function toggleCriteria(btn){
-  const list=btn.nextElementSibling;
-  list.classList.toggle('open');
-  btn.textContent=list.classList.contains('open')?'[-] 基準':'[+] 基準';
+/* ================================================================
+   CIRCUIT BOARD BACKGROUND
+   ================================================================ */
+const circuitC=document.getElementById('circuitCanvas');
+const circuitCtx=circuitC.getContext('2d');
+let cW,cH;
+function resizeCircuit(){cW=circuitC.width=window.innerWidth;cH=circuitC.height=window.innerHeight}
+resizeCircuit();
+window.addEventListener('resize',resizeCircuit);
+
+const nodes=[];
+const nodeCount=80;
+for(let i=0;i<nodeCount;i++){
+  nodes.push({x:Math.random()*cW,y:Math.random()*cH,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:1.5+Math.random()*2,pulse:Math.random()*Math.PI*2});
+}
+function drawCircuit(t){
+  circuitCtx.clearRect(0,0,cW,cH);
+  // Grid lines
+  circuitCtx.strokeStyle='rgba(0,255,242,.025)';
+  circuitCtx.lineWidth=.5;
+  for(let x=0;x<cW;x+=60){circuitCtx.beginPath();circuitCtx.moveTo(x,0);circuitCtx.lineTo(x,cH);circuitCtx.stroke()}
+  for(let y=0;y<cH;y+=60){circuitCtx.beginPath();circuitCtx.moveTo(0,y);circuitCtx.lineTo(cW,y);circuitCtx.stroke()}
+
+  // Connections
+  for(let i=0;i<nodes.length;i++){
+    for(let j=i+1;j<nodes.length;j++){
+      const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<150){
+        const alpha=(.15*(1-dist/150))*(0.5+0.5*Math.sin(t/1000+nodes[i].pulse));
+        circuitCtx.strokeStyle=`rgba(0,255,242,${alpha})`;
+        circuitCtx.lineWidth=.5;
+        circuitCtx.beginPath();circuitCtx.moveTo(nodes[i].x,nodes[i].y);circuitCtx.lineTo(nodes[j].x,nodes[j].y);circuitCtx.stroke();
+        // Data pulse
+        if(dist<80&&Math.random()<.001){
+          const px=nodes[i].x+(nodes[j].x-nodes[i].x)*((t/500)%1);
+          const py=nodes[i].y+(nodes[j].y-nodes[i].y)*((t/500)%1);
+          circuitCtx.fillStyle='rgba(0,255,242,.8)';
+          circuitCtx.beginPath();circuitCtx.arc(px,py,2,0,Math.PI*2);circuitCtx.fill();
+        }
+      }
+    }
+  }
+  // Nodes
+  nodes.forEach(n=>{
+    n.x+=n.vx;n.y+=n.vy;
+    if(n.x<0||n.x>cW)n.vx*=-1;
+    if(n.y<0||n.y>cH)n.vy*=-1;
+    const glow=.3+.3*Math.sin(t/800+n.pulse);
+    circuitCtx.fillStyle=`rgba(0,255,242,${glow})`;
+    circuitCtx.beginPath();circuitCtx.arc(n.x,n.y,n.r,0,Math.PI*2);circuitCtx.fill();
+  });
 }
 
-// ---- KPI COUNT-UP ----
-function animateCountUp(){
-  document.querySelectorAll('.kpi-value[data-count]').forEach(el=>{
-    const target=parseInt(el.dataset.count);
-    const suffix=el.dataset.suffix||'';
+/* ================================================================
+   MATRIX RAIN
+   ================================================================ */
+const matrixC=document.getElementById('matrixCanvas');
+const matrixCtx=matrixC.getContext('2d');
+function resizeMatrix(){matrixC.width=window.innerWidth;matrixC.height=window.innerHeight}
+resizeMatrix();
+window.addEventListener('resize',resizeMatrix);
+const katakana='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+const fontSize=14;
+const columns=Math.floor(matrixC.width/fontSize);
+const drops=new Array(columns).fill(1).map(()=>Math.random()*matrixC.height/fontSize|0);
+const speeds=new Array(columns).fill(0).map(()=>.5+Math.random()*1.5);
+function drawMatrix(){
+  matrixCtx.fillStyle='rgba(3,3,8,.1)';
+  matrixCtx.fillRect(0,0,matrixC.width,matrixC.height);
+  matrixCtx.font=fontSize+'px monospace';
+  for(let i=0;i<drops.length;i++){
+    const char=katakana[Math.random()*katakana.length|0];
+    const green=Math.random()>.3;
+    matrixCtx.fillStyle=green?`rgba(0,255,136,${.3+Math.random()*.5})`:`rgba(0,255,242,${.2+Math.random()*.4})`;
+    matrixCtx.fillText(char,i*fontSize,drops[i]*fontSize);
+    drops[i]+=speeds[i];
+    if(drops[i]*fontSize>matrixC.height&&Math.random()>.975)drops[i]=0;
+  }
+}
+
+/* ================================================================
+   FLOATING GEOMETRY
+   ================================================================ */
+const geoC=document.getElementById('geoCanvas');
+const geoCtx=geoC.getContext('2d');
+function resizeGeo(){geoC.width=window.innerWidth;geoC.height=window.innerHeight}
+resizeGeo();
+window.addEventListener('resize',resizeGeo);
+const shapes=[];
+for(let i=0;i<15;i++){
+  shapes.push({
+    x:Math.random()*geoC.width,y:Math.random()*geoC.height,
+    size:30+Math.random()*60,rot:Math.random()*Math.PI*2,
+    rotSpeed:(Math.random()-.5)*.01,
+    type:['hex','tri','diamond'][Math.random()*3|0],
+    color:[`rgba(0,255,242,.12)`,`rgba(255,0,255,.1)`,`rgba(0,102,255,.1)`,`rgba(139,0,255,.08)`][Math.random()*4|0],
+    vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,
+  });
+}
+function drawHex(ctx,x,y,r,rot){ctx.beginPath();for(let i=0;i<6;i++){const a=rot+i*Math.PI/3;ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a))}ctx.closePath()}
+function drawTri(ctx,x,y,r,rot){ctx.beginPath();for(let i=0;i<3;i++){const a=rot+i*Math.PI*2/3;ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a))}ctx.closePath()}
+function drawDiamond(ctx,x,y,r,rot){ctx.beginPath();for(let i=0;i<4;i++){const a=rot+i*Math.PI/2;ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a))}ctx.closePath()}
+function drawGeo(t){
+  geoCtx.clearRect(0,0,geoC.width,geoC.height);
+  shapes.forEach(s=>{
+    s.x+=s.vx;s.y+=s.vy;s.rot+=s.rotSpeed;
+    if(s.x<-100)s.x=geoC.width+100;if(s.x>geoC.width+100)s.x=-100;
+    if(s.y<-100)s.y=geoC.height+100;if(s.y>geoC.height+100)s.y=-100;
+    geoCtx.strokeStyle=s.color;geoCtx.lineWidth=1;
+    if(s.type==='hex')drawHex(geoCtx,s.x,s.y,s.size,s.rot);
+    else if(s.type==='tri')drawTri(geoCtx,s.x,s.y,s.size,s.rot);
+    else drawDiamond(geoCtx,s.x,s.y,s.size,s.rot);
+    geoCtx.stroke();
+  });
+}
+
+/* ================================================================
+   MOUSE TRAIL PARTICLES
+   ================================================================ */
+const pCanvas=document.getElementById('particle-canvas');
+const pCtx=pCanvas.getContext('2d');
+function resizeP(){pCanvas.width=window.innerWidth;pCanvas.height=window.innerHeight}
+resizeP();
+window.addEventListener('resize',resizeP);
+const particles=[];
+let mouseX=0,mouseY=0;
+document.addEventListener('mousemove',e=>{
+  mouseX=e.clientX;mouseY=e.clientY;
+  for(let i=0;i<2;i++){
+    particles.push({
+      x:mouseX,y:mouseY,
+      vx:(Math.random()-.5)*2,vy:(Math.random()-.5)*2,
+      life:1,decay:.015+Math.random()*.02,
+      color:['#00fff2','#ff00ff','#00ff88','#0066ff'][Math.random()*4|0],
+      size:1+Math.random()*2,
+    });
+  }
+});
+function drawParticles(){
+  pCtx.clearRect(0,0,pCanvas.width,pCanvas.height);
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;
+    if(p.life<=0){particles.splice(i,1);continue}
+    pCtx.globalAlpha=p.life;
+    pCtx.fillStyle=p.color;
+    pCtx.shadowColor=p.color;pCtx.shadowBlur=8;
+    pCtx.beginPath();pCtx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);pCtx.fill();
+  }
+  pCtx.globalAlpha=1;pCtx.shadowBlur=0;
+}
+
+/* ================================================================
+   CLICK RIPPLE
+   ================================================================ */
+document.addEventListener('click',e=>{
+  const r1=document.createElement('div');r1.className='click-ripple';
+  r1.style.left=e.clientX+'px';r1.style.top=e.clientY+'px';
+  document.body.appendChild(r1);
+  const r2=document.createElement('div');r2.className='click-ripple-inner';
+  r2.style.left=e.clientX+'px';r2.style.top=e.clientY+'px';
+  document.body.appendChild(r2);
+  setTimeout(()=>{r1.remove();r2.remove()},900);
+});
+
+/* ================================================================
+   3D TILT ON CARDS
+   ================================================================ */
+document.querySelectorAll('.glass-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const rect=card.getBoundingClientRect();
+    const x=(e.clientX-rect.left)/rect.width-.5;
+    const y=(e.clientY-rect.top)/rect.height-.5;
+    card.style.transform=`perspective(800px) rotateY(${x*8}deg) rotateX(${-y*8}deg) translateY(-4px)`;
+  });
+  card.addEventListener('mouseleave',()=>{
+    card.style.transform='';
+  });
+});
+
+/* ================================================================
+   COUNTUP ANIMATION
+   ================================================================ */
+function animateCountUps(){
+  document.querySelectorAll('.countup').forEach(el=>{
+    const target=parseInt(el.dataset.target)||0;
+    if(el.dataset.done)return;
+    el.dataset.done='1';
     let current=0;
-    if(target===0){el.textContent='0'+suffix;return}
-    const step=Math.max(1,Math.floor(target/30));
-    const interval=setInterval(()=>{
+    const step=Math.max(1,Math.ceil(target/40));
+    const iv=setInterval(()=>{
       current+=step;
-      if(current>=target){current=target;clearInterval(interval)}
-      el.textContent=current+suffix;
+      if(current>=target){current=target;clearInterval(iv)}
+      el.textContent=current;
     },40);
   });
 }
 
-// ---- BAR FILL ANIMATION ----
-function animateBars(){
-  document.querySelectorAll('.kpi-bar-fill[data-width]').forEach(el=>{
-    setTimeout(()=>el.style.width=el.dataset.width,300);
-  });
-  document.querySelectorAll('.chart-bar-fill[data-width]').forEach(el=>{
-    setTimeout(()=>el.style.width=el.dataset.width,500);
-  });
-}
-
-// ---- RING CHART ANIMATION ----
+/* ================================================================
+   RING ANIMATION
+   ================================================================ */
 function animateRings(){
-  document.querySelectorAll('.ring-chart .fg').forEach(circle=>{
-    const pct=parseFloat(circle.dataset.pct);
-    const circumference=2*Math.PI*42;
-    const dashArray=circumference*pct/100;
-    setTimeout(()=>{
-      circle.style.strokeDasharray=`${dashArray} ${circumference}`;
-    },500);
+  document.querySelectorAll('.ring-fill').forEach(circle=>{
+    const target=parseInt(circle.dataset.target)||0;
+    setTimeout(()=>{circle.style.strokeDashoffset=220-target},300);
   });
 }
 
-function animateOnTab(tab){
-  if(tab==='dashboard'){animateCountUp();animateBars();animateRings()}
-  if(tab==='market'){animateBars()}
+/* ================================================================
+   BAR CHART ANIMATION
+   ================================================================ */
+function animateBars(){
+  document.querySelectorAll('.bar-fill').forEach(bar=>{
+    const h=parseInt(bar.dataset.height)||0;
+    setTimeout(()=>{bar.style.height=h+'px'},300);
+  });
 }
 
-// ---- GRID BACKGROUND (circuit board) ----
-(function(){
-  const canvas=document.getElementById('gridCanvas');
-  const ctx=canvas.getContext('2d');
-  let w,h,dots=[];
-  function resize(){
-    w=canvas.width=window.innerWidth;
-    h=canvas.height=window.innerHeight;
-    dots=[];
-    const spacing=50;
-    for(let x=0;x<w;x+=spacing){
-      for(let y=0;y<h;y+=spacing){
-        dots.push({x:x+Math.random()*20-10,y:y+Math.random()*20-10,ox:x,oy:y});
-      }
+/* ================================================================
+   ACTIVITY FEED — TYPING ANIMATION
+   ================================================================ */
+function buildActivityFeed(){
+  const feed=document.getElementById('activityFeed');
+  if(!feed||feed.children.length>0)return;
+  ACTIVITY.forEach((item,i)=>{
+    const div=document.createElement('div');
+    div.className='activity-item';
+    div.style.animationDelay=(i*0.3)+'s';
+    div.innerHTML=`<span class="${item.type}">[${item.type.toUpperCase()}]</span> ${item.text}`;
+    feed.appendChild(div);
+  });
+}
+
+/* ================================================================
+   TASK TABLE
+   ================================================================ */
+function buildTaskTable(){
+  const tbody=document.querySelector('#taskTable tbody');
+  if(!tbody||tbody.children.length>0)return;
+  TASKS.forEach(t=>{
+    const statusClass=t.status==='完了'?'badge-done':t.status==='進行中'?'badge-progress':'badge-todo';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="neon-cyan">${t.id}</td>
+      <td>${t.name}</td>
+      <td><span class="badge ${statusClass}">${t.status}</span></td>
+      <td>${t.pri}</td>
+      <td>${t.sprint}</td>
+      <td><button class="expand-btn" data-id="${t.id}">&#x25BC;</button></td>`;
+    tbody.appendChild(tr);
+    const ctr=document.createElement('tr');
+    ctr.className='criteria-row';
+    ctr.id='criteria-'+t.id;
+    ctr.innerHTML=`<td colspan="6"><strong>受入条件:</strong><br>${t.criteria.map(c=>'&#x25B8; '+c).join('<br>')}</td>`;
+    tbody.appendChild(ctr);
+  });
+  tbody.addEventListener('click',e=>{
+    if(e.target.classList.contains('expand-btn')){
+      const id=e.target.dataset.id;
+      document.getElementById('criteria-'+id).classList.toggle('open');
+      e.target.textContent=e.target.textContent==='▼'?'▲':'▼';
     }
-  }
-  resize();window.addEventListener('resize',resize);
+  });
+}
 
-  let mouseX=-1000,mouseY=-1000;
-  document.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY});
+/* ================================================================
+   SPRINT GRID
+   ================================================================ */
+function buildSprintGrid(){
+  const grid=document.getElementById('sprintGrid');
+  if(!grid||grid.children.length>0)return;
+  SPRINTS.forEach(s=>{
+    const card=document.createElement('div');
+    card.className='glass-card sprint-card glitch-hover data-corrupt';
+    card.innerHTML=`
+      <div class="sprint-pass">&#x2714;</div>
+      <div class="sprint-id neon-cyan">${s.id}</div>
+      <div style="font-weight:700;margin:.3rem 0;letter-spacing:.1em">${s.name}</div>
+      <div class="sprint-label">タスク: ${s.tasks.join(', ')}</div>
+      <div class="sprint-label" style="margin-top:.3rem">結果: <span class="neon-green">PASS</span></div>
+      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>`;
+    grid.appendChild(card);
+  });
+}
 
-  function draw(){
-    ctx.clearRect(0,0,w,h);
-    const time=Date.now()*0.001;
-    dots.forEach((d,i)=>{
-      d.x=d.ox+Math.sin(time+i*0.1)*3;
-      d.y=d.oy+Math.cos(time+i*0.13)*3;
-
-      const dx=d.x-mouseX,dy=d.y-mouseY;
-      const dist=Math.sqrt(dx*dx+dy*dy);
-      if(dist<120){
-        const force=(120-dist)/120*8;
-        d.x+=dx/dist*force;
-        d.y+=dy/dist*force;
-      }
-
-      ctx.beginPath();
-      ctx.arc(d.x,d.y,1,0,Math.PI*2);
-      ctx.fillStyle='rgba(0,255,242,0.15)';
-      ctx.fill();
+/* ================================================================
+   ANIMATE VISIBLE ELEMENTS
+   ================================================================ */
+function animateVisibleElements(){
+  animateCountUps();
+  animateRings();
+  animateBars();
+  buildActivityFeed();
+  buildTaskTable();
+  buildSprintGrid();
+  // re-apply 3D tilt to new cards
+  document.querySelectorAll('.glass-card').forEach(card=>{
+    if(card.dataset.tilt)return;
+    card.dataset.tilt='1';
+    card.addEventListener('mousemove',e=>{
+      const rect=card.getBoundingClientRect();
+      const x=(e.clientX-rect.left)/rect.width-.5;
+      const y=(e.clientY-rect.top)/rect.height-.5;
+      card.style.transform=`perspective(800px) rotateY(${x*8}deg) rotateX(${-y*8}deg) translateY(-4px)`;
     });
+    card.addEventListener('mouseleave',()=>{card.style.transform=''});
+  });
+}
 
-    for(let i=0;i<dots.length;i++){
-      for(let j=i+1;j<dots.length;j++){
-        const dx=dots[i].x-dots[j].x;
-        const dy=dots[i].y-dots[j].y;
-        const dist=Math.sqrt(dx*dx+dy*dy);
-        if(dist<70){
-          ctx.beginPath();
-          ctx.moveTo(dots[i].x,dots[i].y);
-          ctx.lineTo(dots[j].x,dots[j].y);
-          ctx.strokeStyle=`rgba(0,255,242,${0.06*(1-dist/70)})`;
-          ctx.lineWidth=0.5;
-          ctx.stroke();
-        }
-      }
-    }
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
+/* ================================================================
+   MAIN ANIMATION LOOP
+   ================================================================ */
+let frame=0;
+function animate(t){
+  frame++;
+  drawCircuit(t);
+  if(frame%2===0)drawMatrix();
+  drawGeo(t);
+  drawParticles();
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
 
-// ---- MATRIX RAIN ----
-(function(){
-  const canvas=document.getElementById('matrix-rain');
-  const ctx=canvas.getContext('2d');
-  let w,h,columns,drops;
-  const chars='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789VAXAGENT';
-
-  function resize(){
-    w=canvas.width=window.innerWidth;
-    h=canvas.height=window.innerHeight;
-    columns=Math.floor(w/18);
-    drops=Array(columns).fill(0).map(()=>Math.random()*h/18);
-  }
-  resize();window.addEventListener('resize',resize);
-
-  function draw(){
-    ctx.fillStyle='rgba(3,3,8,0.08)';
-    ctx.fillRect(0,0,w,h);
-    ctx.font='14px monospace';
-
-    for(let i=0;i<columns;i++){
-      const char=chars[Math.floor(Math.random()*chars.length)];
-      const x=i*18;
-      const y=drops[i]*18;
-
-      ctx.fillStyle=`rgba(0,255,242,${0.3+Math.random()*0.3})`;
-      ctx.fillText(char,x,y);
-
-      if(y>h&&Math.random()>0.975){
-        drops[i]=0;
-      }
-      drops[i]+=0.5+Math.random()*0.5;
-    }
-  }
-  setInterval(draw,50);
-})();
-
-// ---- PARTICLES ----
-(function(){
-  const canvas=document.getElementById('particles');
-  const ctx=canvas.getContext('2d');
-  let w,h;
-  const particles=[];
-  const PARTICLE_COUNT=40;
-
-  function resize(){
-    w=canvas.width=window.innerWidth;
-    h=canvas.height=window.innerHeight;
-  }
-  resize();window.addEventListener('resize',resize);
-
-  for(let i=0;i<PARTICLE_COUNT;i++){
-    particles.push({
-      x:Math.random()*window.innerWidth,
-      y:Math.random()*window.innerHeight,
-      vx:(Math.random()-0.5)*0.3,
-      vy:(Math.random()-0.5)*0.3,
-      size:Math.random()*2+0.5,
-      color:['rgba(0,255,242,','rgba(255,0,255,','rgba(0,102,255,'][Math.floor(Math.random()*3)]
-    });
-  }
-
-  function draw(){
-    ctx.clearRect(0,0,w,h);
-    particles.forEach(p=>{
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0)p.x=w;if(p.x>w)p.x=0;
-      if(p.y<0)p.y=h;if(p.y>h)p.y=0;
-
-      const alpha=0.3+Math.sin(Date.now()*0.003+p.x)*0.2;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-      ctx.fillStyle=p.color+alpha+')';
-      ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-
-// ---- INITIAL ANIMATIONS ----
-window.addEventListener('load',()=>{
-  setTimeout(()=>{
-    animateCountUp();
-    animateBars();
-    animateRings();
-  },500);
+/* ================================================================
+   PARALLAX ON SCROLL
+   ================================================================ */
+window.addEventListener('scroll',()=>{
+  const s=window.scrollY;
+  const circuit=document.getElementById('circuit-bg');
+  const matrix=document.getElementById('matrix-rain');
+  const geo=document.getElementById('geo-layer');
+  if(circuit)circuit.style.transform=`translateY(${s*.05}px)`;
+  if(matrix)matrix.style.transform=`translateY(${s*.1}px)`;
+  if(geo)geo.style.transform=`translateY(${s*.15}px)`;
 });
 
-// ---- HOLOGRAPHIC CARD 3D TILT ----
-document.querySelectorAll('.holo-card,.agent-card,.sprint-card,.kpi-card').forEach(card=>{
-  card.addEventListener('mousemove',e=>{
-    const rect=card.getBoundingClientRect();
-    const x=(e.clientX-rect.left)/rect.width;
-    const y=(e.clientY-rect.top)/rect.height;
-    const rotateX=(y-0.5)*-10;
-    const rotateY=(x-0.5)*10;
-    card.style.transform=`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
-  });
-  card.addEventListener('mouseleave',()=>{
-    card.style.transform='perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
-  });
-});
+/* ================================================================
+   INIT
+   ================================================================ */
+animateVisibleElements();
+
+})();
 </script>
 </body>
 </html>
