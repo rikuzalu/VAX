@@ -3,1112 +3,1886 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>和 — プロジェクト統括ダッシュボード</title>
+<title>和 v4 — 超越の美 — プロジェクト統括ダッシュボード</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
-   基盤リセット・変数
-   ============================================================ */
+/* ================================================================
+   和 v4 — 超越の美
+   7層背景 / 金継ぎ / 青海波 / 桜吹雪40+ / 金粉30+
+   家紋 / 竹林 / 枯山水 / 水面 / 御朱印 / 掛け軸 / 障子
+   ================================================================ */
+
+/* --- リセット・変数 --- */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --urushi:#0a0908;--sumi:#1a1815;--sumi2:#231f1a;
+  --urushi:#0a0908;--sumi:#1a1815;--sumi2:#2a2520;
   --gold:#c9a84c;--gold-bright:#d4af37;--gold-light:#f0d060;--gold-pale:#e8d5a3;
   --shu:#c43e3e;--shu-dark:#b33030;
   --ai:#1a3a5c;--ai-light:#2a5a8c;
   --matsu:#2d5a3d;--matsu-light:#3d7a5d;
   --washi:#f5f0e8;--washi-dim:#d4cbbe;--washi-dark:#a09585;
-  --sakura:#ffb7c5;--sakura-deep:#ff8fa3;
+  --sakura:#ffb7c5;--sakura-deep:#ff8fa3;--sakura-pale:#ffd1dc;
   --fuji:#6a5acd;
+  --tsuki:rgba(255,255,240,0.05);
+  --gold-grad:linear-gradient(135deg,#c9a84c,#d4af37,#f0d060,#d4af37,#c9a84c);
 }
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;font-size:16px}
 body{
   background:var(--urushi);color:var(--washi-dim);
   font-family:'Noto Sans JP',sans-serif;font-weight:300;
-  line-height:1.8;overflow-x:hidden;min-height:100vh;
+  line-height:1.8;letter-spacing:0.04em;
+  overflow-x:hidden;min-height:100vh;
 }
-h1,h2,h3,h4{font-family:'Shippori Mincho B1',serif;font-weight:600;color:var(--washi)}
+h1,h2,h3,h4{font-family:'Shippori Mincho B1',serif;font-weight:600;color:var(--washi);letter-spacing:0.08em}
 a{color:var(--gold);text-decoration:none}
+::selection{background:rgba(201,168,76,0.3);color:var(--washi)}
 
-/* ============================================================
-   レイヤー1: 和紙テクスチャオーバーレイ
-   ============================================================ */
-.washi-overlay{
-  position:fixed;inset:0;pointer-events:none;z-index:1;
-  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E") repeat;
-  mix-blend-mode:overlay;
+/* ================================================================
+   LAYER 1: 漆黒ベース + 暖かみ
+   ================================================================ */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 30%,rgba(42,37,32,0.4) 0%,var(--urushi) 70%);
 }
 
-/* ============================================================
-   レイヤー2: 墨流し (suminagashi)
-   ============================================================ */
+/* ================================================================
+   LAYER 2: 墨流し (suminagashi) — animated ink marbling
+   ================================================================ */
 @keyframes suminagashi{
-  0%{background-position:0% 50%,100% 0%,50% 100%}
-  33%{background-position:100% 30%,0% 80%,80% 20%}
-  66%{background-position:30% 100%,70% 10%,10% 60%}
-  100%{background-position:0% 50%,100% 0%,50% 100%}
+  0%{background-position:0% 50%,100% 0%,50% 100%,25% 75%}
+  25%{background-position:100% 30%,0% 80%,80% 20%,60% 40%}
+  50%{background-position:50% 100%,50% 50%,20% 70%,80% 10%}
+  75%{background-position:30% 10%,70% 90%,60% 30%,10% 80%}
+  100%{background-position:0% 50%,100% 0%,50% 100%,25% 75%}
 }
 .suminagashi{
   position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
     radial-gradient(ellipse at 25% 40%,rgba(201,168,76,0.04) 0%,transparent 55%),
     radial-gradient(ellipse at 75% 25%,rgba(196,62,62,0.025) 0%,transparent 50%),
-    radial-gradient(ellipse at 50% 80%,rgba(26,58,92,0.03) 0%,transparent 55%);
-  background-size:250% 250%;
-  animation:suminagashi 40s ease-in-out infinite;
+    radial-gradient(ellipse at 50% 80%,rgba(26,58,92,0.035) 0%,transparent 55%),
+    radial-gradient(ellipse at 60% 15%,rgba(45,90,61,0.02) 0%,transparent 45%);
+  background-size:280% 280%;
+  animation:suminagashi 50s ease-in-out infinite;
 }
 
-/* ============================================================
-   レイヤー3: 薄雲
-   ============================================================ */
-@keyframes cloud-drift{
-  0%{transform:translateX(-30%) translateY(0);opacity:0.015}
-  50%{transform:translateX(10%) translateY(-2%);opacity:0.03}
-  100%{transform:translateX(-30%) translateY(0);opacity:0.015}
-}
-@keyframes cloud-drift2{
-  0%{transform:translateX(20%) translateY(2%);opacity:0.02}
-  50%{transform:translateX(-20%) translateY(-1%);opacity:0.01}
-  100%{transform:translateX(20%) translateY(2%);opacity:0.02}
-}
+/* ================================================================
+   LAYER 3: 薄雲 (clouds) — 4 layers
+   ================================================================ */
+@keyframes cloud1{0%{transform:translateX(-30%)translateY(0);opacity:.015}50%{transform:translateX(10%)translateY(-2%);opacity:.035}100%{transform:translateX(-30%)translateY(0);opacity:.015}}
+@keyframes cloud2{0%{transform:translateX(20%)translateY(2%);opacity:.02}50%{transform:translateX(-25%)translateY(-1%);opacity:.01}100%{transform:translateX(20%)translateY(2%);opacity:.02}}
+@keyframes cloud3{0%{transform:translateX(-10%)translateY(1%);opacity:.01}50%{transform:translateX(15%)translateY(-3%);opacity:.025}100%{transform:translateX(-10%)translateY(1%);opacity:.01}}
+@keyframes cloud4{0%{transform:translateX(5%);opacity:.008}50%{transform:translateX(-15%);opacity:.02}100%{transform:translateX(5%);opacity:.008}}
 .clouds{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
-.cloud{
-  position:absolute;border-radius:50%;
-  background:radial-gradient(ellipse,rgba(245,240,232,0.5),transparent 70%);
-  filter:blur(60px);
-}
-.cloud:nth-child(1){width:900px;height:200px;top:10%;left:-10%;animation:cloud-drift 80s ease-in-out infinite}
-.cloud:nth-child(2){width:700px;height:150px;top:40%;left:30%;animation:cloud-drift2 100s ease-in-out infinite}
-.cloud:nth-child(3){width:1100px;height:180px;top:70%;left:-20%;animation:cloud-drift 120s ease-in-out infinite 20s}
+.cloud{position:absolute;border-radius:50%;background:radial-gradient(ellipse,rgba(245,240,232,0.5),transparent 70%);filter:blur(60px)}
+.cloud:nth-child(1){width:900px;height:200px;top:8%;left:-10%;animation:cloud1 80s ease-in-out infinite}
+.cloud:nth-child(2){width:700px;height:150px;top:35%;left:30%;animation:cloud2 100s ease-in-out infinite}
+.cloud:nth-child(3){width:1100px;height:180px;top:65%;left:-20%;animation:cloud3 120s ease-in-out infinite 15s}
+.cloud:nth-child(4){width:800px;height:120px;top:90%;left:10%;animation:cloud4 90s ease-in-out infinite 30s}
 
-/* ============================================================
-   レイヤー4: 桜吹雪 (30枚)
-   ============================================================ */
+/* ================================================================
+   LAYER 4: 和紙テクスチャ noise overlay
+   ================================================================ */
+.washi-overlay{
+  position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E") repeat;
+  mix-blend-mode:overlay;
+}
+
+/* ================================================================
+   LAYER 5: 月 (moon) — upper right glow
+   ================================================================ */
+.moon{
+  position:fixed;top:60px;right:80px;width:120px;height:120px;
+  border-radius:50%;pointer-events:none;z-index:1;
+  background:radial-gradient(circle,rgba(255,255,240,0.08) 0%,rgba(255,255,240,0.03) 40%,transparent 70%);
+  box-shadow:0 0 80px 40px rgba(255,255,240,0.02),0 0 160px 80px rgba(255,255,240,0.01);
+  animation:moon-pulse 8s ease-in-out infinite;
+}
+@keyframes moon-pulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+
+/* ================================================================
+   LAYER 6: 桜吹雪 (sakura blizzard) — 45 petals
+   ================================================================ */
 .sakura-container{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
 .sakura-petal{
   position:absolute;
-  width:var(--size,12px);height:var(--size,12px);
-  background:var(--sakura);
-  border-radius:50% 0 50% 0;
+  width:var(--sz,12px);height:var(--sz,12px);
   opacity:0;
-  animation:sakura-fall var(--dur,12s) var(--delay,0s) infinite ease-in;
-  left:var(--x,50%);
-  filter:blur(var(--blur,0px));
+  left:var(--x,50%);top:-20px;
+  filter:blur(var(--bl,0px));
+  animation:sakura-fall var(--dur,12s) var(--del,0s) infinite ease-in;
+}
+.sakura-petal .inner{
+  width:100%;height:100%;
+  background:var(--clr,#ffb7c5);
+  border-radius:50% 0 50% 0;
+  transform:rotate(var(--rot,0deg));
+  animation:sakura-spin var(--spin,6s) linear infinite;
+}
+.sakura-petal.outline .inner{
+  background:transparent;
+  border:1px solid var(--clr,#ffb7c5);
 }
 @keyframes sakura-fall{
-  0%{transform:translateY(-5vh) rotate(0deg) scale(1);opacity:0}
-  8%{opacity:var(--peak-op,0.7)}
-  85%{opacity:var(--peak-op,0.5)}
-  100%{transform:translateY(110vh) translateX(var(--drift,40px)) rotate(var(--spin,360deg)) scale(0.4);opacity:0}
+  0%{transform:translateY(-5vh) translateX(0);opacity:0}
+  8%{opacity:var(--peak,0.7)}
+  70%{opacity:var(--peak,0.7)}
+  100%{transform:translateY(105vh) translateX(var(--drift,30px));opacity:0}
 }
+@keyframes sakura-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 
-/* ============================================================
-   レイヤー5: 金粉パーティクル
-   ============================================================ */
-.kinpun-container{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
-.kinpun{
-  position:absolute;width:var(--ks,2px);height:var(--ks,2px);
-  background:var(--gold-light);border-radius:50%;
-  opacity:0;
-  animation:kinpun-rise var(--kd,18s) var(--kdel,0s) infinite linear;
-  left:var(--kx,50%);bottom:-2%;
-  filter:blur(var(--kb,0px));
+/* ================================================================
+   LAYER 7: 金粉 (gold dust) — 35 particles floating up
+   ================================================================ */
+.gold-dust-container{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.gold-particle{
+  position:absolute;width:var(--gsz,3px);height:var(--gsz,3px);
+  border-radius:50%;bottom:-10px;
+  background:var(--gold-bright);
+  opacity:0;left:var(--gx,50%);
+  animation:gold-float var(--gdur,15s) var(--gdel,0s) infinite ease-out;
 }
-@keyframes kinpun-rise{
-  0%{transform:translateY(0) translateX(0);opacity:0}
-  10%{opacity:var(--kop,0.6)}
-  80%{opacity:var(--kop,0.3)}
-  100%{transform:translateY(-110vh) translateX(var(--kdrift,20px));opacity:0}
+@keyframes gold-float{
+  0%{transform:translateY(0) scale(1);opacity:0}
+  10%{opacity:var(--gop,0.6)}
+  50%{opacity:var(--gop,0.6);transform:translateY(-50vh) scale(0.8)}
+  100%{transform:translateY(-110vh) scale(0.3);opacity:0}
 }
+@keyframes gold-twinkle{0%,100%{opacity:0.3}50%{opacity:1}}
 
-/* ============================================================
-   レイヤー6: 鶴シルエット
-   ============================================================ */
-@keyframes crane-fly{
-  0%{transform:translateX(-200px) translateY(0) scale(0.8);opacity:0}
-  15%{opacity:0.04}
-  85%{opacity:0.04}
-  100%{transform:translateX(calc(100vw + 200px)) translateY(-80px) scale(1);opacity:0}
+/* ================================================================
+   LAYER: 鶴 (crane) silhouettes
+   ================================================================ */
+@keyframes crane-glide{
+  0%{transform:translateX(-100px) translateY(0);opacity:0}
+  10%{opacity:0.04}
+  90%{opacity:0.04}
+  100%{transform:translateX(calc(100vw + 100px)) translateY(-30px);opacity:0}
 }
 .crane{
-  position:fixed;top:15%;pointer-events:none;z-index:1;
-  width:80px;height:40px;opacity:0;
-  animation:crane-fly 60s 10s infinite linear;
-}
-.crane svg{width:100%;height:100%;fill:var(--washi-dark);opacity:0.5}
-
-/* ============================================================
-   青海波アニメーション境界線
-   ============================================================ */
-@keyframes seigaiha-scroll{0%{background-position:0 0}100%{background-position:60px 0}}
-.seigaiha-border{
-  height:16px;width:100%;
-  background:url("data:image/svg+xml,%3Csvg width='60' height='16' viewBox='0 0 60 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 16 C10 16 10 0 20 0 S30 16 30 16' fill='none' stroke='%23c9a84c' stroke-width='0.5' opacity='0.4'/%3E%3Cpath d='M30 16 C40 16 40 0 50 0 S60 16 60 16' fill='none' stroke='%23c9a84c' stroke-width='0.5' opacity='0.4'/%3E%3C/svg%3E") repeat-x;
-  animation:seigaiha-scroll 4s linear infinite;
-  opacity:0.6;
+  position:fixed;pointer-events:none;z-index:1;
+  font-size:40px;opacity:0;color:var(--washi-dark);
+  animation:crane-glide var(--cdur,60s) var(--cdel,0s) infinite linear;
 }
 
-/* ============================================================
-   金継ぎ区切り線
-   ============================================================ */
-@keyframes kintsugi-shimmer{
-  0%{background-position:-200% 0}
-  100%{background-position:200% 0}
+/* ================================================================
+   竹林 (bamboo) side decoration
+   ================================================================ */
+.bamboo-left,.bamboo-right{
+  position:fixed;top:0;bottom:0;width:40px;pointer-events:none;z-index:1;
+  overflow:hidden;
 }
-.kintsugi-line{
-  height:2px;margin:2rem 0;position:relative;
-  background:linear-gradient(90deg,transparent,var(--gold),var(--gold-light),var(--gold),transparent);
-  background-size:200% 100%;
-  animation:kintsugi-shimmer 4s ease-in-out infinite;
-  opacity:0.5;
+.bamboo-left{left:0}
+.bamboo-right{right:0}
+.bamboo-stalk{
+  position:absolute;width:3px;height:100%;
+  background:linear-gradient(180deg,rgba(45,90,61,0.03),rgba(45,90,61,0.08),rgba(45,90,61,0.03));
+  animation:bamboo-sway 8s ease-in-out infinite;
+  transform-origin:bottom center;
 }
-.kintsugi-line::before,.kintsugi-line::after{
-  content:'';position:absolute;top:-3px;width:8px;height:8px;
-  background:var(--gold);border-radius:50%;opacity:0.6;
-}
-.kintsugi-line::before{left:20%}
-.kintsugi-line::after{right:25%}
-
-/* ============================================================
-   灯籠グロー
-   ============================================================ */
-@keyframes lantern-glow{
-  0%,100%{box-shadow:0 0 20px rgba(201,168,76,0.08),0 0 60px rgba(201,168,76,0.03)}
-  50%{box-shadow:0 0 30px rgba(201,168,76,0.15),0 0 80px rgba(201,168,76,0.06)}
+@keyframes bamboo-sway{0%,100%{transform:rotate(-0.5deg)}50%{transform:rotate(0.5deg)}}
+.bamboo-node{
+  position:absolute;width:8px;height:2px;left:-2.5px;
+  background:rgba(45,90,61,0.1);border-radius:1px;
 }
 
-/* ============================================================
-   金テキストシマー
-   ============================================================ */
-@keyframes gold-shimmer{
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
+/* ================================================================
+   水面 (water surface) reflection at bottom
+   ================================================================ */
+.water-surface{
+  position:fixed;bottom:0;left:0;right:0;height:60px;
+  pointer-events:none;z-index:1;
+  background:linear-gradient(180deg,transparent,rgba(26,58,92,0.03));
+  animation:water-shimmer 4s ease-in-out infinite;
 }
-.gold-num{
-  background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold-bright),var(--gold-light),var(--gold));
-  background-size:300% 100%;
-  -webkit-background-clip:text;background-clip:text;
-  -webkit-text-fill-color:transparent;
-  animation:gold-shimmer 3s ease-in-out infinite;
-  font-weight:700;
-}
+@keyframes water-shimmer{0%,100%{opacity:0.5}50%{opacity:1}}
 
-/* ============================================================
-   水紋ホバー
-   ============================================================ */
-@keyframes ripple{
-  0%{transform:scale(0);opacity:0.3}
-  100%{transform:scale(4);opacity:0}
-}
-.card{position:relative;overflow:hidden}
-.card::after{
-  content:'';position:absolute;top:50%;left:50%;width:100px;height:100px;
-  border-radius:50%;border:1px solid var(--gold);
-  transform:scale(0);opacity:0;pointer-events:none;
-  transition:none;
-}
-.card:hover::after{animation:ripple 0.8s ease-out}
-
-/* ============================================================
-   墨滴り登場アニメーション
-   ============================================================ */
-@keyframes ink-reveal{
-  0%{clip-path:circle(0% at 50% 50%);opacity:0}
-  100%{clip-path:circle(75% at 50% 50%);opacity:1}
-}
-.ink-reveal{animation:ink-reveal 0.8s ease-out forwards}
-
-/* ============================================================
-   筆ストローク下線
-   ============================================================ */
-.brush-underline{
-  position:relative;display:inline-block;
-}
-.brush-underline::after{
-  content:'';position:absolute;bottom:-4px;left:0;width:100%;height:6px;
-  background:linear-gradient(90deg,transparent,var(--gold) 15%,var(--gold-light) 50%,var(--gold) 85%,transparent);
-  border-radius:3px;opacity:0.5;
-  mask:url("data:image/svg+xml,%3Csvg width='200' height='6' viewBox='0 0 200 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4 Q20 1 40 3 T80 2 T120 4 T160 2 T200 3' fill='none' stroke='white' stroke-width='6'/%3E%3C/svg%3E") no-repeat center/100% 100%;
-  -webkit-mask:url("data:image/svg+xml,%3Csvg width='200' height='6' viewBox='0 0 200 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4 Q20 1 40 3 T80 2 T120 4 T160 2 T200 3' fill='none' stroke='white' stroke-width='6'/%3E%3C/svg%3E") no-repeat center/100% 100%;
-}
-
-/* ============================================================
-   菱形パターン
-   ============================================================ */
-.hishi-bg{
-  background-image:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0 L40 20 L20 40 L0 20Z' fill='none' stroke='%23c9a84c' stroke-width='0.3' opacity='0.08'/%3E%3C/svg%3E");
-}
-
-/* ============================================================
-   組紐プログレスバー
-   ============================================================ */
-@keyframes kumihimo{0%{background-position:0 0}100%{background-position:24px 0}}
-.kumihimo-bar{
-  height:10px;border-radius:5px;overflow:hidden;
-  background:var(--sumi2);position:relative;
-}
-.kumihimo-fill{
-  height:100%;border-radius:5px;
-  background:repeating-linear-gradient(
-    -45deg,
-    var(--gold) 0px,var(--gold) 4px,
-    var(--gold-bright) 4px,var(--gold-bright) 8px,
-    var(--gold-light) 8px,var(--gold-light) 12px,
-    var(--gold-bright) 12px,var(--gold-bright) 16px,
-    var(--gold) 16px,var(--gold) 20px,
-    var(--shu) 20px,var(--shu) 24px
-  );
-  background-size:24px 100%;
-  animation:kumihimo 1.5s linear infinite;
-  transition:width 1s ease;
-}
-
-/* ============================================================
-   竹ディバイダー
-   ============================================================ */
-.bamboo-divider{
-  width:3px;min-height:100%;
-  background:
-    repeating-linear-gradient(180deg,
-      var(--matsu) 0px,var(--matsu) 30px,
-      var(--matsu-light) 30px,var(--matsu-light) 32px,
-      var(--matsu) 32px,var(--matsu) 62px
-    );
-  opacity:0.3;border-radius:2px;
-}
-
-/* ============================================================
-   レイアウト: ヘッダー
-   ============================================================ */
-.wa-header{
-  position:sticky;top:0;z-index:100;
-  background:linear-gradient(180deg,rgba(10,9,8,0.98),rgba(10,9,8,0.92));
-  backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(201,168,76,0.15);
-  padding:0.8rem 2rem;
-}
-.header-inner{
-  max-width:1400px;margin:0 auto;
-  display:flex;align-items:center;justify-content:space-between;
-}
-
-/* 家紋ロゴ */
+/* ================================================================
+   家紋 (kamon) crest — slowly rotating
+   ================================================================ */
 .kamon{
-  width:44px;height:44px;margin-right:1rem;
-  display:flex;align-items:center;justify-content:center;
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:300px;height:300px;pointer-events:none;z-index:0;
+  opacity:0.015;
+  animation:kamon-rotate 120s linear infinite;
 }
-.kamon svg{width:40px;height:40px}
-.header-title{font-family:'Shippori Mincho B1',serif;font-size:1.3rem;color:var(--washi);letter-spacing:0.2em}
-.header-left{display:flex;align-items:center;gap:0.5rem}
-.header-date{font-size:0.8rem;color:var(--washi-dark);opacity:0.7}
+@keyframes kamon-rotate{0%{transform:translate(-50%,-50%) rotate(0deg)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
+.kamon svg{width:100%;height:100%}
 
-/* ============================================================
-   タブナビゲーション
-   ============================================================ */
-.tab-nav{
-  display:flex;gap:0;overflow-x:auto;scrollbar-width:none;
-  background:rgba(26,24,21,0.6);
-  border-bottom:1px solid rgba(201,168,76,0.1);
-  padding:0 2rem;
+/* ================================================================
+   金継ぎ (kintsugi) dividers
+   ================================================================ */
+.kintsugi-divider{
+  position:relative;height:3px;margin:2.5rem 0;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,0.15),rgba(212,175,55,0.3),rgba(201,168,76,0.15),transparent);
+  overflow:hidden;
 }
-.tab-nav::-webkit-scrollbar{display:none}
-.tab-btn{
-  padding:0.8rem 1.4rem;font-size:0.85rem;color:var(--washi-dark);
-  background:none;border:none;cursor:pointer;white-space:nowrap;
-  font-family:'Noto Sans JP',sans-serif;position:relative;
-  transition:color 0.3s;letter-spacing:0.05em;
+.kintsugi-divider::after{
+  content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(240,208,96,0.6),transparent);
+  animation:kintsugi-light 4s ease-in-out infinite;
 }
-.tab-btn:hover{color:var(--washi)}
-.tab-btn.active{color:var(--gold)}
-.tab-btn.active::after{
-  content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;
-  background:linear-gradient(90deg,transparent,var(--gold),transparent);
-}
+@keyframes kintsugi-light{0%{left:-60%}100%{left:160%}}
 
-/* ============================================================
-   メインコンテンツ
-   ============================================================ */
-.main-content{
-  max-width:1400px;margin:0 auto;padding:2rem;
-  position:relative;z-index:10;
-}
-.tab-content{display:none}
-.tab-content.active{display:block;animation:ink-reveal 0.6s ease-out}
-
-/* ============================================================
-   掛け軸カード
-   ============================================================ */
-.card{
-  background:linear-gradient(135deg,rgba(26,24,21,0.85),rgba(35,31,26,0.75));
-  border:1px solid rgba(201,168,76,0.1);
-  border-radius:4px;padding:1.5rem;
-  transition:all 0.4s ease;
+/* ================================================================
+   青海波 (seigaiha) wave pattern border
+   ================================================================ */
+.seigaiha-border{
   position:relative;overflow:hidden;
 }
-.card:hover{
-  border-color:rgba(201,168,76,0.25);
-  animation:lantern-glow 2s ease-in-out infinite;
+.seigaiha-border::before{
+  content:'';position:absolute;bottom:-2px;left:0;right:0;height:6px;
+  background:
+    radial-gradient(circle at 10px 6px,transparent 5px,rgba(201,168,76,0.12) 5px,rgba(201,168,76,0.12) 6px,transparent 6px) repeat-x;
+  background-size:20px 12px;
+  animation:seigaiha-flow 3s linear infinite;
 }
+@keyframes seigaiha-flow{0%{background-position:0 0}100%{background-position:20px 0}}
 
-/* 掛け軸トップバー */
-.scroll-card{position:relative;padding-top:2rem}
-.scroll-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:6px;
-  background:linear-gradient(90deg,var(--sumi2),var(--gold) 20%,var(--gold-light) 50%,var(--gold) 80%,var(--sumi2));
-  border-radius:3px 3px 0 0;opacity:0.4;
+/* ================================================================
+   枯山水 (zen garden) raked sand horizontal rule
+   ================================================================ */
+.karesansui{
+  position:relative;height:20px;margin:2rem 0;overflow:hidden;
 }
-.scroll-card::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
-  background:linear-gradient(90deg,var(--sumi2),var(--gold) 30%,var(--gold) 70%,var(--sumi2));
-  border-radius:0 0 3px 3px;opacity:0.25;
+.karesansui::before{
+  content:'';position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(201,168,76,0.04) 3px,rgba(201,168,76,0.04) 4px);
+  animation:sand-rake 6s linear infinite;
+  background-size:100% 8px;
 }
+@keyframes sand-rake{0%{background-position:0 0}100%{background-position:0 8px}}
 
-/* 障子カード */
-.shoji-card{
-  background:linear-gradient(135deg,rgba(35,31,26,0.5),rgba(26,24,21,0.7));
-  border:1px solid rgba(201,168,76,0.08);
-  box-shadow:inset 0 0 40px rgba(245,240,232,0.02);
-  border-radius:2px;
-}
-.shoji-card:hover{
-  box-shadow:inset 0 0 60px rgba(245,240,232,0.04),0 0 30px rgba(201,168,76,0.05);
-}
-
-/* ============================================================
-   Tab1: ダッシュボード
-   ============================================================ */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.2rem;margin-bottom:2rem}
-.kpi-card{text-align:center;padding:1.5rem 1rem}
-.kpi-label{font-size:0.75rem;color:var(--washi-dark);letter-spacing:0.15em;margin-bottom:0.5rem;text-transform:uppercase}
-.kpi-value{font-size:2.2rem;font-family:'Shippori Mincho B1',serif}
-.kpi-sub{font-size:0.7rem;color:var(--washi-dark);margin-top:0.3rem;opacity:0.6}
-
-/* 金リング */
-.gold-ring{
-  width:100px;height:100px;margin:0 auto 0.5rem;
-  border-radius:50%;position:relative;
-  background:conic-gradient(var(--gold) 0%,var(--gold-light) var(--pct,50%),rgba(26,24,21,0.5) var(--pct,50%));
-  display:flex;align-items:center;justify-content:center;
-}
-.gold-ring::before{
-  content:'';position:absolute;inset:6px;border-radius:50%;background:var(--sumi);
-}
-.gold-ring span{position:relative;z-index:1;font-size:1.3rem}
-
-/* 活動フィード: 巻物 */
-.emaki{
-  background:linear-gradient(90deg,rgba(201,168,76,0.03),transparent 5%,transparent 95%,rgba(201,168,76,0.03));
-  border-left:2px solid rgba(201,168,76,0.2);
-  padding:1rem 1.5rem;margin-bottom:1.5rem;
-}
-.feed-item{
-  padding:0.6rem 0;border-bottom:1px solid rgba(201,168,76,0.05);
-  display:flex;align-items:center;gap:0.8rem;font-size:0.85rem;
-}
-.feed-item:last-child{border-bottom:none}
-.feed-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;
-  box-shadow:0 0 8px rgba(201,168,76,0.4)}
-.feed-time{color:var(--washi-dark);opacity:0.5;font-size:0.75rem;min-width:80px}
-
-/* エージェントカード */
-.agent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem}
-.agent-card{padding:1.5rem}
-.agent-card.active-agent{animation:lantern-glow 3s ease-in-out infinite}
-.agent-emoji{font-size:2rem;margin-bottom:0.5rem}
-.agent-name{font-family:'Shippori Mincho B1',serif;font-size:1.1rem;color:var(--washi);margin-bottom:0.3rem}
-.agent-role{font-size:0.8rem;color:var(--washi-dark);margin-bottom:0.8rem}
-.status-badge{
-  display:inline-block;padding:0.2rem 0.8rem;border-radius:2px;font-size:0.7rem;
-  letter-spacing:0.1em;
-}
-.status-done{background:rgba(201,168,76,0.15);color:var(--gold)}
-.status-stopped{background:rgba(196,62,62,0.15);color:var(--shu)}
-.status-waiting{background:rgba(26,58,92,0.2);color:var(--ai-light)}
-.status-progress{background:rgba(212,175,55,0.12);color:var(--gold-pale)}
-.status-notstarted{background:rgba(26,58,92,0.15);color:var(--ai-light)}
-
-/* ============================================================
-   Tab2: タスク管理
-   ============================================================ */
-.task-table{width:100%;border-collapse:collapse}
-.task-table th{
-  font-family:'Shippori Mincho B1',serif;font-weight:500;
-  text-align:left;padding:0.8rem 1rem;font-size:0.8rem;
-  color:var(--gold);border-bottom:1px solid rgba(201,168,76,0.2);
-  letter-spacing:0.1em;
-}
-.task-table td{
-  padding:0.7rem 1rem;font-size:0.85rem;
-  border-bottom:1px solid rgba(201,168,76,0.04);
-  vertical-align:middle;
-}
-.task-table tr:hover td{background:rgba(201,168,76,0.02)}
-.task-id{font-family:monospace;color:var(--gold);font-size:0.8rem;opacity:0.8}
-.priority-high{color:var(--shu)}
-.priority-mid{color:var(--gold)}
-.priority-low{color:var(--ai-light)}
-
-/* ============================================================
-   Tab4: ロードマップ参道
-   ============================================================ */
-.sando{position:relative;padding-left:3rem}
-.sando::before{
-  content:'';position:absolute;left:14px;top:0;bottom:0;width:3px;
-  background:repeating-linear-gradient(180deg,
-    var(--gold) 0px,var(--gold) 12px,transparent 12px,transparent 16px);
-  opacity:0.3;
-}
-.sando-phase{position:relative;padding:1.5rem 0;padding-left:2rem}
-.sando-phase::before{
-  content:'';position:absolute;left:-2.4rem;top:1.8rem;
-  width:16px;height:16px;border-radius:50%;
-  border:2px solid var(--gold);background:var(--sumi);
-}
-.sando-phase.completed::before{background:var(--gold);box-shadow:0 0 12px rgba(201,168,76,0.4)}
-.sando-phase.current::before{background:var(--gold-bright);box-shadow:0 0 16px rgba(201,168,76,0.6);animation:lantern-glow 2s infinite}
-
-/* ============================================================
-   Tab5: 御朱印スプリント
-   ============================================================ */
-.goshuin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}
-.goshuin{
-  text-align:center;padding:2rem 1.5rem;
-  border:2px solid rgba(201,168,76,0.15);
-  background:linear-gradient(135deg,rgba(26,24,21,0.9),rgba(35,31,26,0.8));
+/* ================================================================
+   注連縄 (shimenawa) important border
+   ================================================================ */
+.shimenawa{
+  border:1px solid rgba(201,168,76,0.15);
+  border-image:repeating-linear-gradient(90deg,rgba(201,168,76,0.05),rgba(201,168,76,0.2) 20px,rgba(201,168,76,0.05) 40px) 1;
   position:relative;
 }
+.shimenawa::before,.shimenawa::after{
+  content:'◆';position:absolute;color:var(--gold);opacity:0.2;font-size:8px;
+}
+.shimenawa::before{top:-5px;left:20px}
+.shimenawa::after{top:-5px;right:20px}
+
+/* ================================================================
+   菱形 (hishi) diamond lattice background
+   ================================================================ */
+.hishi-bg{
+  background-image:
+    linear-gradient(45deg,rgba(201,168,76,0.02) 25%,transparent 25%),
+    linear-gradient(-45deg,rgba(201,168,76,0.02) 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,rgba(201,168,76,0.02) 75%),
+    linear-gradient(-45deg,transparent 75%,rgba(201,168,76,0.02) 75%);
+  background-size:30px 30px;
+  background-position:0 0,0 15px,15px -15px,-15px 0;
+}
+
+/* ================================================================
+   メインレイアウト
+   ================================================================ */
+.app-container{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column}
+
+/* ヘッダー */
+.header{
+  padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(201,168,76,0.08);
+  background:rgba(10,9,8,0.6);backdrop-filter:blur(20px);
+  position:sticky;top:0;z-index:100;
+}
+.header-left{display:flex;align-items:center;gap:1.2rem}
+.logo-kamon{
+  width:36px;height:36px;opacity:0.8;
+  animation:kamon-rotate 60s linear infinite;
+}
+.logo-text{
+  font-family:'Shippori Mincho B1',serif;font-size:1.5rem;font-weight:700;
+  background:var(--gold-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;letter-spacing:0.15em;
+}
+.header-clock{
+  font-family:'Shippori Mincho B1',serif;font-size:0.9rem;
+  color:var(--washi-dark);letter-spacing:0.1em;
+}
+
+/* ナビ */
+.nav{
+  display:flex;gap:0;border-bottom:1px solid rgba(201,168,76,0.06);
+  background:rgba(10,9,8,0.4);backdrop-filter:blur(10px);
+  position:sticky;top:60px;z-index:99;overflow-x:auto;
+}
+.nav-tab{
+  padding:0.8rem 1.4rem;cursor:pointer;position:relative;
+  font-family:'Shippori Mincho B1',serif;font-size:0.85rem;
+  color:var(--washi-dark);transition:all 0.4s;white-space:nowrap;
+  border:none;background:none;letter-spacing:0.08em;
+}
+.nav-tab:hover{color:var(--washi)}
+.nav-tab.active{color:var(--gold)}
+.nav-tab.active::after{
+  content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;
+  background:var(--gold-grad);
+  animation:tab-glow 2s ease-in-out infinite;
+}
+@keyframes tab-glow{0%,100%{opacity:0.6;box-shadow:0 0 4px rgba(201,168,76,0.3)}50%{opacity:1;box-shadow:0 0 8px rgba(201,168,76,0.5)}}
+.nav-tab .shortcut{
+  font-size:0.6rem;opacity:0.4;margin-left:4px;
+  border:1px solid rgba(201,168,76,0.2);border-radius:2px;padding:0 3px;
+  vertical-align:middle;
+}
+
+/* コンテンツ */
+.main{flex:1;padding:2rem;max-width:1400px;margin:0 auto;width:100%}
+.tab-content{display:none;animation:fadeIn 0.6s ease}
+.tab-content.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ================================================================
+   カードシステム — 障子フレーム + 掛け軸
+   ================================================================ */
+.card{
+  position:relative;
+  background:rgba(26,24,21,0.7);
+  border:1px solid rgba(201,168,76,0.08);
+  border-radius:2px;
+  padding:1.5rem;
+  backdrop-filter:blur(8px);
+  transition:all 0.5s cubic-bezier(0.4,0,0.2,1);
+  overflow:hidden;
+}
+/* 障子 glow behind */
+.card::before{
+  content:'';position:absolute;inset:-1px;border-radius:2px;z-index:-1;
+  background:radial-gradient(ellipse at 50% 50%,rgba(245,240,232,0.03),transparent 70%);
+  transition:all 0.5s;
+}
+.card:hover::before{
+  background:radial-gradient(ellipse at 50% 50%,rgba(245,240,232,0.06),transparent 70%);
+}
+/* 水紋 (water ripple) hover effect */
+.card:hover{
+  border-color:rgba(201,168,76,0.15);
+  box-shadow:0 0 0 1px rgba(201,168,76,0.05),0 8px 32px rgba(0,0,0,0.3);
+}
+.card .ripple{
+  position:absolute;border-radius:50%;
+  background:rgba(201,168,76,0.06);
+  transform:scale(0);animation:ripple-expand 0.8s ease-out forwards;
+  pointer-events:none;
+}
+@keyframes ripple-expand{to{transform:scale(4);opacity:0}}
+
+/* 影 — candlelight shadow */
+.card-shadow{
+  box-shadow:0 4px 20px rgba(201,168,76,0.03),0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* 掛け軸 (kakejiku) scroll bars */
+.kakejiku{position:relative;padding-top:8px;padding-bottom:8px}
+.kakejiku::before,.kakejiku::after{
+  content:'';position:absolute;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,transparent 5%,rgba(139,90,43,0.25) 15%,rgba(139,90,43,0.35) 50%,rgba(139,90,43,0.25) 85%,transparent 95%);
+  border-radius:2px;
+}
+.kakejiku::before{top:0}
+.kakejiku::after{bottom:0}
+
+/* ================================================================
+   金箔シマー (gold shimmer on numbers)
+   ================================================================ */
+.gold-shimmer{
+  background:var(--gold-grad);background-size:200% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:shimmer 3s ease-in-out infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0}50%{background-position:0% 0}100%{background-position:200% 0}}
+
+/* 筆ストロークアンダーライン */
+.fude-underline{
+  position:relative;display:inline-block;
+}
+.fude-underline::after{
+  content:'';position:absolute;bottom:-4px;left:-5%;right:-5%;height:6px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,0.2) 10%,rgba(201,168,76,0.35) 30%,rgba(201,168,76,0.4) 50%,rgba(201,168,76,0.3) 70%,rgba(201,168,76,0.15) 90%,transparent);
+  border-radius:50%;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8'%3E%3Cpath d='M0,4 Q25,1 50,4 T100,4 T150,3 T200,5' stroke='black' fill='none' stroke-width='8'/%3E%3C/svg%3E");
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8'%3E%3Cpath d='M0,4 Q25,1 50,4 T100,4 T150,3 T200,5' stroke='black' fill='none' stroke-width='8'/%3E%3C/svg%3E");
+  mask-size:100% 100%;-webkit-mask-size:100% 100%;
+}
+
+/* ================================================================
+   石灯籠 (lantern) glow for active items
+   ================================================================ */
+.lantern-glow{
+  display:inline-block;
+  animation:lantern-pulse 3s ease-in-out infinite;
+  text-shadow:0 0 10px rgba(201,168,76,0.4);
+}
+@keyframes lantern-pulse{0%,100%{text-shadow:0 0 8px rgba(201,168,76,0.3)}50%{text-shadow:0 0 16px rgba(201,168,76,0.6),0 0 32px rgba(201,168,76,0.2)}}
+
+/* ================================================================
+   検索バー — 巻物 (scroll) style
+   ================================================================ */
+.search-scroll{
+  position:relative;display:flex;align-items:center;
+  background:rgba(26,24,21,0.8);border:1px solid rgba(201,168,76,0.1);
+  border-radius:2px;overflow:hidden;
+}
+.search-scroll::before,.search-scroll::after{
+  content:'';width:12px;flex-shrink:0;height:100%;
+  background:linear-gradient(180deg,rgba(139,90,43,0.15),rgba(139,90,43,0.25),rgba(139,90,43,0.15));
+}
+.search-scroll input{
+  flex:1;padding:0.6rem 1rem;background:none;border:none;outline:none;
+  color:var(--washi);font-family:'Noto Sans JP',sans-serif;font-size:0.85rem;
+  letter-spacing:0.05em;
+}
+.search-scroll input::placeholder{color:var(--washi-dark);opacity:0.5}
+
+/* ================================================================
+   ステータスフィルター — 印鑑 (stamp) buttons
+   ================================================================ */
+.stamp-filters{display:flex;gap:0.5rem;flex-wrap:wrap}
+.stamp-btn{
+  padding:0.4rem 0.8rem;border:1px solid rgba(201,168,76,0.1);
+  border-radius:2px;background:rgba(26,24,21,0.6);
+  color:var(--washi-dark);cursor:pointer;font-size:0.75rem;
+  font-family:'Shippori Mincho B1',serif;letter-spacing:0.08em;
+  transition:all 0.3s;position:relative;
+}
+.stamp-btn:hover,.stamp-btn.active{
+  border-color:rgba(201,168,76,0.3);color:var(--gold);
+  background:rgba(201,168,76,0.05);
+}
+.stamp-btn.active::after{
+  content:'';position:absolute;inset:2px;
+  border:1px solid rgba(196,62,62,0.2);border-radius:50%;
+}
+
+/* ================================================================
+   テーブル
+   ================================================================ */
+.wa-table{width:100%;border-collapse:collapse;font-size:0.82rem}
+.wa-table th{
+  text-align:left;padding:0.7rem 0.8rem;font-family:'Shippori Mincho B1',serif;
+  font-weight:500;color:var(--gold);font-size:0.75rem;letter-spacing:0.1em;
+  border-bottom:1px solid rgba(201,168,76,0.12);
+}
+.wa-table td{
+  padding:0.6rem 0.8rem;border-bottom:1px solid rgba(201,168,76,0.04);
+  transition:background 0.3s;
+}
+.wa-table tr:hover td{background:rgba(201,168,76,0.02)}
+.wa-table .expandable{cursor:pointer}
+.wa-table .expand-icon{display:inline-block;transition:transform 0.3s;font-size:0.7rem;color:var(--gold);margin-right:0.5rem}
+.wa-table .expanded .expand-icon{transform:rotate(90deg)}
+.wa-table .detail-row{display:none}
+.wa-table .detail-row.show{display:table-row}
+.wa-table .detail-row td{
+  padding:1rem 1.5rem;background:rgba(26,24,21,0.5);
+  font-size:0.8rem;color:var(--washi-dark);line-height:1.9;
+  border-left:2px solid rgba(201,168,76,0.1);
+}
+
+/* ================================================================
+   ステータスバッジ
+   ================================================================ */
+.badge{
+  display:inline-block;padding:0.15rem 0.6rem;border-radius:1px;
+  font-size:0.7rem;letter-spacing:0.08em;font-weight:500;
+}
+.badge-done{background:rgba(45,90,61,0.15);color:var(--matsu-light);border:1px solid rgba(45,90,61,0.2)}
+.badge-progress{background:rgba(26,58,92,0.15);color:var(--ai-light);border:1px solid rgba(26,58,92,0.2)}
+.badge-pending{background:rgba(201,168,76,0.08);color:var(--gold-pale);border:1px solid rgba(201,168,76,0.12)}
+.badge-fail{background:rgba(196,62,62,0.1);color:var(--shu);border:1px solid rgba(196,62,62,0.15)}
+
+/* ================================================================
+   KPIカード
+   ================================================================ */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem}
+.kpi-card{
+  text-align:center;padding:1.2rem 0.8rem;
+  position:relative;overflow:hidden;
+}
+.kpi-label{
+  font-family:'Shippori Mincho B1',serif;font-size:0.72rem;
+  color:var(--washi-dark);letter-spacing:0.12em;margin-bottom:0.5rem;
+}
+.kpi-value{
+  font-family:'Shippori Mincho B1',serif;font-size:2rem;font-weight:700;
+  line-height:1.2;
+}
+
+/* ================================================================
+   完了率リング
+   ================================================================ */
+.ring-container{display:flex;justify-content:center;align-items:center;padding:1rem}
+.ring-svg{width:140px;height:140px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(201,168,76,0.08);stroke-width:6}
+.ring-fill{
+  fill:none;stroke:url(#goldGrad);stroke-width:6;
+  stroke-linecap:round;stroke-dasharray:var(--dash,0) 999;
+  transition:stroke-dasharray 2s cubic-bezier(0.4,0,0.2,1);
+}
+.ring-text{
+  position:absolute;font-family:'Shippori Mincho B1',serif;
+  font-size:1.8rem;font-weight:700;
+}
+
+/* ================================================================
+   御朱印 (goshuin) stamp style
+   ================================================================ */
+.goshuin{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;
+  width:48px;height:48px;
+  border:2px solid var(--shu);border-radius:4px;
+  color:var(--shu);font-weight:700;font-size:0.7rem;
+  font-family:'Shippori Mincho B1',serif;
+  transform:rotate(-3deg);
+  box-shadow:inset 0 0 0 1px rgba(196,62,62,0.2);
+}
 .goshuin::before{
-  content:'印';position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%) rotate(-15deg);
-  font-size:5rem;font-family:'Shippori Mincho B1',serif;
-  color:var(--shu);opacity:0.06;pointer-events:none;
+  content:'';position:absolute;inset:-4px;
+  border:1px solid rgba(196,62,62,0.1);border-radius:6px;
 }
-.goshuin-id{font-family:'Shippori Mincho B1',serif;color:var(--gold);font-size:1.1rem;margin-bottom:0.5rem}
-.goshuin-title{color:var(--washi);font-size:0.95rem;margin-bottom:0.8rem}
-.goshuin-date{font-size:0.75rem;color:var(--washi-dark);opacity:0.6}
 
-/* ============================================================
-   Tab6: 帳簿スタイル
-   ============================================================ */
-.ledger-section{margin-bottom:2.5rem}
-.ledger-section h3{margin-bottom:1rem}
-.ledger-table{width:100%;border-collapse:collapse;margin-bottom:1rem}
-.ledger-table th{
-  text-align:left;padding:0.6rem 1rem;font-size:0.8rem;
-  color:var(--gold);border-bottom:2px solid rgba(201,168,76,0.2);
-  font-family:'Shippori Mincho B1',serif;font-weight:500;
+/* ================================================================
+   ロードマップ 参道 (shrine path)
+   ================================================================ */
+.sandou{display:flex;flex-direction:column;gap:0;position:relative;padding-left:2.5rem}
+.sandou::before{
+  content:'';position:absolute;left:1rem;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--gold),rgba(201,168,76,0.15));
 }
-.ledger-table td{
-  padding:0.5rem 1rem;font-size:0.85rem;
-  border-bottom:1px solid rgba(201,168,76,0.05);
+.sandou-step{
+  position:relative;padding:1.5rem 0 1.5rem 2rem;
 }
-.ledger-table tr:hover td{background:rgba(201,168,76,0.02)}
+.sandou-step::before{
+  content:'';position:absolute;left:-1.65rem;top:1.8rem;
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--gold);background:var(--urushi);
+  transition:all 0.3s;
+}
+.sandou-step.complete::before{
+  background:var(--gold);
+  box-shadow:0 0 12px rgba(201,168,76,0.4);
+}
+.sandou-step.active::before{
+  border-color:var(--shu);background:var(--shu);
+  box-shadow:0 0 12px rgba(196,62,62,0.4);
+  animation:step-pulse 2s ease-in-out infinite;
+}
+@keyframes step-pulse{0%,100%{box-shadow:0 0 8px rgba(196,62,62,0.3)}50%{box-shadow:0 0 20px rgba(196,62,62,0.6)}}
 
-/* ============================================================
-   Tab7: 市場分析
-   ============================================================ */
-.market-card{padding:2rem}
-.tam-visual{display:flex;flex-direction:column;align-items:center;gap:0.5rem;margin:2rem 0}
-.tam-circle{
-  border-radius:50%;display:flex;align-items:center;justify-content:center;
-  flex-direction:column;border:1px solid rgba(201,168,76,0.2);
-  text-align:center;
+/* ================================================================
+   エージェントカード
+   ================================================================ */
+.agent-card{
+  display:flex;align-items:center;gap:1rem;padding:1rem;
+  border-left:3px solid rgba(201,168,76,0.1);
+  transition:all 0.3s;
 }
-.competitor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.agent-card:hover{border-left-color:var(--gold);background:rgba(201,168,76,0.02)}
+.agent-icon{font-size:1.8rem}
+.agent-status{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.agent-status.online{background:var(--matsu-light);box-shadow:0 0 8px rgba(61,122,93,0.5);animation:status-blink 2s infinite}
+.agent-status.offline{background:var(--washi-dark);opacity:0.3}
+.agent-status.standby{background:var(--gold);box-shadow:0 0 8px rgba(201,168,76,0.3)}
+@keyframes status-blink{0%,100%{opacity:1}50%{opacity:0.5}}
 
-/* ============================================================
-   レスポンシブ
-   ============================================================ */
+/* ================================================================
+   事業計画セクション
+   ================================================================ */
+.biz-section{margin-bottom:2.5rem}
+.biz-section h3{
+  font-size:1.1rem;margin-bottom:1rem;padding-bottom:0.5rem;
+  border-bottom:1px solid rgba(201,168,76,0.08);
+}
+.metric-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0.5rem 0;border-bottom:1px solid rgba(201,168,76,0.03);
+}
+.metric-label{color:var(--washi-dark);font-size:0.82rem}
+.metric-value{color:var(--washi);font-family:'Shippori Mincho B1',serif;font-weight:600}
+
+/* ================================================================
+   市場分析 TAM/SAM/SOM 同心円
+   ================================================================ */
+.market-circles{
+  display:flex;justify-content:center;align-items:center;
+  padding:2rem;position:relative;
+}
+.market-circle{
+  border-radius:50%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  position:absolute;
+  transition:all 0.5s;
+}
+.market-circle:hover{transform:scale(1.05)}
+
+/* ================================================================
+   印刷モード
+   ================================================================ */
+@media print{
+  body{background:#fff!important;color:#222!important}
+  .sakura-container,.gold-dust-container,.clouds,.suminagashi,.washi-overlay,
+  .moon,.bamboo-left,.bamboo-right,.water-surface,.kamon,.crane,
+  .nav,.header{display:none!important}
+  .card{background:#fff!important;border:1px solid #ddd!important;break-inside:avoid}
+  .gold-shimmer{-webkit-text-fill-color:#8B6914!important;background:none!important}
+  .main{padding:0!important;max-width:100%!important}
+  .tab-content{display:block!important}
+  .tab-content:not([data-tab="business"]){display:none!important}
+}
+
+/* ================================================================
+   モバイル対応
+   ================================================================ */
 @media(max-width:768px){
-  .wa-header{padding:0.6rem 1rem}
-  .main-content{padding:1rem}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
-  .tab-nav{padding:0 0.5rem}
-  .tab-btn{padding:0.6rem 0.8rem;font-size:0.75rem}
-  .task-table{font-size:0.75rem}
-  .task-table th,.task-table td{padding:0.5rem}
+  .nav-tab{padding:0.6rem 0.8rem;font-size:0.75rem}
+  .nav-tab .shortcut{display:none}
+  .main{padding:1rem}
+  .header{padding:0.8rem 1rem}
+  .bamboo-left,.bamboo-right{display:none}
+  .moon{width:60px;height:60px;top:30px;right:30px}
+}
+@media(max-width:480px){
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .kpi-value{font-size:1.5rem}
 }
 
-/* ============================================================
+/* ================================================================
+   墨滴 (ink drop) card entrance
+   ================================================================ */
+@keyframes ink-drop{
+  0%{clip-path:circle(0% at 50% 50%);opacity:0}
+  30%{clip-path:circle(30% at 50% 50%);opacity:0.5}
+  100%{clip-path:circle(100% at 50% 50%);opacity:1}
+}
+.ink-enter{animation:ink-drop 0.8s cubic-bezier(0.4,0,0.2,1) forwards}
+
+/* ================================================================
+   進捗バー
+   ================================================================ */
+.progress-bar{
+  height:4px;background:rgba(201,168,76,0.08);border-radius:2px;overflow:hidden;
+  position:relative;
+}
+.progress-fill{
+  height:100%;border-radius:2px;
+  background:var(--gold-grad);background-size:200% 100%;
+  animation:shimmer 3s ease-in-out infinite;
+  transition:width 1.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ================================================================
+   ワークフロー接続線
+   ================================================================ */
+.workflow-connector{
+  height:40px;display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.workflow-connector::before{
+  content:'';width:2px;height:100%;
+  background:linear-gradient(180deg,rgba(201,168,76,0.2),rgba(201,168,76,0.05));
+}
+.workflow-connector .brush-dot{
+  position:absolute;width:6px;height:6px;border-radius:50%;
+  background:var(--gold);opacity:0.4;
+  animation:flow-dot 2s ease-in-out infinite;
+}
+@keyframes flow-dot{0%{top:0;opacity:0}50%{opacity:0.6}100%{top:100%;opacity:0}}
+
+/* ================================================================
    スクロールバー
-   ============================================================ */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--urushi)}
-::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.2);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:rgba(201,168,76,0.35)}
+   ================================================================ */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:rgba(10,9,8,0.5)}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.15);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(201,168,76,0.25)}
 
-/* ============================================================
-   セクション見出し
-   ============================================================ */
-.section-title{
-  font-family:'Shippori Mincho B1',serif;font-size:1.2rem;
-  color:var(--washi);margin-bottom:1.5rem;
-  display:flex;align-items:center;gap:0.8rem;
-}
-.section-title .icon{font-size:1.4rem}
-
-.subsection{margin-bottom:2rem}
-.subsection h3{font-size:1rem;color:var(--washi);margin-bottom:0.8rem}
-.text-block{font-size:0.85rem;line-height:2;color:var(--washi-dim)}
-.text-block p{margin-bottom:0.8rem}
-.text-gold{color:var(--gold)}
-.text-shu{color:var(--shu)}
-
-/* ユーティリティ */
+/* ================================================================
+   ユーティリティ
+   ================================================================ */
+.flex{display:flex}.flex-col{flex-direction:column}.items-center{align-items:center}
+.justify-between{justify-content:space-between}.gap-1{gap:0.5rem}.gap-2{gap:1rem}.gap-3{gap:1.5rem}
 .mb-1{margin-bottom:0.5rem}.mb-2{margin-bottom:1rem}.mb-3{margin-bottom:1.5rem}.mb-4{margin-bottom:2rem}
 .mt-2{margin-top:1rem}.mt-3{margin-top:1.5rem}
-.flex{display:flex}.gap-1{gap:0.5rem}.gap-2{gap:1rem}.items-center{align-items:center}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.text-sm{font-size:0.82rem}.text-xs{font-size:0.72rem}.text-gold{color:var(--gold)}.text-shu{color:var(--shu)}
+.text-washi{color:var(--washi)}.text-dim{color:var(--washi-dark)}
+.w-full{width:100%}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 @media(max-width:768px){.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- ===== 背景レイヤー ===== -->
+<!-- ============================================================
+     背景レイヤー群
+     ============================================================ -->
 <div class="suminagashi"></div>
+<div class="clouds"><div class="cloud"></div><div class="cloud"></div><div class="cloud"></div><div class="cloud"></div></div>
 <div class="washi-overlay"></div>
-<div class="clouds"><div class="cloud"></div><div class="cloud"></div><div class="cloud"></div></div>
+<div class="moon"></div>
+<div class="water-surface"></div>
 
-<!-- 桜吹雪 30枚 -->
-<div class="sakura-container" id="sakura"></div>
+<!-- 竹林 -->
+<div class="bamboo-left" id="bambooLeft"></div>
+<div class="bamboo-right" id="bambooRight"></div>
 
-<!-- 金粉 -->
-<div class="kinpun-container" id="kinpun"></div>
+<!-- 家紋 -->
+<div class="kamon">
+  <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="90" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+    <circle cx="100" cy="100" r="70" stroke="rgba(201,168,76,0.2)" stroke-width="0.5"/>
+    <circle cx="100" cy="100" r="50" stroke="rgba(201,168,76,0.15)" stroke-width="0.5"/>
+    <path d="M100 10 L100 190 M10 100 L190 100 M29 29 L171 171 M171 29 L29 171" stroke="rgba(201,168,76,0.12)" stroke-width="0.5"/>
+    <circle cx="100" cy="45" r="12" stroke="rgba(201,168,76,0.2)" stroke-width="0.8" fill="none"/>
+    <circle cx="100" cy="155" r="12" stroke="rgba(201,168,76,0.2)" stroke-width="0.8" fill="none"/>
+    <circle cx="45" cy="100" r="12" stroke="rgba(201,168,76,0.2)" stroke-width="0.8" fill="none"/>
+    <circle cx="155" cy="100" r="12" stroke="rgba(201,168,76,0.2)" stroke-width="0.8" fill="none"/>
+  </svg>
+</div>
 
 <!-- 鶴 -->
-<div class="crane"><svg viewBox="0 0 80 40"><path d="M5 30 Q15 10 30 15 Q38 17 42 20 L60 12 Q65 10 70 12 L75 15 Q72 14 68 15 L58 20 Q50 24 42 22 Q35 20 30 22 Q20 28 15 35 Q10 38 5 30Z"/></svg></div>
+<div class="crane" style="top:15%;--cdur:80s;--cdel:5s">鶴</div>
+<div class="crane" style="top:55%;--cdur:100s;--cdel:25s;font-size:30px">鶴</div>
+<div class="crane" style="top:75%;--cdur:70s;--cdel:45s;font-size:25px">鶴</div>
 
-<!-- ===== ヘッダー ===== -->
-<header class="wa-header">
-  <div class="header-inner">
+<!-- 桜吹雪コンテナ -->
+<div class="sakura-container" id="sakuraContainer"></div>
+
+<!-- 金粉コンテナ -->
+<div class="gold-dust-container" id="goldDustContainer"></div>
+
+<!-- ============================================================
+     アプリ本体
+     ============================================================ -->
+<div class="app-container">
+
+  <!-- ヘッダー -->
+  <header class="header">
     <div class="header-left">
-      <div class="kamon">
-        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gold)">
-          <circle cx="50" cy="50" r="45" opacity="0.4"/>
-          <circle cx="50" cy="50" r="35" opacity="0.3"/>
-          <circle cx="50" cy="30" r="12" opacity="0.6"/>
-          <circle cx="32" cy="55" r="12" opacity="0.6"/>
-          <circle cx="68" cy="55" r="12" opacity="0.6"/>
-          <circle cx="50" cy="50" r="6" fill="currentColor" opacity="0.4"/>
-        </svg>
+      <svg class="logo-kamon" viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="45" stroke="url(#logoGrad)" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="30" stroke="url(#logoGrad)" stroke-width="0.8"/>
+        <circle cx="50" cy="50" r="8" fill="url(#logoGrad)"/>
+        <path d="M50 5 L50 95 M5 50 L95 50" stroke="url(#logoGrad)" stroke-width="0.5"/>
+        <defs>
+          <linearGradient id="logoGrad" x1="0" y1="0" x2="100" y2="100">
+            <stop offset="0%" stop-color="#c9a84c"/><stop offset="50%" stop-color="#f0d060"/><stop offset="100%" stop-color="#c9a84c"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="logo-text">和 — 統括</span>
+    </div>
+    <div class="header-clock" id="liveClock"></div>
+  </header>
+
+  <!-- ナビゲーション -->
+  <nav class="nav" id="mainNav">
+    <button class="nav-tab active" data-tab="dashboard" onclick="switchTab('dashboard')">一、ダッシュボード<span class="shortcut">1</span></button>
+    <button class="nav-tab" data-tab="tasks" onclick="switchTab('tasks')">二、タスク管理<span class="shortcut">2</span></button>
+    <button class="nav-tab" data-tab="agents" onclick="switchTab('agents')">三、エージェント<span class="shortcut">3</span></button>
+    <button class="nav-tab" data-tab="roadmap" onclick="switchTab('roadmap')">四、ロードマップ<span class="shortcut">4</span></button>
+    <button class="nav-tab" data-tab="sprint" onclick="switchTab('sprint')">五、スプリント<span class="shortcut">5</span></button>
+    <button class="nav-tab" data-tab="business" onclick="switchTab('business')">六、事業計画<span class="shortcut">6</span></button>
+    <button class="nav-tab" data-tab="market" onclick="switchTab('market')">七、市場分析<span class="shortcut">7</span></button>
+  </nav>
+
+  <!-- メインコンテンツ -->
+  <main class="main">
+
+    <!-- ====== TAB 1: ダッシュボード ====== -->
+    <section class="tab-content active" data-tab="dashboard" id="tab-dashboard">
+      <h2 class="fude-underline mb-3" style="font-size:1.3rem">統括ダッシュボード</h2>
+
+      <!-- KPIカード群 -->
+      <div class="kpi-grid mb-4">
+        <div class="card card-shadow kakejiku kpi-card hishi-bg ink-enter">
+          <div class="kpi-label">総タスク</div>
+          <div class="kpi-value gold-shimmer">10</div>
+        </div>
+        <div class="card card-shadow kakejiku kpi-card hishi-bg ink-enter" style="animation-delay:0.1s">
+          <div class="kpi-label">完了</div>
+          <div class="kpi-value gold-shimmer">5</div>
+        </div>
+        <div class="card card-shadow kakejiku kpi-card hishi-bg ink-enter" style="animation-delay:0.15s">
+          <div class="kpi-label">進行中</div>
+          <div class="kpi-value" style="color:var(--ai-light)">0</div>
+        </div>
+        <div class="card card-shadow kakejiku kpi-card hishi-bg ink-enter" style="animation-delay:0.2s">
+          <div class="kpi-label">未着手</div>
+          <div class="kpi-value" style="color:var(--washi-dark)">5</div>
+        </div>
+        <div class="card card-shadow kakejiku kpi-card hishi-bg ink-enter" style="animation-delay:0.25s">
+          <div class="kpi-label">完了率</div>
+          <div class="ring-container" style="padding:0.5rem">
+            <svg class="ring-svg" viewBox="0 0 120 120">
+              <defs><linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#c9a84c"/><stop offset="50%" stop-color="#f0d060"/><stop offset="100%" stop-color="#c9a84c"/>
+              </linearGradient></defs>
+              <circle class="ring-bg" cx="60" cy="60" r="52"/>
+              <circle class="ring-fill" cx="60" cy="60" r="52" style="--dash:163.4"/>
+            </svg>
+            <span class="ring-text gold-shimmer" style="font-size:1.2rem">50%</span>
+          </div>
+        </div>
+        <div class="card card-shadow kakejiku kpi-card hishi-bg ink-enter" style="animation-delay:0.3s">
+          <div class="kpi-label">スプリント完了</div>
+          <div class="kpi-value gold-shimmer">5</div>
+        </div>
+        <div class="card card-shadow kakejiku kpi-card hishi-bg ink-enter" style="animation-delay:0.35s">
+          <div class="kpi-label">エージェント</div>
+          <div class="kpi-value" style="color:var(--matsu-light)">3<span class="text-xs text-dim">体制</span></div>
+        </div>
+        <div class="card card-shadow kakejiku kpi-card hishi-bg ink-enter" style="animation-delay:0.4s">
+          <div class="kpi-label">収益モデル</div>
+          <div class="kpi-value text-sm gold-shimmer">60/30/10</div>
+        </div>
       </div>
-      <div>
-        <div class="header-title">和 プロジェクト統括</div>
-        <div class="header-date">2026年3月27日</div>
+
+      <div class="kintsugi-divider"></div>
+
+      <!-- 活動記録 — 巻物 (emaki) -->
+      <h3 class="fude-underline mb-2" style="font-size:1rem">最近の活動 — 絵巻</h3>
+      <div class="card card-shadow seigaiha-border mb-3" style="padding:0">
+        <div style="padding:1.2rem">
+          <div class="flex items-center gap-2 mb-2" style="padding:0.6rem 0;border-bottom:1px solid rgba(201,168,76,0.04)">
+            <div class="goshuin" style="width:36px;height:36px;font-size:0.55rem">合格</div>
+            <div>
+              <div class="text-sm text-washi">F001 — Prismaスキーマ設計</div>
+              <div class="text-xs text-dim">テスト合格 — 全項目クリア</div>
+            </div>
+            <span class="badge badge-done" style="margin-left:auto">PASS</span>
+          </div>
+          <div class="flex items-center gap-2 mb-2" style="padding:0.6rem 0;border-bottom:1px solid rgba(201,168,76,0.04)">
+            <div class="goshuin" style="width:36px;height:36px;font-size:0.55rem">合格</div>
+            <div>
+              <div class="text-sm text-washi">F002 — NextAuth認証</div>
+              <div class="text-xs text-dim">テスト合格 — OAuth統合完了</div>
+            </div>
+            <span class="badge badge-done" style="margin-left:auto">PASS</span>
+          </div>
+          <div class="flex items-center gap-2 mb-2" style="padding:0.6rem 0;border-bottom:1px solid rgba(201,168,76,0.04)">
+            <div class="goshuin" style="width:36px;height:36px;font-size:0.55rem">合格</div>
+            <div>
+              <div class="text-sm text-washi">F003 — APIエンドポイント</div>
+              <div class="text-xs text-dim">テスト合格 — REST API整備</div>
+            </div>
+            <span class="badge badge-done" style="margin-left:auto">PASS</span>
+          </div>
+          <div class="flex items-center gap-2 mb-2" style="padding:0.6rem 0;border-bottom:1px solid rgba(201,168,76,0.04)">
+            <div class="goshuin" style="width:36px;height:36px;font-size:0.55rem">合格</div>
+            <div>
+              <div class="text-sm text-washi">F004 — エージェントワーカー</div>
+              <div class="text-xs text-dim">テスト合格 — 非同期処理検証</div>
+            </div>
+            <span class="badge badge-done" style="margin-left:auto">PASS</span>
+          </div>
+          <div class="flex items-center gap-2" style="padding:0.6rem 0">
+            <div class="goshuin" style="width:36px;height:36px;font-size:0.55rem">合格</div>
+            <div>
+              <div class="text-sm text-washi">F005 — テストスイート</div>
+              <div class="text-xs text-dim">テスト合格 — カバレッジ80%+</div>
+            </div>
+            <span class="badge badge-done" style="margin-left:auto">PASS</span>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</header>
 
-<!-- タブナビ -->
-<nav class="tab-nav" id="tabNav">
-  <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
-  <button class="tab-btn" data-tab="tasks">タスク管理</button>
-  <button class="tab-btn" data-tab="agents">エージェント</button>
-  <button class="tab-btn" data-tab="roadmap">ロードマップ</button>
-  <button class="tab-btn" data-tab="sprints">スプリント</button>
-  <button class="tab-btn" data-tab="business">事業計画</button>
-  <button class="tab-btn" data-tab="market">市場分析</button>
-</nav>
+      <div class="kintsugi-divider"></div>
 
-<div class="seigaiha-border"></div>
+      <!-- エージェントステータス -->
+      <h3 class="fude-underline mb-2" style="font-size:1rem">エージェント稼働状況</h3>
+      <div class="grid-2">
+        <div class="card card-shadow">
+          <div class="agent-card">
+            <span class="agent-icon lantern-glow">🎯</span>
+            <div style="flex:1">
+              <div class="text-sm text-washi">Planner</div>
+              <div class="text-xs text-dim">計画立案・タスク分解</div>
+            </div>
+            <div class="agent-status online"></div>
+            <span class="badge badge-done">完了</span>
+          </div>
+        </div>
+        <div class="card card-shadow">
+          <div class="agent-card">
+            <span class="agent-icon">⚡</span>
+            <div style="flex:1">
+              <div class="text-sm text-washi">Generator</div>
+              <div class="text-xs text-dim">コード生成・実装</div>
+            </div>
+            <div class="agent-status offline"></div>
+            <span class="badge badge-fail">停止中</span>
+          </div>
+        </div>
+        <div class="card card-shadow">
+          <div class="agent-card">
+            <span class="agent-icon">🔍</span>
+            <div style="flex:1">
+              <div class="text-sm text-washi">Evaluator</div>
+              <div class="text-xs text-dim">品質評価・テスト</div>
+            </div>
+            <div class="agent-status standby"></div>
+            <span class="badge badge-pending">待機中</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<!-- ===== メインコンテンツ ===== -->
-<main class="main-content">
+    <!-- ====== TAB 2: タスク管理 ====== -->
+    <section class="tab-content" data-tab="tasks" id="tab-tasks">
+      <h2 class="fude-underline mb-3" style="font-size:1.3rem">タスク管理</h2>
 
-<!-- ━━━ Tab1: ダッシュボード ━━━ -->
-<div class="tab-content active" id="tab-dashboard">
+      <div class="flex gap-2 mb-3" style="flex-wrap:wrap;align-items:center">
+        <div class="search-scroll" style="flex:1;min-width:200px">
+          <input type="text" placeholder="タスクを検索…" id="taskSearch" oninput="filterTasks()">
+        </div>
+        <div class="stamp-filters">
+          <button class="stamp-btn active" onclick="filterByStatus(this,'all')">全て</button>
+          <button class="stamp-btn" onclick="filterByStatus(this,'done')">完了</button>
+          <button class="stamp-btn" onclick="filterByStatus(this,'pending')">未着手</button>
+          <button class="stamp-btn" onclick="filterByStatus(this,'progress')">進行中</button>
+        </div>
+      </div>
 
-  <div class="section-title"><span class="icon">鑑</span><span class="brush-underline">プロジェクト概況</span></div>
+      <div class="card card-shadow seigaiha-border" style="padding:0;overflow-x:auto">
+        <table class="wa-table" id="taskTable">
+          <thead>
+            <tr>
+              <th style="width:30px"></th>
+              <th>識別子</th>
+              <th>タスク名</th>
+              <th>ステータス</th>
+              <th>優先度</th>
+              <th>担当</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="expandable" data-status="done" onclick="toggleRow(this)">
+              <td><span class="expand-icon">▶</span></td>
+              <td class="text-gold">F001</td>
+              <td>Prismaスキーマ設計</td>
+              <td><span class="badge badge-done">完了</span></td>
+              <td class="text-shu">高</td>
+              <td>Generator</td>
+            </tr>
+            <tr class="detail-row"><td colspan="6">データベーススキーマの設計と実装。ユーザー、プロジェクト、タスク、エージェントログのモデル定義。マイグレーション適用済み。</td></tr>
 
-  <div class="kpi-grid">
-    <div class="card scroll-card shoji-card kpi-card hishi-bg">
-      <div class="kpi-label">総タスク</div>
-      <div class="kpi-value gold-num">10</div>
-      <div class="kpi-sub">全機能合計</div>
-    </div>
-    <div class="card scroll-card shoji-card kpi-card hishi-bg">
-      <div class="kpi-label">完了</div>
-      <div class="kpi-value gold-num">5</div>
-      <div class="kpi-sub">実装済み</div>
-    </div>
-    <div class="card scroll-card shoji-card kpi-card hishi-bg">
-      <div class="kpi-label">進行中</div>
-      <div class="kpi-value" style="color:var(--washi-dark)">0</div>
-      <div class="kpi-sub">作業中なし</div>
-    </div>
-    <div class="card scroll-card shoji-card kpi-card hishi-bg">
-      <div class="kpi-label">未着手</div>
-      <div class="kpi-value" style="color:var(--ai-light)">5</div>
-      <div class="kpi-sub">残り機能</div>
-    </div>
-    <div class="card scroll-card shoji-card kpi-card hishi-bg">
-      <div class="kpi-label">完了率</div>
-      <div class="gold-ring" style="--pct:50%"><span class="gold-num">50%</span></div>
-    </div>
-    <div class="card scroll-card shoji-card kpi-card hishi-bg">
-      <div class="kpi-label">スプリント完了</div>
-      <div class="kpi-value gold-num">5</div>
-      <div class="kpi-sub">S001–S005</div>
-    </div>
-    <div class="card scroll-card shoji-card kpi-card hishi-bg">
-      <div class="kpi-label">エージェント</div>
-      <div class="kpi-value gold-num">3</div>
-      <div class="kpi-sub">体制</div>
-    </div>
-    <div class="card scroll-card shoji-card kpi-card hishi-bg">
-      <div class="kpi-label">レベニューシェア</div>
-      <div class="kpi-value"><span class="gold-num">60</span><span style="color:var(--washi-dark);font-size:1rem">/</span><span class="gold-num">30</span><span style="color:var(--washi-dark);font-size:1rem">/</span><span class="gold-num">10</span></div>
-      <div class="kpi-sub">開発/運営/マーケ</div>
-    </div>
-  </div>
+            <tr class="expandable" data-status="done" onclick="toggleRow(this)">
+              <td><span class="expand-icon">▶</span></td>
+              <td class="text-gold">F002</td>
+              <td>NextAuth認証システム</td>
+              <td><span class="badge badge-done">完了</span></td>
+              <td class="text-shu">高</td>
+              <td>Generator</td>
+            </tr>
+            <tr class="detail-row"><td colspan="6">GitHub/Google OAuth統合、JWTセッション管理、ロールベースアクセス制御の実装。</td></tr>
 
-  <div class="kintsugi-line"></div>
+            <tr class="expandable" data-status="done" onclick="toggleRow(this)">
+              <td><span class="expand-icon">▶</span></td>
+              <td class="text-gold">F003</td>
+              <td>RESTful APIエンドポイント</td>
+              <td><span class="badge badge-done">完了</span></td>
+              <td class="text-shu">高</td>
+              <td>Generator</td>
+            </tr>
+            <tr class="detail-row"><td colspan="6">CRUD操作、バリデーション、エラーハンドリング、レート制限。OpenAPI仕様書生成。</td></tr>
 
-  <div class="section-title"><span class="icon">巻</span><span class="brush-underline">活動履歴</span></div>
+            <tr class="expandable" data-status="done" onclick="toggleRow(this)">
+              <td><span class="expand-icon">▶</span></td>
+              <td class="text-gold">F004</td>
+              <td>エージェントワーカー基盤</td>
+              <td><span class="badge badge-done">完了</span></td>
+              <td>中</td>
+              <td>Generator</td>
+            </tr>
+            <tr class="detail-row"><td colspan="6">非同期ジョブキュー、リトライロジック、タイムアウト管理、ログ収集パイプライン。</td></tr>
 
-  <div class="card shoji-card emaki mb-4">
-    <div class="feed-item"><span class="feed-dot"></span><span class="feed-time">S005</span><span>認証システム — <strong style="color:var(--gold)">PASS</strong></span></div>
-    <div class="feed-item"><span class="feed-dot"></span><span class="feed-time">S004</span><span>決済基盤 — <strong style="color:var(--gold)">PASS</strong></span></div>
-    <div class="feed-item"><span class="feed-dot"></span><span class="feed-time">S003</span><span>通知機能 — <strong style="color:var(--gold)">PASS</strong></span></div>
-    <div class="feed-item"><span class="feed-dot"></span><span class="feed-time">S002</span><span>ユーザー管理 — <strong style="color:var(--gold)">PASS</strong></span></div>
-    <div class="feed-item"><span class="feed-dot"></span><span class="feed-time">S001</span><span>DB設計・マイグレーション — <strong style="color:var(--gold)">PASS</strong></span></div>
-  </div>
+            <tr class="expandable" data-status="done" onclick="toggleRow(this)">
+              <td><span class="expand-icon">▶</span></td>
+              <td class="text-gold">F005</td>
+              <td>テストスイート整備</td>
+              <td><span class="badge badge-done">完了</span></td>
+              <td>中</td>
+              <td>Evaluator</td>
+            </tr>
+            <tr class="detail-row"><td colspan="6">Jest + Playwright によるユニット・統合・E2Eテスト。カバレッジ80%以上達成。CI/CD統合。</td></tr>
 
-  <div class="section-title"><span class="icon">燈</span><span class="brush-underline">エージェント状況</span></div>
+            <tr class="expandable" data-status="pending" onclick="toggleRow(this)">
+              <td><span class="expand-icon">▶</span></td>
+              <td class="text-gold">F006</td>
+              <td>UIダッシュボード</td>
+              <td><span class="badge badge-pending">未着手</span></td>
+              <td class="text-shu">高</td>
+              <td>Generator</td>
+            </tr>
+            <tr class="detail-row"><td colspan="6">React Server Componentsによるリアルタイムダッシュボード。KPI表示、グラフ、フィルタリング機能。</td></tr>
 
-  <div class="agent-grid">
-    <div class="card shoji-card agent-card active-agent hishi-bg">
-      <div class="agent-emoji">🎯</div>
-      <div class="agent-name">Planner</div>
-      <div class="agent-role">仕様定義・タスク分解を担当</div>
-      <span class="status-badge status-done">完了</span>
+            <tr class="expandable" data-status="pending" onclick="toggleRow(this)">
+              <td><span class="expand-icon">▶</span></td>
+              <td class="text-gold">F007</td>
+              <td>Stripe決済統合</td>
+              <td><span class="badge badge-pending">未着手</span></td>
+              <td class="text-shu">高</td>
+              <td>Generator</td>
+            </tr>
+            <tr class="detail-row"><td colspan="6">サブスクリプション管理、従量課金、請求書生成、Webhook処理。</td></tr>
+
+            <tr class="expandable" data-status="pending" onclick="toggleRow(this)">
+              <td><span class="expand-icon">▶</span></td>
+              <td class="text-gold">F008</td>
+              <td>マーケットプレイス機能</td>
+              <td><span class="badge badge-pending">未着手</span></td>
+              <td>中</td>
+              <td>Generator</td>
+            </tr>
+            <tr class="detail-row"><td colspan="6">エージェントテンプレート公開・検索・インストール機能。レビュー・評価システム。</td></tr>
+
+            <tr class="expandable" data-status="pending" onclick="toggleRow(this)">
+              <td><span class="expand-icon">▶</span></td>
+              <td class="text-gold">F009</td>
+              <td>ドキュメンテーション</td>
+              <td><span class="badge badge-pending">未着手</span></td>
+              <td>中</td>
+              <td>Planner</td>
+            </tr>
+            <tr class="detail-row"><td colspan="6">APIリファレンス、利用ガイド、チュートリアル。Docusaurusによる静的サイト生成。</td></tr>
+
+            <tr class="expandable" data-status="pending" onclick="toggleRow(this)">
+              <td><span class="expand-icon">▶</span></td>
+              <td class="text-gold">F010</td>
+              <td>本番デプロイメント</td>
+              <td><span class="badge badge-pending">未着手</span></td>
+              <td class="text-shu">高</td>
+              <td>Planner</td>
+            </tr>
+            <tr class="detail-row"><td colspan="6">Vercel本番環境構築、CDN設定、監視・アラート、バックアップ戦略。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====== TAB 3: エージェント ====== -->
+    <section class="tab-content" data-tab="agents" id="tab-agents">
+      <h2 class="fude-underline mb-3" style="font-size:1.3rem">エージェント体制</h2>
+
+      <div class="flex flex-col gap-2" style="max-width:500px;margin:0 auto">
+        <!-- Planner -->
+        <div class="card card-shadow kakejiku hishi-bg ink-enter">
+          <div class="agent-card" style="border:none">
+            <span class="agent-icon lantern-glow" style="font-size:2.5rem">🎯</span>
+            <div style="flex:1">
+              <div class="text-washi" style="font-size:1.1rem;font-family:'Shippori Mincho B1',serif">Planner</div>
+              <div class="text-xs text-dim mb-1">計画立案 — タスク分解 — 依存関係整理</div>
+              <div class="flex items-center gap-1">
+                <div class="agent-status online"></div>
+                <span class="badge badge-done">全タスク完了</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="workflow-connector"><div class="brush-dot"></div></div>
+
+        <!-- Generator -->
+        <div class="card card-shadow kakejiku hishi-bg ink-enter" style="animation-delay:0.2s">
+          <div class="agent-card" style="border:none">
+            <span class="agent-icon" style="font-size:2.5rem">⚡</span>
+            <div style="flex:1">
+              <div class="text-washi" style="font-size:1.1rem;font-family:'Shippori Mincho B1',serif">Generator</div>
+              <div class="text-xs text-dim mb-1">コード生成 — 実装 — リファクタリング</div>
+              <div class="flex items-center gap-1">
+                <div class="agent-status offline"></div>
+                <span class="badge badge-fail">停止中 — 次フェーズ待ち</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="workflow-connector"><div class="brush-dot"></div></div>
+
+        <!-- Evaluator -->
+        <div class="card card-shadow kakejiku hishi-bg ink-enter" style="animation-delay:0.4s">
+          <div class="agent-card" style="border:none">
+            <span class="agent-icon" style="font-size:2.5rem">🔍</span>
+            <div style="flex:1">
+              <div class="text-washi" style="font-size:1.1rem;font-family:'Shippori Mincho B1',serif">Evaluator</div>
+              <div class="text-xs text-dim mb-1">品質評価 — テスト実行 — レポート生成</div>
+              <div class="flex items-center gap-1">
+                <div class="agent-status standby"></div>
+                <span class="badge badge-pending">待機中 — 評価準備完了</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="kintsugi-divider"></div>
+
+      <h3 class="fude-underline mb-2" style="font-size:1rem">ワークフロー概要</h3>
+      <div class="card card-shadow" style="text-align:center;padding:2rem">
+        <div class="text-sm text-dim" style="line-height:2.2">
+          <span class="text-gold">Planner</span> が要件を分析し、タスクを分解<br>
+          ↓ 依存関係グラフを生成<br>
+          <span class="text-gold">Generator</span> がコードを自動生成・実装<br>
+          ↓ 実装結果をキューに格納<br>
+          <span class="text-gold">Evaluator</span> がテスト・品質チェックを実施<br>
+          ↓ 合格 → マージ / 不合格 → フィードバックループ
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== TAB 4: ロードマップ ====== -->
+    <section class="tab-content" data-tab="roadmap" id="tab-roadmap">
+      <h2 class="fude-underline mb-3" style="font-size:1.3rem">ロードマップ — 参道</h2>
+      <p class="text-sm text-dim mb-3">本殿（ローンチ）への道のり。各石段はフェーズを表す。</p>
+
+      <div class="sandou">
+        <!-- Phase 1 -->
+        <div class="sandou-step complete">
+          <div class="card card-shadow kakejiku hishi-bg">
+            <div class="flex items-center justify-between mb-1">
+              <h3 style="font-size:1rem" class="gold-shimmer">第一期 — 基盤構築</h3>
+              <span class="badge badge-done">100% ✅</span>
+            </div>
+            <p class="text-sm text-dim mb-2">データベース設計、認証、API、テスト基盤の完成</p>
+            <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+            <div class="text-xs text-dim mt-2">F001〜F005 全完了 — スプリント1-5消化</div>
+          </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="sandou-step active">
+          <div class="card card-shadow kakejiku hishi-bg shimenawa">
+            <div class="flex items-center justify-between mb-1">
+              <h3 style="font-size:1rem" class="text-shu">第二期 — コアMVP</h3>
+              <span class="badge badge-progress">50%</span>
+            </div>
+            <p class="text-sm text-dim mb-2">UIダッシュボード、決済統合の構築</p>
+            <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+            <div class="text-xs text-dim mt-2">F006〜F007 対象 — 現在進行中</div>
+          </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="sandou-step">
+          <div class="card card-shadow kakejiku hishi-bg">
+            <div class="flex items-center justify-between mb-1">
+              <h3 style="font-size:1rem">第三期 — 収益基盤</h3>
+              <span class="badge badge-pending">20%</span>
+            </div>
+            <p class="text-sm text-dim mb-2">マーケットプレイス、ドキュメンテーション整備</p>
+            <div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div>
+            <div class="text-xs text-dim mt-2">F008〜F009 対象</div>
+          </div>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="sandou-step">
+          <div class="card card-shadow kakejiku hishi-bg">
+            <div class="flex items-center justify-between mb-1">
+              <h3 style="font-size:1rem">第四期 — 本殿・ローンチ</h3>
+              <span class="badge" style="background:rgba(255,255,255,0.05);color:var(--washi-dark);border:1px solid rgba(255,255,255,0.08)">0%</span>
+            </div>
+            <p class="text-sm text-dim mb-2">本番デプロイ、監視体制確立、正式公開</p>
+            <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+            <div class="text-xs text-dim mt-2">F010 対象 — 最終フェーズ</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== TAB 5: スプリント ====== -->
+    <section class="tab-content" data-tab="sprint" id="tab-sprint">
+      <h2 class="fude-underline mb-3" style="font-size:1.3rem">スプリント記録 — 御朱印帳</h2>
+      <p class="text-sm text-dim mb-3">完了したスプリントは御朱印として刻まれる。</p>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+        <div class="card card-shadow kakejiku hishi-bg ink-enter" style="text-align:center;padding:2rem 1rem">
+          <div class="goshuin" style="width:64px;height:64px;font-size:0.8rem;margin:0 auto 1rem">
+            第一
+          </div>
+          <h4 class="text-sm mb-1">スプリント壱</h4>
+          <div class="text-xs text-dim mb-1">Prismaスキーマ設計</div>
+          <span class="badge badge-done">F001 完了</span>
+        </div>
+
+        <div class="card card-shadow kakejiku hishi-bg ink-enter" style="text-align:center;padding:2rem 1rem;animation-delay:0.1s">
+          <div class="goshuin" style="width:64px;height:64px;font-size:0.8rem;margin:0 auto 1rem">
+            第二
+          </div>
+          <h4 class="text-sm mb-1">スプリント弐</h4>
+          <div class="text-xs text-dim mb-1">NextAuth認証システム</div>
+          <span class="badge badge-done">F002 完了</span>
+        </div>
+
+        <div class="card card-shadow kakejiku hishi-bg ink-enter" style="text-align:center;padding:2rem 1rem;animation-delay:0.2s">
+          <div class="goshuin" style="width:64px;height:64px;font-size:0.8rem;margin:0 auto 1rem">
+            第三
+          </div>
+          <h4 class="text-sm mb-1">スプリント参</h4>
+          <div class="text-xs text-dim mb-1">RESTful APIエンドポイント</div>
+          <span class="badge badge-done">F003 完了</span>
+        </div>
+
+        <div class="card card-shadow kakejiku hishi-bg ink-enter" style="text-align:center;padding:2rem 1rem;animation-delay:0.3s">
+          <div class="goshuin" style="width:64px;height:64px;font-size:0.8rem;margin:0 auto 1rem">
+            第四
+          </div>
+          <h4 class="text-sm mb-1">スプリント肆</h4>
+          <div class="text-xs text-dim mb-1">エージェントワーカー基盤</div>
+          <span class="badge badge-done">F004 完了</span>
+        </div>
+
+        <div class="card card-shadow kakejiku hishi-bg ink-enter" style="text-align:center;padding:2rem 1rem;animation-delay:0.4s">
+          <div class="goshuin" style="width:64px;height:64px;font-size:0.8rem;margin:0 auto 1rem">
+            第五
+          </div>
+          <h4 class="text-sm mb-1">スプリント伍</h4>
+          <div class="text-xs text-dim mb-1">テストスイート整備</div>
+          <span class="badge badge-done">F005 完了</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== TAB 6: 事業計画 ====== -->
+    <section class="tab-content" data-tab="business" id="tab-business">
+      <h2 class="fude-underline mb-3" style="font-size:1.3rem">事業計画書</h2>
+
+      <!-- エグゼクティブサマリー -->
+      <div class="biz-section">
+        <div class="card card-shadow kakejiku shimenawa hishi-bg">
+          <h3 class="fude-underline mb-2">エグゼクティブサマリー</h3>
+          <p class="text-sm" style="line-height:2">
+            当プロジェクトは、AIエージェントによるソフトウェア開発の完全自動化プラットフォームを構築する。
+            計画（Planner）・生成（Generator）・評価（Evaluator）の三体制エージェントが協調し、
+            人間の開発者に匹敵する品質のコードを自動生成する。
+            急成長するAI開発ツール市場（2024年$5.4B → 2030年$47.1B）において、
+            独自のマルチエージェントアーキテクチャで差別化を図る。
+          </p>
+        </div>
+      </div>
+
+      <div class="karesansui"></div>
+
+      <!-- 市場規模 -->
+      <div class="biz-section">
+        <h3 class="fude-underline mb-2">市場規模</h3>
+        <div class="card card-shadow hishi-bg">
+          <div class="metric-row">
+            <span class="metric-label">AI開発ツール市場（2024年）</span>
+            <span class="metric-value gold-shimmer">$5.4B</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">AI開発ツール市場（2030年予測）</span>
+            <span class="metric-value gold-shimmer">$47.1B</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">年平均成長率（CAGR）</span>
+            <span class="metric-value gold-shimmer">43.7%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAM/SAM/SOM -->
+      <div class="biz-section">
+        <h3 class="fude-underline mb-2">TAM / SAM / SOM</h3>
+        <div class="grid-2">
+          <div class="card card-shadow hishi-bg">
+            <div class="metric-row">
+              <span class="metric-label">TAM（全体市場）</span>
+              <span class="metric-value gold-shimmer">$47.1B</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">SAM（到達可能市場）</span>
+              <span class="metric-value" style="color:var(--shu)">$4.7B</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">SOM（獲得目標市場）</span>
+              <span class="metric-value" style="color:var(--ai-light)">$470M</span>
+            </div>
+          </div>
+          <div class="card card-shadow hishi-bg" style="display:flex;align-items:center;justify-content:center">
+            <div style="text-align:center">
+              <div style="font-size:0.7rem;color:var(--washi-dark);margin-bottom:0.5rem">市場浸透率目標</div>
+              <div class="gold-shimmer" style="font-size:2.5rem;font-family:'Shippori Mincho B1',serif;font-weight:700">10%</div>
+              <div style="font-size:0.7rem;color:var(--washi-dark)">SAM内シェア</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="karesansui"></div>
+
+      <!-- 競合分析 -->
+      <div class="biz-section">
+        <h3 class="fude-underline mb-2">競合分析</h3>
+        <div class="card card-shadow seigaiha-border" style="padding:0;overflow-x:auto">
+          <table class="wa-table">
+            <thead>
+              <tr><th>企業名</th><th>強み</th><th>弱み</th><th>差別化</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="text-washi">GitHub Copilot</td><td class="text-sm">圧倒的ユーザー基盤</td><td class="text-sm">単一ファイル完結</td><td class="text-sm text-gold">マルチエージェント</td></tr>
+              <tr><td class="text-washi">Cursor</td><td class="text-sm">優れたUX</td><td class="text-sm">IDE依存</td><td class="text-sm text-gold">プラットフォーム非依存</td></tr>
+              <tr><td class="text-washi">Devin</td><td class="text-sm">フルスタック自動化</td><td class="text-sm">高コスト</td><td class="text-sm text-gold">低価格+高品質</td></tr>
+              <tr><td class="text-washi">Replit Agent</td><td class="text-sm">即座にデプロイ</td><td class="text-sm">スケーラビリティ</td><td class="text-sm text-gold">エンタープライズ対応</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 勝ち筋5つ -->
+      <div class="biz-section">
+        <h3 class="fude-underline mb-2">五つの勝ち筋</h3>
+        <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+          <div class="card card-shadow hishi-bg" style="text-align:center;padding:1.5rem 1rem">
+            <div class="lantern-glow" style="font-size:1.5rem;margin-bottom:0.5rem">壱</div>
+            <h4 class="text-sm mb-1">マルチエージェント協調</h4>
+            <p class="text-xs text-dim">三体制の相互検証による圧倒的品質</p>
+          </div>
+          <div class="card card-shadow hishi-bg" style="text-align:center;padding:1.5rem 1rem">
+            <div class="lantern-glow" style="font-size:1.5rem;margin-bottom:0.5rem">弐</div>
+            <h4 class="text-sm mb-1">自己改善ループ</h4>
+            <p class="text-xs text-dim">評価結果のフィードバックによる継続的学習</p>
+          </div>
+          <div class="card card-shadow hishi-bg" style="text-align:center;padding:1.5rem 1rem">
+            <div class="lantern-glow" style="font-size:1.5rem;margin-bottom:0.5rem">参</div>
+            <h4 class="text-sm mb-1">低価格戦略</h4>
+            <p class="text-xs text-dim">競合の1/3の価格で同等以上の成果</p>
+          </div>
+          <div class="card card-shadow hishi-bg" style="text-align:center;padding:1.5rem 1rem">
+            <div class="lantern-glow" style="font-size:1.5rem;margin-bottom:0.5rem">肆</div>
+            <h4 class="text-sm mb-1">マーケットプレイス</h4>
+            <p class="text-xs text-dim">エージェントテンプレートのエコシステム</p>
+          </div>
+          <div class="card card-shadow hishi-bg" style="text-align:center;padding:1.5rem 1rem">
+            <div class="lantern-glow" style="font-size:1.5rem;margin-bottom:0.5rem">伍</div>
+            <h4 class="text-sm mb-1">エンタープライズ対応</h4>
+            <p class="text-xs text-dim">セキュリティ・コンプライアンス万全</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="karesansui"></div>
+
+      <!-- 収益モデル -->
+      <div class="biz-section">
+        <h3 class="fude-underline mb-2">収益モデル — 60 / 30 / 10</h3>
+        <div class="grid-2">
+          <div class="card card-shadow hishi-bg">
+            <div class="metric-row">
+              <span class="metric-label">サブスクリプション収益</span>
+              <span class="metric-value gold-shimmer">60%</span>
+            </div>
+            <div class="text-xs text-dim" style="padding-left:1rem">月額課金 — Pro/Team/Enterprise</div>
+            <div class="progress-bar mt-2"><div class="progress-fill" style="width:60%"></div></div>
+          </div>
+          <div class="card card-shadow hishi-bg">
+            <div class="metric-row">
+              <span class="metric-label">従量課金収益</span>
+              <span class="metric-value" style="color:var(--shu)">30%</span>
+            </div>
+            <div class="text-xs text-dim" style="padding-left:1rem">APIコール・実行時間ベース</div>
+            <div class="progress-bar mt-2"><div class="progress-fill" style="width:30%;background:linear-gradient(90deg,var(--shu-dark),var(--shu))"></div></div>
+          </div>
+          <div class="card card-shadow hishi-bg">
+            <div class="metric-row">
+              <span class="metric-label">マーケットプレイス手数料</span>
+              <span class="metric-value" style="color:var(--ai-light)">10%</span>
+            </div>
+            <div class="text-xs text-dim" style="padding-left:1rem">テンプレート販売の手数料</div>
+            <div class="progress-bar mt-2"><div class="progress-fill" style="width:10%;background:linear-gradient(90deg,var(--ai),var(--ai-light))"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="karesansui"></div>
+
+      <!-- 3シナリオ -->
+      <div class="biz-section">
+        <h3 class="fude-underline mb-2">三段階シナリオ分析</h3>
+        <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="card card-shadow hishi-bg" style="text-align:center;padding:1.5rem">
+            <h4 class="text-sm text-dim mb-1">保守的</h4>
+            <div class="gold-shimmer" style="font-size:1.8rem;font-family:'Shippori Mincho B1',serif;font-weight:700">$2M</div>
+            <div class="text-xs text-dim">ARR（1年目末）</div>
+            <div class="text-xs mt-2" style="color:var(--matsu-light)">1,000社 × $167/月</div>
+          </div>
+          <div class="card card-shadow kakejiku hishi-bg shimenawa" style="text-align:center;padding:1.5rem">
+            <h4 class="text-sm text-gold mb-1">基本</h4>
+            <div class="gold-shimmer" style="font-size:1.8rem;font-family:'Shippori Mincho B1',serif;font-weight:700">$5M</div>
+            <div class="text-xs text-dim">ARR（1年目末）</div>
+            <div class="text-xs mt-2" style="color:var(--matsu-light)">2,500社 × $167/月</div>
+          </div>
+          <div class="card card-shadow hishi-bg" style="text-align:center;padding:1.5rem">
+            <h4 class="text-sm text-dim mb-1">楽観的</h4>
+            <div class="gold-shimmer" style="font-size:1.8rem;font-family:'Shippori Mincho B1',serif;font-weight:700">$12M</div>
+            <div class="text-xs text-dim">ARR（1年目末）</div>
+            <div class="text-xs mt-2" style="color:var(--matsu-light)">5,000社 × $200/月</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="karesansui"></div>
+
+      <!-- 12ヶ月計画 -->
+      <div class="biz-section">
+        <h3 class="fude-underline mb-2">十二ヶ月実行計画</h3>
+        <div class="card card-shadow seigaiha-border" style="padding:0;overflow-x:auto">
+          <table class="wa-table">
+            <thead><tr><th>四半期</th><th>目標</th><th>KPI</th><th>投資</th></tr></thead>
+            <tbody>
+              <tr><td class="text-gold">Q1（1-3月）</td><td class="text-sm">MVP完成・クローズドβ</td><td class="text-sm">100社β登録</td><td class="text-sm">$150K</td></tr>
+              <tr><td class="text-gold">Q2（4-6月）</td><td class="text-sm">公開β・初期収益</td><td class="text-sm">500社・MRR$50K</td><td class="text-sm">$200K</td></tr>
+              <tr><td class="text-gold">Q3（7-9月）</td><td class="text-sm">正式版・マーケットプレイス</td><td class="text-sm">1,500社・MRR$200K</td><td class="text-sm">$300K</td></tr>
+              <tr><td class="text-gold">Q4（10-12月）</td><td class="text-sm">スケール・エンタープライズ</td><td class="text-sm">2,500社・MRR$420K</td><td class="text-sm">$350K</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 資金計画 -->
+      <div class="biz-section">
+        <h3 class="fude-underline mb-2">資金計画</h3>
+        <div class="card card-shadow hishi-bg">
+          <div class="metric-row">
+            <span class="metric-label">シード調達目標</span>
+            <span class="metric-value gold-shimmer">$1.5M</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">ランウェイ</span>
+            <span class="metric-value">18ヶ月</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">月間バーンレート</span>
+            <span class="metric-value">$83K</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">損益分岐点</span>
+            <span class="metric-value">12ヶ月目</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- リスク -->
+      <div class="biz-section">
+        <h3 class="fude-underline mb-2">リスク分析</h3>
+        <div class="card card-shadow hishi-bg">
+          <div class="metric-row">
+            <span class="metric-label">技術リスク — LLMコスト変動</span>
+            <span class="badge badge-pending">中</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">市場リスク — 大手参入</span>
+            <span class="badge badge-fail" style="background:rgba(196,62,62,0.1)">高</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">実行リスク — 人材確保</span>
+            <span class="badge badge-pending">中</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">規制リスク — AI規制強化</span>
+            <span class="badge badge-done">低</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- チーム・技術 -->
+      <div class="biz-section">
+        <h3 class="fude-underline mb-2">チーム・技術スタック</h3>
+        <div class="grid-2">
+          <div class="card card-shadow hishi-bg">
+            <h4 class="text-sm text-gold mb-2">技術スタック</h4>
+            <div class="text-xs text-dim" style="line-height:2.2">
+              フロントエンド: Next.js / React / TypeScript<br>
+              バックエンド: Node.js / Prisma / PostgreSQL<br>
+              AI: OpenAI GPT-4 / Claude / カスタムモデル<br>
+              インフラ: Vercel / AWS / Redis<br>
+              CI/CD: GitHub Actions / Jest / Playwright
+            </div>
+          </div>
+          <div class="card card-shadow hishi-bg">
+            <h4 class="text-sm text-gold mb-2">チーム構成（目標）</h4>
+            <div class="text-xs text-dim" style="line-height:2.2">
+              CTO / テックリード: 1名<br>
+              フルスタックエンジニア: 3名<br>
+              AIエンジニア: 2名<br>
+              デザイナー: 1名<br>
+              ビジネス開発: 1名<br>
+              計: 8名体制
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== TAB 7: 市場分析 ====== -->
+    <section class="tab-content" data-tab="market" id="tab-market">
+      <h2 class="fude-underline mb-3" style="font-size:1.3rem">市場分析</h2>
+
+      <!-- TAM/SAM/SOM 同心円 -->
+      <h3 class="fude-underline mb-2" style="font-size:1rem">TAM / SAM / SOM</h3>
+      <div class="card card-shadow mb-4" style="padding:2rem">
+        <div class="market-circles" style="height:320px">
+          <div class="market-circle" style="width:280px;height:280px;border:2px solid rgba(201,168,76,0.25);background:rgba(201,168,76,0.03)">
+            <span class="text-xs text-dim" style="position:absolute;top:15px">TAM</span>
+            <div class="market-circle" style="width:180px;height:180px;border:2px solid rgba(196,62,62,0.3);background:rgba(196,62,62,0.04)">
+              <span class="text-xs text-dim" style="position:absolute;top:10px">SAM</span>
+              <div class="market-circle" style="width:90px;height:90px;border:2px solid rgba(26,58,92,0.4);background:rgba(26,58,92,0.08);position:relative">
+                <span class="text-xs" style="color:var(--ai-light)">SOM</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-between mt-3" style="text-align:center">
+          <div>
+            <div class="gold-shimmer" style="font-size:1.5rem;font-family:'Shippori Mincho B1',serif;font-weight:700">$47.1B</div>
+            <div class="text-xs text-dim">TAM（2030年）</div>
+          </div>
+          <div>
+            <div style="font-size:1.5rem;font-family:'Shippori Mincho B1',serif;font-weight:700;color:var(--shu)">$4.7B</div>
+            <div class="text-xs text-dim">SAM</div>
+          </div>
+          <div>
+            <div style="font-size:1.5rem;font-family:'Shippori Mincho B1',serif;font-weight:700;color:var(--ai-light)">$470M</div>
+            <div class="text-xs text-dim">SOM</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="kintsugi-divider"></div>
+
+      <!-- 成長予測 -->
+      <h3 class="fude-underline mb-2" style="font-size:1rem">成長予測</h3>
+      <div class="card card-shadow mb-4 hishi-bg">
+        <div class="text-xs text-dim mb-2">AI開発ツール市場規模推移（単位: $B）</div>
+        <div style="display:flex;align-items:flex-end;gap:0.5rem;height:160px;padding:1rem 0">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+            <div class="text-xs gold-shimmer" style="margin-bottom:4px">$5.4B</div>
+            <div style="width:100%;height:18%;background:var(--gold-grad);background-size:200% 100%;animation:shimmer 3s ease-in-out infinite;border-radius:2px 2px 0 0"></div>
+            <div class="text-xs text-dim" style="margin-top:4px">2024</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+            <div class="text-xs text-dim" style="margin-bottom:4px">$8.1B</div>
+            <div style="width:100%;height:28%;background:linear-gradient(180deg,rgba(201,168,76,0.4),rgba(201,168,76,0.2));border-radius:2px 2px 0 0"></div>
+            <div class="text-xs text-dim" style="margin-top:4px">2025</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+            <div class="text-xs text-dim" style="margin-bottom:4px">$12.8B</div>
+            <div style="width:100%;height:40%;background:linear-gradient(180deg,rgba(201,168,76,0.45),rgba(201,168,76,0.2));border-radius:2px 2px 0 0"></div>
+            <div class="text-xs text-dim" style="margin-top:4px">2026</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+            <div class="text-xs text-dim" style="margin-bottom:4px">$20.1B</div>
+            <div style="width:100%;height:55%;background:linear-gradient(180deg,rgba(201,168,76,0.5),rgba(201,168,76,0.2));border-radius:2px 2px 0 0"></div>
+            <div class="text-xs text-dim" style="margin-top:4px">2027</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+            <div class="text-xs text-dim" style="margin-bottom:4px">$30.2B</div>
+            <div style="width:100%;height:72%;background:linear-gradient(180deg,rgba(201,168,76,0.55),rgba(201,168,76,0.2));border-radius:2px 2px 0 0"></div>
+            <div class="text-xs text-dim" style="margin-top:4px">2028</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+            <div class="text-xs gold-shimmer" style="margin-bottom:4px">$47.1B</div>
+            <div style="width:100%;height:100%;background:var(--gold-grad);background-size:200% 100%;animation:shimmer 3s ease-in-out infinite;border-radius:2px 2px 0 0"></div>
+            <div class="text-xs text-dim" style="margin-top:4px">2030</div>
+          </div>
+        </div>
+        <div class="text-xs text-dim" style="text-align:right">CAGR: 43.7%</div>
+      </div>
+
+      <div class="kintsugi-divider"></div>
+
+      <!-- 競合マトリックス -->
+      <h3 class="fude-underline mb-2" style="font-size:1rem">競合マトリックス</h3>
+      <div class="card card-shadow seigaiha-border mb-4" style="padding:0;overflow-x:auto">
+        <table class="wa-table">
+          <thead>
+            <tr><th>企業</th><th>自動化度</th><th>品質</th><th>価格</th><th>エコシステム</th><th>総合</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-gold">当プロジェクト</td>
+              <td><span class="gold-shimmer">★★★★★</span></td>
+              <td><span class="gold-shimmer">★★★★☆</span></td>
+              <td><span class="gold-shimmer">★★★★★</span></td>
+              <td><span class="gold-shimmer">★★★☆☆</span></td>
+              <td><span class="gold-shimmer">4.25</span></td>
+            </tr>
+            <tr>
+              <td class="text-washi">GitHub Copilot</td>
+              <td>★★★☆☆</td>
+              <td>★★★★☆</td>
+              <td>★★★★☆</td>
+              <td>★★★★★</td>
+              <td>4.00</td>
+            </tr>
+            <tr>
+              <td class="text-washi">Cursor</td>
+              <td>★★★★☆</td>
+              <td>★★★★☆</td>
+              <td>★★★☆☆</td>
+              <td>★★★☆☆</td>
+              <td>3.50</td>
+            </tr>
+            <tr>
+              <td class="text-washi">Devin</td>
+              <td>★★★★★</td>
+              <td>★★★☆☆</td>
+              <td>★★☆☆☆</td>
+              <td>★★☆☆☆</td>
+              <td>3.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ポジショニングマップ -->
+      <h3 class="fude-underline mb-2" style="font-size:1rem">ポジショニングマップ</h3>
+      <div class="card card-shadow hishi-bg">
+        <div style="position:relative;height:300px;margin:1rem">
+          <!-- 軸 -->
+          <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(201,168,76,0.1)"></div>
+          <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(201,168,76,0.1)"></div>
+          <!-- ラベル -->
+          <div class="text-xs text-dim" style="position:absolute;top:5px;left:50%;transform:translateX(-50%)">高品質</div>
+          <div class="text-xs text-dim" style="position:absolute;bottom:5px;left:50%;transform:translateX(-50%)">低品質</div>
+          <div class="text-xs text-dim" style="position:absolute;left:5px;top:50%;transform:translateY(-50%)">低価格</div>
+          <div class="text-xs text-dim" style="position:absolute;right:5px;top:50%;transform:translateY(-50%)">高価格</div>
+          <!-- プロット -->
+          <div style="position:absolute;top:15%;left:35%;text-align:center" title="当プロジェクト">
+            <div style="width:16px;height:16px;border-radius:50%;background:var(--gold);margin:0 auto 4px;box-shadow:0 0 12px rgba(201,168,76,0.5);animation:lantern-pulse 3s ease-in-out infinite"></div>
+            <div class="text-xs text-gold">当社</div>
+          </div>
+          <div style="position:absolute;top:25%;left:55%" title="GitHub Copilot">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--washi-dark);margin:0 auto 4px;opacity:0.5"></div>
+            <div class="text-xs text-dim">Copilot</div>
+          </div>
+          <div style="position:absolute;top:30%;left:65%" title="Cursor">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--washi-dark);margin:0 auto 4px;opacity:0.5"></div>
+            <div class="text-xs text-dim">Cursor</div>
+          </div>
+          <div style="position:absolute;top:40%;left:80%" title="Devin">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--washi-dark);margin:0 auto 4px;opacity:0.5"></div>
+            <div class="text-xs text-dim">Devin</div>
+          </div>
+          <div style="position:absolute;top:55%;left:25%" title="Replit Agent">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--washi-dark);margin:0 auto 4px;opacity:0.5"></div>
+            <div class="text-xs text-dim">Replit</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- フッター -->
+  <footer style="text-align:center;padding:2rem;border-top:1px solid rgba(201,168,76,0.06)">
+    <div class="text-xs text-dim" style="letter-spacing:0.15em;font-family:'Shippori Mincho B1',serif">
+      和 v4 — 超越の美 — 令和八年
     </div>
-    <div class="card shoji-card agent-card hishi-bg">
-      <div class="agent-emoji">⚡</div>
-      <div class="agent-name">Generator</div>
-      <div class="agent-role">1スプリント=1機能を実装</div>
-      <span class="status-badge status-stopped">停止中</span>
-    </div>
-    <div class="card shoji-card agent-card hishi-bg">
-      <div class="agent-emoji">🔍</div>
-      <div class="agent-name">Evaluator</div>
-      <div class="agent-role">厳格なコードレビュー</div>
-      <span class="status-badge status-waiting">待機中</span>
-    </div>
-  </div>
+  </footer>
+
 </div>
 
-<!-- ━━━ Tab2: タスク管理 ━━━ -->
-<div class="tab-content" id="tab-tasks">
-  <div class="section-title"><span class="icon">帳</span><span class="brush-underline">タスク一覧</span></div>
-  <div class="card shoji-card" style="overflow-x:auto">
-    <table class="task-table">
-      <thead>
-        <tr><th>ID</th><th>機能名</th><th>優先度</th><th>状態</th><th>スプリント</th><th>進捗</th></tr>
-      </thead>
-      <tbody>
-        <tr><td class="task-id">F001</td><td>DB設計・マイグレーション</td><td class="priority-high">高</td><td><span class="status-badge status-done">完了</span></td><td>S001</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:100%"></div></div></td></tr>
-        <tr><td class="task-id">F002</td><td>ユーザー管理API</td><td class="priority-high">高</td><td><span class="status-badge status-done">完了</span></td><td>S002</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:100%"></div></div></td></tr>
-        <tr><td class="task-id">F003</td><td>通知機能</td><td class="priority-mid">中</td><td><span class="status-badge status-done">完了</span></td><td>S003</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:100%"></div></div></td></tr>
-        <tr><td class="task-id">F004</td><td>決済基盤</td><td class="priority-high">高</td><td><span class="status-badge status-done">完了</span></td><td>S004</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:100%"></div></div></td></tr>
-        <tr><td class="task-id">F005</td><td>認証システム</td><td class="priority-high">高</td><td><span class="status-badge status-done">完了</span></td><td>S005</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:100%"></div></div></td></tr>
-        <tr><td class="task-id">F006</td><td>管理画面</td><td class="priority-mid">中</td><td><span class="status-badge status-notstarted">未着手</span></td><td>—</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:0%"></div></div></td></tr>
-        <tr><td class="task-id">F007</td><td>分析ダッシュボード</td><td class="priority-mid">中</td><td><span class="status-badge status-notstarted">未着手</span></td><td>—</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:0%"></div></div></td></tr>
-        <tr><td class="task-id">F008</td><td>メール配信</td><td class="priority-low">低</td><td><span class="status-badge status-notstarted">未着手</span></td><td>—</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:0%"></div></div></td></tr>
-        <tr><td class="task-id">F009</td><td>外部API連携</td><td class="priority-mid">中</td><td><span class="status-badge status-notstarted">未着手</span></td><td>—</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:0%"></div></div></td></tr>
-        <tr><td class="task-id">F010</td><td>パフォーマンス最適化</td><td class="priority-low">低</td><td><span class="status-badge status-notstarted">未着手</span></td><td>—</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:0%"></div></div></td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ━━━ Tab3: エージェント ━━━ -->
-<div class="tab-content" id="tab-agents">
-  <div class="section-title"><span class="icon">匠</span><span class="brush-underline">エージェント体制</span></div>
-
-  <div class="agent-grid mb-4">
-    <div class="card scroll-card shoji-card hishi-bg" style="padding:2rem">
-      <div style="font-size:2.5rem;margin-bottom:0.8rem">🎯</div>
-      <h3 style="font-size:1.2rem;margin-bottom:0.5rem">Planner</h3>
-      <p class="text-block" style="margin-bottom:1rem">仕様定義とタスク分解を担当。プロジェクト全体の設計図を描き、各スプリントの方針を決定する。</p>
-      <div class="mb-2"><span class="status-badge status-done">完了</span></div>
-      <div style="font-size:0.8rem;color:var(--washi-dark)">
-        <div>担当: 全体設計、仕様書作成、タスク粒度調整</div>
-        <div>成果: 10機能の分解完了</div>
-      </div>
-    </div>
-    <div class="card scroll-card shoji-card hishi-bg" style="padding:2rem">
-      <div style="font-size:2.5rem;margin-bottom:0.8rem">⚡</div>
-      <h3 style="font-size:1.2rem;margin-bottom:0.5rem">Generator</h3>
-      <p class="text-block" style="margin-bottom:1rem">1スプリント=1機能の実装を高速で遂行。コード生成、テスト作成、ドキュメント自動生成まで一貫して行う。</p>
-      <div class="mb-2"><span class="status-badge status-stopped">停止中</span></div>
-      <div style="font-size:0.8rem;color:var(--washi-dark)">
-        <div>担当: コード実装、テスト、ドキュメント</div>
-        <div>成果: 5スプリント完了</div>
-      </div>
-    </div>
-    <div class="card scroll-card shoji-card hishi-bg" style="padding:2rem">
-      <div style="font-size:2.5rem;margin-bottom:0.8rem">🔍</div>
-      <h3 style="font-size:1.2rem;margin-bottom:0.5rem">Evaluator</h3>
-      <p class="text-block" style="margin-bottom:1rem">厳格なコードレビューと品質保証を実施。セキュリティ、パフォーマンス、設計パターンの各観点から評価する。</p>
-      <div class="mb-2"><span class="status-badge status-waiting">待機中</span></div>
-      <div style="font-size:0.8rem;color:var(--washi-dark)">
-        <div>担当: レビュー、品質評価、改善提案</div>
-        <div>成果: 全5スプリントPASS</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="kintsugi-line"></div>
-
-  <div class="subsection">
-    <h3 class="brush-underline" style="display:inline-block;margin-bottom:1.5rem">ワークフロー</h3>
-    <div class="card shoji-card" style="padding:2rem;text-align:center">
-      <div style="display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap">
-        <div style="padding:1rem 1.5rem;border:1px solid rgba(201,168,76,0.2);border-radius:4px">
-          <div style="font-size:1.5rem">🎯</div>
-          <div style="font-size:0.85rem;color:var(--washi);margin-top:0.3rem">Planner</div>
-          <div style="font-size:0.7rem;color:var(--washi-dark)">設計・分解</div>
-        </div>
-        <div style="color:var(--gold);font-size:1.5rem">→</div>
-        <div style="padding:1rem 1.5rem;border:1px solid rgba(201,168,76,0.2);border-radius:4px">
-          <div style="font-size:1.5rem">⚡</div>
-          <div style="font-size:0.85rem;color:var(--washi);margin-top:0.3rem">Generator</div>
-          <div style="font-size:0.7rem;color:var(--washi-dark)">実装</div>
-        </div>
-        <div style="color:var(--gold);font-size:1.5rem">→</div>
-        <div style="padding:1rem 1.5rem;border:1px solid rgba(201,168,76,0.2);border-radius:4px">
-          <div style="font-size:1.5rem">🔍</div>
-          <div style="font-size:0.85rem;color:var(--washi);margin-top:0.3rem">Evaluator</div>
-          <div style="font-size:0.7rem;color:var(--washi-dark)">レビュー</div>
-        </div>
-        <div style="color:var(--gold);font-size:1.5rem">→</div>
-        <div style="padding:1rem 1.5rem;border:1px solid rgba(201,168,76,0.15);border-radius:4px;background:rgba(201,168,76,0.05)">
-          <div style="font-size:1.5rem">✅</div>
-          <div style="font-size:0.85rem;color:var(--gold);margin-top:0.3rem">完了</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ━━━ Tab4: ロードマップ ━━━ -->
-<div class="tab-content" id="tab-roadmap">
-  <div class="section-title"><span class="icon">道</span><span class="brush-underline">開発ロードマップ</span></div>
-
-  <div class="sando">
-    <div class="sando-phase completed">
-      <div class="card scroll-card shoji-card" style="padding:1.5rem 2rem">
-        <h3 style="margin-bottom:0.5rem">第一期 — 基盤構築</h3>
-        <p class="text-block mb-2">データベース設計、認証基盤、基本APIの構築</p>
-        <div class="flex items-center gap-2">
-          <div class="kumihimo-bar" style="flex:1"><div class="kumihimo-fill" style="width:100%"></div></div>
-          <span class="gold-num" style="font-size:0.9rem">100%</span>
-        </div>
-        <div style="font-size:0.75rem;color:var(--washi-dark);margin-top:0.5rem;opacity:0.6">完了: F001, F002, F005</div>
-      </div>
-    </div>
-
-    <div class="sando-phase current">
-      <div class="card scroll-card shoji-card" style="padding:1.5rem 2rem">
-        <h3 style="margin-bottom:0.5rem">第二期 — コアMVP</h3>
-        <p class="text-block mb-2">決済、通知、管理画面など中核機能の実装</p>
-        <div class="flex items-center gap-2">
-          <div class="kumihimo-bar" style="flex:1"><div class="kumihimo-fill" style="width:50%"></div></div>
-          <span class="gold-num" style="font-size:0.9rem">50%</span>
-        </div>
-        <div style="font-size:0.75rem;color:var(--washi-dark);margin-top:0.5rem;opacity:0.6">完了: F003, F004 | 残: F006, F007</div>
-      </div>
-    </div>
-
-    <div class="sando-phase">
-      <div class="card scroll-card shoji-card" style="padding:1.5rem 2rem">
-        <h3 style="margin-bottom:0.5rem">第三期 — 収益基盤</h3>
-        <p class="text-block mb-2">外部連携、メール配信、収益化機能の実装</p>
-        <div class="flex items-center gap-2">
-          <div class="kumihimo-bar" style="flex:1"><div class="kumihimo-fill" style="width:20%"></div></div>
-          <span style="font-size:0.9rem;color:var(--washi-dark)">20%</span>
-        </div>
-        <div style="font-size:0.75rem;color:var(--washi-dark);margin-top:0.5rem;opacity:0.6">対象: F008, F009</div>
-      </div>
-    </div>
-
-    <div class="sando-phase">
-      <div class="card scroll-card shoji-card" style="padding:1.5rem 2rem">
-        <h3 style="margin-bottom:0.5rem">第四期 — ローンチ</h3>
-        <p class="text-block mb-2">パフォーマンス最適化、最終テスト、本番リリース</p>
-        <div class="flex items-center gap-2">
-          <div class="kumihimo-bar" style="flex:1"><div class="kumihimo-fill" style="width:0%"></div></div>
-          <span style="font-size:0.9rem;color:var(--washi-dark)">0%</span>
-        </div>
-        <div style="font-size:0.75rem;color:var(--washi-dark);margin-top:0.5rem;opacity:0.6">対象: F010 + 統合テスト</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ━━━ Tab5: スプリント ━━━ -->
-<div class="tab-content" id="tab-sprints">
-  <div class="section-title"><span class="icon">朱</span><span class="brush-underline">スプリント履歴</span></div>
-
-  <div class="goshuin-grid">
-    <div class="card goshuin">
-      <div class="goshuin-id">S001</div>
-      <div class="goshuin-title">DB設計・マイグレーション</div>
-      <div class="mb-2"><span class="status-badge status-done">PASS</span></div>
-      <div class="goshuin-date">Planner → Generator → Evaluator</div>
-      <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--washi-dark)">スキーマ設計、マイグレーション、シード作成</div>
-    </div>
-    <div class="card goshuin">
-      <div class="goshuin-id">S002</div>
-      <div class="goshuin-title">ユーザー管理API</div>
-      <div class="mb-2"><span class="status-badge status-done">PASS</span></div>
-      <div class="goshuin-date">CRUD、バリデーション、権限管理</div>
-      <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--washi-dark)">REST API + テスト完備</div>
-    </div>
-    <div class="card goshuin">
-      <div class="goshuin-id">S003</div>
-      <div class="goshuin-title">通知機能</div>
-      <div class="mb-2"><span class="status-badge status-done">PASS</span></div>
-      <div class="goshuin-date">リアルタイム通知、プッシュ通知</div>
-      <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--washi-dark)">WebSocket + FCM対応</div>
-    </div>
-    <div class="card goshuin">
-      <div class="goshuin-id">S004</div>
-      <div class="goshuin-title">決済基盤</div>
-      <div class="mb-2"><span class="status-badge status-done">PASS</span></div>
-      <div class="goshuin-date">Stripe連携、サブスクリプション</div>
-      <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--washi-dark)">課金・返金・Webhook処理</div>
-    </div>
-    <div class="card goshuin">
-      <div class="goshuin-id">S005</div>
-      <div class="goshuin-title">認証システム</div>
-      <div class="mb-2"><span class="status-badge status-done">PASS</span></div>
-      <div class="goshuin-date">JWT、OAuth2.0、MFA</div>
-      <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--washi-dark)">セキュリティ監査済み</div>
-    </div>
-  </div>
-</div>
-
-<!-- ━━━ Tab6: 事業計画 ━━━ -->
-<div class="tab-content" id="tab-business">
-  <div class="section-title"><span class="icon">策</span><span class="brush-underline">事業計画書</span></div>
-
-  <div class="ledger-section">
-    <h3 class="brush-underline" style="display:inline-block">事業概要</h3>
-    <div class="card shoji-card text-block" style="padding:2rem;margin-top:1rem">
-      <p>AI駆動型SaaSプラットフォームの開発・運営事業。3つの自律エージェント（Planner / Generator / Evaluator）による高速開発サイクルを核に、従来の10倍速でプロダクト開発を実現する。</p>
-      <p>市場のDX需要とAI活用ニーズの急拡大を背景に、中小企業向けのオールインワン業務プラットフォームを提供する。</p>
-    </div>
-  </div>
-
-  <div class="kintsugi-line"></div>
-
-  <div class="ledger-section">
-    <h3 class="brush-underline" style="display:inline-block">収益モデル</h3>
-    <div class="card shoji-card" style="padding:2rem;margin-top:1rem;overflow-x:auto">
-      <table class="ledger-table">
-        <thead><tr><th>プラン</th><th>月額</th><th>対象</th><th>想定比率</th></tr></thead>
-        <tbody>
-          <tr><td>スタータープラン</td><td class="gold-num">¥4,980</td><td>個人・フリーランス</td><td>40%</td></tr>
-          <tr><td>ビジネスプラン</td><td class="gold-num">¥19,800</td><td>中小企業（10〜50名）</td><td>45%</td></tr>
-          <tr><td>エンタープライズ</td><td class="gold-num">¥98,000</td><td>大企業・カスタム</td><td>15%</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="kintsugi-line"></div>
-
-  <div class="ledger-section">
-    <h3 class="brush-underline" style="display:inline-block">売上予測</h3>
-    <div class="card shoji-card" style="padding:2rem;margin-top:1rem;overflow-x:auto">
-      <table class="ledger-table">
-        <thead><tr><th>期間</th><th>ユーザー数</th><th>MRR</th><th>ARR</th></tr></thead>
-        <tbody>
-          <tr><td>1年目（立ち上げ）</td><td>200</td><td class="gold-num">¥1,500,000</td><td class="gold-num">¥18,000,000</td></tr>
-          <tr><td>2年目（成長期）</td><td>1,200</td><td class="gold-num">¥9,000,000</td><td class="gold-num">¥108,000,000</td></tr>
-          <tr><td>3年目（拡大期）</td><td>5,000</td><td class="gold-num">¥35,000,000</td><td class="gold-num">¥420,000,000</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="kintsugi-line"></div>
-
-  <div class="ledger-section">
-    <h3 class="brush-underline" style="display:inline-block">レベニューシェア</h3>
-    <div class="card shoji-card" style="padding:2rem;margin-top:1rem;overflow-x:auto">
-      <table class="ledger-table">
-        <thead><tr><th>部門</th><th>配分</th><th>内容</th></tr></thead>
-        <tbody>
-          <tr><td>開発チーム</td><td class="gold-num">60%</td><td>プロダクト開発、インフラ運用</td></tr>
-          <tr><td>運営・CS</td><td class="gold-num">30%</td><td>カスタマーサクセス、サポート</td></tr>
-          <tr><td>マーケティング</td><td class="gold-num">10%</td><td>広告、コンテンツ、PR</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="kintsugi-line"></div>
-
-  <div class="ledger-section">
-    <h3 class="brush-underline" style="display:inline-block">リスク要因</h3>
-    <div class="card shoji-card" style="padding:2rem;margin-top:1rem;overflow-x:auto">
-      <table class="ledger-table">
-        <thead><tr><th>リスク</th><th>影響度</th><th>対策</th></tr></thead>
-        <tbody>
-          <tr><td>競合の参入加速</td><td class="text-shu">高</td><td>AI開発速度の優位性維持、独自機能の強化</td></tr>
-          <tr><td>技術的負債の蓄積</td><td class="text-shu">中</td><td>Evaluatorによる継続的品質管理</td></tr>
-          <tr><td>顧客獲得コスト上昇</td><td style="color:var(--gold)">中</td><td>コンテンツマーケティング、紹介制度</td></tr>
-          <tr><td>規制変更</td><td style="color:var(--ai-light)">低</td><td>法務チーム早期設置、コンプライアンス体制</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="kintsugi-line"></div>
-
-  <div class="ledger-section">
-    <h3 class="brush-underline" style="display:inline-block">マイルストーン</h3>
-    <div class="card shoji-card text-block" style="padding:2rem;margin-top:1rem">
-      <p><span class="gold-num">2026年Q2</span> — MVP完成・クローズドベータ開始（招待制100社）</p>
-      <p><span class="gold-num">2026年Q3</span> — パブリックベータ公開・初期マーケティング</p>
-      <p><span class="gold-num">2026年Q4</span> — 正式ローンチ・有料プラン開始</p>
-      <p><span class="gold-num">2027年Q2</span> — ユーザー数1,000突破・シリーズA検討</p>
-    </div>
-  </div>
-</div>
-
-<!-- ━━━ Tab7: 市場分析 ━━━ -->
-<div class="tab-content" id="tab-market">
-  <div class="section-title"><span class="icon">析</span><span class="brush-underline">市場分析</span></div>
-
-  <div class="grid-2 mb-4">
-    <div class="card scroll-card shoji-card market-card">
-      <h3 class="brush-underline mb-3" style="display:inline-block">市場規模（TAM / SAM / SOM）</h3>
-      <div class="tam-visual">
-        <div class="tam-circle" style="width:220px;height:220px;background:rgba(201,168,76,0.05)">
-          <div style="font-size:0.7rem;color:var(--washi-dark)">TAM</div>
-          <div class="gold-num" style="font-size:1.3rem">¥2.4兆</div>
-          <div style="font-size:0.65rem;color:var(--washi-dark);opacity:0.6">国内SaaS市場全体</div>
-        </div>
-        <div class="tam-circle" style="width:170px;height:170px;background:rgba(201,168,76,0.08)">
-          <div style="font-size:0.7rem;color:var(--washi-dark)">SAM</div>
-          <div class="gold-num" style="font-size:1.2rem">¥3,600億</div>
-          <div style="font-size:0.65rem;color:var(--washi-dark);opacity:0.6">中小向け業務SaaS</div>
-        </div>
-        <div class="tam-circle" style="width:120px;height:120px;background:rgba(201,168,76,0.12)">
-          <div style="font-size:0.7rem;color:var(--washi-dark)">SOM</div>
-          <div class="gold-num" style="font-size:1.1rem">¥42億</div>
-          <div style="font-size:0.65rem;color:var(--washi-dark);opacity:0.6">初期獲得可能</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card scroll-card shoji-card market-card">
-      <h3 class="brush-underline mb-3" style="display:inline-block">市場トレンド</h3>
-      <div class="text-block">
-        <p>国内SaaS市場は年率<span class="gold-num">13%</span>で成長中。特にAI活用型SaaSは前年比<span class="gold-num">42%</span>増と急拡大。</p>
-        <p>中小企業のDX投資意欲は過去最高水準。しかし導入の複雑さが障壁となっており、「簡単に始められるオールインワン」への需要が高い。</p>
-        <p>2025年のAI規制整備により、信頼性の高いAIプロダクトへの需要がさらに加速している。</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="kintsugi-line"></div>
-
-  <div class="subsection">
-    <h3 class="brush-underline mb-3" style="display:inline-block">競合マトリックス</h3>
-    <div class="card shoji-card" style="padding:2rem;overflow-x:auto">
-      <table class="ledger-table">
-        <thead><tr><th>企業/製品</th><th>強み</th><th>弱み</th><th>価格帯</th><th>脅威度</th></tr></thead>
-        <tbody>
-          <tr><td>Notion</td><td>UI/UX、ブランド力</td><td>業務特化機能が弱い</td><td>中</td><td class="text-shu">高</td></tr>
-          <tr><td>kintone</td><td>国内シェア、カスタマイズ性</td><td>UIが古い、AI機能なし</td><td>中</td><td style="color:var(--gold)">中</td></tr>
-          <tr><td>Salesforce</td><td>機能網羅性</td><td>高額、複雑</td><td>高</td><td style="color:var(--ai-light)">低</td></tr>
-          <tr><td>freee</td><td>会計特化、知名度</td><td>業務全般はカバー外</td><td>低〜中</td><td style="color:var(--gold)">中</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="kintsugi-line"></div>
-
-  <div class="subsection">
-    <h3 class="brush-underline mb-3" style="display:inline-block">ポジショニング</h3>
-    <div class="card shoji-card text-block" style="padding:2rem">
-      <p>当プロダクトのポジション: <strong style="color:var(--gold)">「AI駆動 × 中小企業特化 × オールインワン」</strong></p>
-      <p>既存SaaSは「機能特化型」か「大企業向け」に偏っている。中小企業が求める「手軽に導入でき、業務全体をカバーし、AIで効率化される」プラットフォームは空白地帯。</p>
-      <p>差別化要因:</p>
-      <p>・AI自動化による運用コスト<span class="gold-num">70%</span>削減</p>
-      <p>・3エージェント体制による開発速度<span class="gold-num">10倍</span></p>
-      <p>・日本企業の商習慣に最適化された設計</p>
-      <p>・初期費用<span class="gold-num">¥0</span>、即日利用開始可能</p>
-    </div>
-  </div>
-</div>
-
-</main>
-
-<!-- ===== JavaScript ===== -->
+<!-- ================================================================
+     JavaScript
+     ================================================================ -->
 <script>
-// タブ切替
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+// --- タブ切り替え ---
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  const tab = document.getElementById('tab-' + tabName);
+  if (tab) {
+    tab.classList.add('active');
+    // 墨滴アニメーション再適用
+    tab.querySelectorAll('.ink-enter').forEach(el => {
+      el.style.animation = 'none';
+      el.offsetHeight; // reflow
+      el.style.animation = '';
+    });
+  }
+  const navBtn = document.querySelector(`.nav-tab[data-tab="${tabName}"]`);
+  if (navBtn) navBtn.classList.add('active');
+}
+
+// --- キーボードショートカット (1-7) ---
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT') return;
+  const tabs = ['dashboard','tasks','agents','roadmap','sprint','business','market'];
+  const num = parseInt(e.key);
+  if (num >= 1 && num <= 7) {
+    switchTab(tabs[num - 1]);
+  }
+});
+
+// --- 展開可能行 ---
+function toggleRow(tr) {
+  tr.classList.toggle('expanded');
+  const detail = tr.nextElementSibling;
+  if (detail && detail.classList.contains('detail-row')) {
+    detail.classList.toggle('show');
+  }
+}
+
+// --- タスク検索 ---
+function filterTasks() {
+  const q = document.getElementById('taskSearch').value.toLowerCase();
+  document.querySelectorAll('#taskTable tbody tr.expandable').forEach(tr => {
+    const text = tr.textContent.toLowerCase();
+    const show = text.includes(q);
+    tr.style.display = show ? '' : 'none';
+    tr.nextElementSibling.style.display = 'none';
+    tr.classList.remove('expanded');
+  });
+}
+
+// --- ステータスフィルター ---
+function filterByStatus(btn, status) {
+  document.querySelectorAll('.stamp-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#taskTable tbody tr.expandable').forEach(tr => {
+    const s = tr.getAttribute('data-status');
+    const show = status === 'all' || s === status;
+    tr.style.display = show ? '' : 'none';
+    tr.nextElementSibling.style.display = 'none';
+    tr.classList.remove('expanded');
+  });
+}
+
+// --- 水紋リップル ---
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('mouseenter', function(e) {
+    const rect = card.getBoundingClientRect();
+    const ripple = document.createElement('div');
+    ripple.className = 'ripple';
+    ripple.style.left = (e.clientX - rect.left) + 'px';
+    ripple.style.top = (e.clientY - rect.top) + 'px';
+    ripple.style.width = ripple.style.height = '100px';
+    card.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 800);
   });
 });
 
-// 桜吹雪生成 (30枚)
-(function(){
-  const c=document.getElementById('sakura');
-  for(let i=0;i<30;i++){
-    const p=document.createElement('div');
-    p.className='sakura-petal';
-    const size=6+Math.random()*14;
-    const dur=10+Math.random()*15;
-    const delay=Math.random()*dur;
-    const drift=-60+Math.random()*120;
-    const spin=180+Math.random()*540;
-    const blur=Math.random()>0.6?Math.random()*2:0;
-    const op=0.3+Math.random()*0.5;
-    const hue=Math.random()>0.5?'#ffb7c5':'#ff8fa3';
-    p.style.cssText=`
-      --size:${size}px;--dur:${dur}s;--delay:${delay}s;
-      --drift:${drift}px;--spin:${spin}deg;--blur:${blur}px;
-      --peak-op:${op};--x:${Math.random()*100}%;
-      background:${hue};
-    `;
-    c.appendChild(p);
+// --- 和暦ライブクロック ---
+function updateClock() {
+  const now = new Date();
+  const reiwa = now.getFullYear() - 2018;
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const s = String(now.getSeconds()).padStart(2, '0');
+  const weekdays = ['日','月','火','水','木','金','土'];
+  const wd = weekdays[now.getDay()];
+  document.getElementById('liveClock').textContent =
+    `令和${reiwa}年${month}月${day}日（${wd}） ${h}:${m}:${s}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// --- 桜吹雪生成 (45枚) ---
+(function() {
+  const container = document.getElementById('sakuraContainer');
+  const colors = ['#ffb7c5','#ff8fa3','#ffd1dc','#ffafc5','#ffc0cb','#ff9fb5','#ffe0eb'];
+  const isMobile = window.innerWidth < 768;
+  const count = isMobile ? 20 : 45;
+  for (let i = 0; i < count; i++) {
+    const petal = document.createElement('div');
+    petal.className = 'sakura-petal' + (Math.random() > 0.75 ? ' outline' : '');
+    const sz = 8 + Math.random() * 17;
+    const blur = Math.random() * 3;
+    const dur = 8 + Math.random() * 12;
+    const del = Math.random() * 15;
+    const x = Math.random() * 100;
+    const drift = -40 + Math.random() * 80;
+    const peak = 0.3 + Math.random() * 0.7;
+    const spin = 4 + Math.random() * 8;
+    const clr = colors[Math.floor(Math.random() * colors.length)];
+    petal.style.cssText = `--sz:${sz}px;--bl:${blur}px;--dur:${dur}s;--del:${del}s;--x:${x}%;--drift:${drift}px;--peak:${peak};--clr:${clr}`;
+    const inner = document.createElement('div');
+    inner.className = 'inner';
+    inner.style.cssText = `--rot:${Math.random()*360}deg;--spin:${spin}s`;
+    petal.appendChild(inner);
+    container.appendChild(petal);
+  }
+  // 紅葉 (5枚)
+  for (let i = 0; i < 5; i++) {
+    const leaf = document.createElement('div');
+    leaf.className = 'sakura-petal';
+    const sz = 10 + Math.random() * 10;
+    leaf.style.cssText = `--sz:${sz}px;--bl:${Math.random()*2}px;--dur:${14+Math.random()*8}s;--del:${Math.random()*20}s;--x:${Math.random()*100}%;--drift:${-30+Math.random()*60}px;--peak:${0.3+Math.random()*0.4}`;
+    const inner = document.createElement('div');
+    inner.className = 'inner';
+    inner.style.cssText = `--rot:${Math.random()*360}deg;--spin:${5+Math.random()*6}s;background:#c43e3e;border-radius:0 50% 50% 50%`;
+    leaf.appendChild(inner);
+    container.appendChild(leaf);
   }
 })();
 
-// 金粉生成 (20粒)
-(function(){
-  const c=document.getElementById('kinpun');
-  for(let i=0;i<20;i++){
-    const p=document.createElement('div');
-    p.className='kinpun';
-    const size=1+Math.random()*3;
-    const dur=14+Math.random()*20;
-    const delay=Math.random()*dur;
-    const drift=-30+Math.random()*60;
-    const blur=Math.random()>0.5?0.5:0;
-    const op=0.2+Math.random()*0.5;
-    p.style.cssText=`
-      --ks:${size}px;--kd:${dur}s;--kdel:${delay}s;
-      --kdrift:${drift}px;--kb:${blur}px;--kop:${op};
-      --kx:${Math.random()*100}%;
-    `;
-    c.appendChild(p);
+// --- 金粉生成 (35粒) ---
+(function() {
+  const container = document.getElementById('goldDustContainer');
+  for (let i = 0; i < 35; i++) {
+    const p = document.createElement('div');
+    p.className = 'gold-particle';
+    const sz = 1.5 + Math.random() * 3;
+    const dur = 10 + Math.random() * 15;
+    const del = Math.random() * 20;
+    const x = Math.random() * 100;
+    const op = 0.2 + Math.random() * 0.6;
+    p.style.cssText = `--gsz:${sz}px;--gdur:${dur}s;--gdel:${del}s;--gx:${x}%;--gop:${op}`;
+    container.appendChild(p);
   }
 })();
+
+// --- 竹林生成 ---
+(function() {
+  function makeBamboo(container, count) {
+    for (let i = 0; i < count; i++) {
+      const stalk = document.createElement('div');
+      stalk.className = 'bamboo-stalk';
+      stalk.style.left = (5 + Math.random() * 30) + 'px';
+      stalk.style.animationDelay = (Math.random() * 4) + 's';
+      stalk.style.opacity = 0.3 + Math.random() * 0.7;
+      // ノード
+      const nodes = 3 + Math.floor(Math.random() * 5);
+      for (let j = 0; j < nodes; j++) {
+        const node = document.createElement('div');
+        node.className = 'bamboo-node';
+        node.style.top = (10 + j * (80 / nodes)) + '%';
+        stalk.appendChild(node);
+      }
+      container.appendChild(stalk);
+    }
+  }
+  makeBamboo(document.getElementById('bambooLeft'), 3);
+  makeBamboo(document.getElementById('bambooRight'), 3);
+})();
+
+// --- スムーズスクロール ---
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
 </script>
+
 </body>
 </html>
