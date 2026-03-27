@@ -3,557 +3,724 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VAX — Project Command Center</title>
+<title>VAX プロジェクトダッシュボード</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#08080f;--bg2:#0f0f1a;--bg3:#161625;--bg4:#1e1e33;--border:#2a2a44;--text:#e2e8f0;--text2:#94a3b8;--accent:#6366f1;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--purple:#a855f7;--radius:10px}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden}
+:root{--bg:#08080f;--surface:#10101a;--border:#222240;--accent:#6366f1;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--purple:#a855f7;--text:#e2e2f0;--text-muted:#8888aa;--radius:10px}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP',sans-serif;line-height:1.6;min-height:100vh}
 a{color:var(--accent);text-decoration:none}
 
-/* Header */
-.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
-.header-left{display:flex;align-items:center;gap:16px}
-.logo{font-size:24px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.model-badge{font-size:11px;padding:4px 10px;border-radius:20px;background:rgba(99,102,241,.15);color:var(--accent);border:1px solid rgba(99,102,241,.3);font-weight:600}
-.header-right{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text2)}
-.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.header h1{font-size:1.4rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header .subtitle{color:var(--text-muted);font-size:.85rem}
+.header-right{display:flex;align-items:center;gap:12px;font-size:.8rem;color:var(--text-muted)}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.status-dot.green{background:var(--green)}
+.status-dot.yellow{background:var(--yellow)}
+.status-dot.red{background:var(--red)}
 
-/* Tabs */
-.tabs{display:flex;gap:4px;padding:12px 32px 0;background:var(--bg2);border-bottom:1px solid var(--border)}
-.tab{padding:10px 20px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.5px}
-.tab:hover{color:var(--text)}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-nav{display:flex;gap:4px;padding:12px 24px 0;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-btn{padding:10px 20px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-size:.9rem;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;font-family:inherit}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(99,102,241,.08)}
 
-/* Content */
-.content{max-width:1280px;margin:0 auto;padding:24px 32px}
+.content{max-width:1200px;margin:0 auto;padding:24px}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
-/* Cards */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:border-color .2s}
-.card:hover{border-color:rgba(99,102,241,.3)}
-.card-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card h2{font-size:1.1rem;margin-bottom:16px;color:var(--text)}
+.card h3{font-size:.95rem;margin-bottom:12px;color:var(--text-muted)}
 
-/* Grid */
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
-.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.kpi-card .label{font-size:.75rem;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.kpi-card .value{font-size:1.8rem;font-weight:700}
+.kpi-card .value.accent{color:var(--accent)}
+.kpi-card .value.green{color:var(--green)}
+.kpi-card .value.yellow{color:var(--yellow)}
+.kpi-card .value.red{color:var(--red)}
+.kpi-card .value.purple{color:var(--purple)}
 
-/* KPI */
-.kpi{text-align:center}
-.kpi .value{font-size:36px;font-weight:800;line-height:1.1}
-.kpi .label{font-size:12px;color:var(--text2);margin-top:4px}
-.kpi.accent .value{color:var(--accent)}
-.kpi.green .value{color:var(--green)}
-.kpi.yellow .value{color:var(--yellow)}
-.kpi.purple .value{color:var(--purple)}
-
-/* Progress bar */
-.progress-bar{height:12px;background:var(--bg);border-radius:6px;overflow:hidden;display:flex}
+.progress-bar-container{margin-bottom:20px}
+.progress-bar-label{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.8rem;color:var(--text-muted)}
+.progress-bar{height:12px;background:var(--border);border-radius:6px;overflow:hidden;display:flex}
 .progress-bar .seg{height:100%;transition:width .5s}
-.seg-done{background:var(--green)}
-.seg-progress{background:var(--yellow)}
-.seg-todo{background:var(--bg4)}
+.progress-bar .seg.done{background:var(--green)}
+.progress-bar .seg.wip{background:var(--yellow)}
+.progress-bar .seg.todo{background:var(--accent)}
 
-/* Badges */
-.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.badge-done{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
-.badge-progress{background:rgba(245,158,11,.15);color:var(--yellow);border:1px solid rgba(245,158,11,.3)}
-.badge-todo{background:rgba(148,163,184,.1);color:var(--text2);border:1px solid rgba(148,163,184,.2)}
-.badge-pass{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
-.badge-fail{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
-.badge-p1{background:rgba(239,68,68,.15);color:var(--red)}
-.badge-p2{background:rgba(245,158,11,.15);color:var(--yellow)}
-.badge-p3{background:rgba(99,102,241,.15);color:var(--accent)}
-.badge-p4,.badge-p5,.badge-p6,.badge-p7,.badge-p8,.badge-p9,.badge-p10{background:rgba(148,163,184,.1);color:var(--text2)}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{text-align:left;padding:10px 12px;background:rgba(99,102,241,.08);color:var(--text-muted);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.02)}
 
-/* Table */
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text2);padding:12px 16px;border-bottom:1px solid var(--border)}
-td{padding:12px 16px;border-bottom:1px solid rgba(42,42,68,.5);font-size:14px;vertical-align:middle}
-tr:hover td{background:rgba(99,102,241,.03)}
-.task-id{font-family:'Courier New',monospace;font-weight:700;color:var(--accent);font-size:13px}
-.deps{font-size:12px;color:var(--text2)}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.75rem;font-weight:600}
+.badge.done{background:rgba(16,185,129,.15);color:var(--green)}
+.badge.wip{background:rgba(245,158,11,.15);color:var(--yellow)}
+.badge.todo{background:rgba(99,102,241,.15);color:var(--accent)}
+.badge.fail{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.pass{background:rgba(16,185,129,.15);color:var(--green)}
+.badge.purple{background:rgba(168,85,247,.15);color:var(--purple)}
 
-/* Agent cards */
-.agent-card{display:flex;flex-direction:column;gap:12px}
-.agent-icon{font-size:40px;line-height:1}
-.agent-name{font-size:18px;font-weight:700}
-.agent-role{font-size:13px;color:var(--text2)}
-.agent-status{display:flex;align-items:center;gap:6px;font-size:13px}
-.status-dot{width:8px;height:8px;border-radius:50%}
-.status-active{background:var(--green)}
-.status-idle{background:var(--text2)}
-.status-complete{background:var(--accent)}
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:24px}
+.agent-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden}
+.agent-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.agent-card.planner::before{background:var(--green)}
+.agent-card.generator::before{background:var(--yellow)}
+.agent-card.evaluator::before{background:var(--purple)}
+.agent-card .icon{font-size:2rem;margin-bottom:8px}
+.agent-card .name{font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.agent-card .desc{font-size:.8rem;color:var(--text-muted);margin-bottom:12px}
+.agent-card .status-line{display:flex;align-items:center;gap:6px;font-size:.8rem}
 
-/* Sprint card */
-.sprint-card{display:flex;align-items:center;justify-content:space-between;padding:16px 20px}
-.sprint-left{display:flex;align-items:center;gap:16px}
-.sprint-id{font-family:'Courier New',monospace;font-weight:700;color:var(--accent)}
-.sprint-task{font-weight:600}
-.sprint-date{font-size:13px;color:var(--text2)}
+.workflow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;padding:24px 16px;font-size:.85rem}
+.workflow .node{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-weight:600;white-space:nowrap}
+.workflow .arrow{color:var(--accent);font-size:1.2rem}
+.workflow .decision{background:rgba(99,102,241,.1);border:1px solid var(--accent);border-radius:8px;padding:8px 16px;font-weight:600}
+.workflow .branch{color:var(--text-muted);font-size:.75rem}
 
-/* Timeline */
-.timeline{position:relative;padding-left:32px}
-.timeline::before{content:'';position:absolute;left:11px;top:8px;bottom:8px;width:2px;background:var(--border)}
-.tl-item{position:relative;padding:0 0 28px}
-.tl-item:last-child{padding-bottom:0}
-.tl-dot{position:absolute;left:-32px;top:4px;width:22px;height:22px;border-radius:50%;border:2px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:10px}
-.tl-dot.done{border-color:var(--green);background:rgba(16,185,129,.15)}
-.tl-dot.future{border-color:var(--text2);background:var(--bg)}
-.tl-date{font-size:12px;color:var(--text2);font-weight:600;margin-bottom:2px}
-.tl-title{font-size:15px;font-weight:600}
-.tl-title .goal{color:var(--yellow)}
+.sprint-list{display:flex;flex-direction:column;gap:12px}
+.sprint-item{display:flex;align-items:center;gap:16px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);flex-wrap:wrap}
+.sprint-item .id{font-weight:700;color:var(--accent);min-width:50px}
+.sprint-item .task{flex:1;min-width:200px}
+.sprint-item .date{color:var(--text-muted);font-size:.8rem}
 
-/* Business info */
-.biz-card{background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(168,85,247,.08));border:1px solid rgba(99,102,241,.2)}
-.biz-card .biz-model{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.biz-card .biz-desc{font-size:14px;color:var(--text2);margin-top:4px}
-.biz-split{display:flex;gap:12px;margin-top:16px}
-.biz-split .split-item{flex:1;text-align:center;padding:10px;background:rgba(0,0,0,.2);border-radius:8px}
-.biz-split .split-pct{font-size:24px;font-weight:800}
-.biz-split .split-label{font-size:11px;color:var(--text2);margin-top:2px}
-.pct-60{color:var(--accent)}
-.pct-30{color:var(--purple)}
-.pct-10{color:var(--green)}
+.roadmap{position:relative;padding-left:32px}
+.roadmap::before{content:'';position:absolute;left:11px;top:0;bottom:0;width:2px;background:var(--border)}
+.phase{margin-bottom:32px;position:relative}
+.phase .phase-dot{position:absolute;left:-28px;top:4px;width:16px;height:16px;border-radius:50%;border:2px solid var(--border);background:var(--bg)}
+.phase .phase-dot.done{background:var(--green);border-color:var(--green)}
+.phase .phase-dot.wip{background:var(--yellow);border-color:var(--yellow)}
+.phase .phase-dot.todo{background:var(--border);border-color:var(--border)}
+.phase .phase-title{font-size:1rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.phase .phase-items{list-style:none;font-size:.85rem;color:var(--text-muted)}
+.phase .phase-items li{padding:4px 0;padding-left:16px;position:relative}
+.phase .phase-items li::before{content:'';position:absolute;left:0;top:11px;width:8px;height:8px;border-radius:50%;background:var(--border)}
+.phase .phase-items li.done::before{background:var(--green)}
+.phase .phase-items li.done{color:var(--green)}
 
-/* Section label */
-.section-title{font-size:14px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.biz-section{margin-bottom:24px}
+.biz-section h3{font-size:1rem;font-weight:700;margin-bottom:10px;color:var(--accent);border-left:3px solid var(--accent);padding-left:10px}
+.biz-section p,.biz-section li{font-size:.85rem;color:var(--text-muted);line-height:1.8}
+.biz-section ul{list-style:none;padding-left:0}
+.biz-section ul li{padding:3px 0;padding-left:16px;position:relative}
+.biz-section ul li::before{content:'\25B8';position:absolute;left:0;color:var(--accent)}
+.biz-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:16px;background:rgba(99,102,241,.05);border-radius:var(--radius);margin:12px 0;font-size:.85rem;font-weight:600}
+.biz-flow .arr{color:var(--accent)}
+.revenue-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:12px 0}
+.revenue-card{text-align:center;padding:16px;border-radius:var(--radius);border:1px solid var(--border)}
+.revenue-card .pct{font-size:1.6rem;font-weight:700}
+.revenue-card .role{font-size:.75rem;color:var(--text-muted);margin-top:4px}
+.tech-stack{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.tech-tag{background:rgba(99,102,241,.1);color:var(--accent);padding:4px 12px;border-radius:16px;font-size:.75rem;font-weight:600}
 
-/* Footer */
-.footer{text-align:center;padding:32px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);margin-top:48px}
+.rules-box{background:rgba(99,102,241,.05);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin:12px 0}
+.rules-box li{font-size:.85rem;color:var(--text-muted);padding:4px 0}
 
-/* Responsive */
-@media(max-width:900px){
- .grid-4{grid-template-columns:repeat(2,1fr)}
- .grid-3{grid-template-columns:1fr}
- .grid-2{grid-template-columns:1fr}
- .header{padding:12px 16px}
- .tabs{padding:8px 16px 0;overflow-x:auto}
- .content{padding:16px}
- .tab{padding:8px 14px;font-size:12px;white-space:nowrap}
+@media(max-width:768px){
+  .content{padding:16px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .agent-grid{grid-template-columns:1fr}
+  .tab-btn{padding:8px 14px;font-size:.8rem}
+  .header{padding:12px 16px}
+  .header h1{font-size:1.2rem}
+  .workflow{font-size:.75rem}
+  .sprint-item{font-size:.8rem}
 }
-@media(max-width:500px){
- .grid-4{grid-template-columns:1fr 1fr}
- .header-right{display:none}
+@media(max-width:480px){
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .kpi-card .value{font-size:1.4rem}
 }
 </style>
 </head>
 <body>
 
 <div class="header">
- <div class="header-left">
-  <div class="logo">VAX</div>
-  <span class="model-badge">Command Center</span>
- </div>
- <div class="header-right">
-  <span class="live-dot"></span>
-  <span>AI&#21172;&#20685;&#12398;&#25104;&#26524;&#20998;&#37197;&#12452;&#12531;&#12501;&#12521;</span>
-  <span style="color:var(--border)">|</span>
-  <span id="clock"></span>
- </div>
+  <div>
+    <h1>VAX プロジェクトダッシュボード</h1>
+    <div class="subtitle">Verified Agent Exchange — AIエージェント成果流通プラットフォーム</div>
+  </div>
+  <div class="header-right">
+    <span>最終更新: 2026-03-27</span>
+    <span class="status-dot yellow"></span>
+    <span>Worker停止中</span>
+  </div>
 </div>
 
-<div class="tabs" id="tabs">
- <div class="tab active" data-tab="overview">OVERVIEW</div>
- <div class="tab" data-tab="tasks">TASKS</div>
- <div class="tab" data-tab="agents">AGENTS</div>
- <div class="tab" data-tab="sprints">SPRINTS</div>
- <div class="tab" data-tab="timeline">TIMELINE</div>
+<div class="tab-nav">
+  <button class="tab-btn active" data-tab="overview">概要</button>
+  <button class="tab-btn" data-tab="tasks">タスク</button>
+  <button class="tab-btn" data-tab="agents">エージェント</button>
+  <button class="tab-btn" data-tab="sprints">スプリント</button>
+  <button class="tab-btn" data-tab="roadmap">ロードマップ</button>
+  <button class="tab-btn" data-tab="business">事業概要</button>
 </div>
 
-<!-- ========== OVERVIEW ========== -->
 <div class="content">
-<div class="tab-panel active" id="overview">
 
- <div class="grid-4">
-  <div class="card kpi accent"><div class="value">10</div><div class="label">&#12479;&#12473;&#12463;&#21512;&#35336;</div></div>
-  <div class="card kpi green"><div class="value">1</div><div class="label">&#23436;&#20102;</div></div>
-  <div class="card kpi yellow"><div class="value">3</div><div class="label">&#36914;&#34892;&#20013;</div></div>
-  <div class="card kpi purple"><div class="value">6</div><div class="label">&#26410;&#30528;&#25163;</div></div>
- </div>
-
- <div class="grid-2">
-  <div class="card">
-   <div class="card-title">&#12479;&#12473;&#12463;&#36914;&#25431;</div>
-   <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
-    <span>&#23436;&#20102;&#29575; <strong style="color:var(--green)">10%</strong></span>
-    <span style="color:var(--text2)">1 / 10</span>
-   </div>
-   <div class="progress-bar">
-    <div class="seg seg-done" style="width:10%"></div>
-    <div class="seg seg-progress" style="width:30%"></div>
-    <div class="seg seg-todo" style="width:60%"></div>
-   </div>
-   <div style="display:flex;gap:16px;margin-top:10px;font-size:12px;color:var(--text2)">
-    <span><span style="color:var(--green)">&#9679;</span> &#23436;&#20102;</span>
-    <span><span style="color:var(--yellow)">&#9679;</span> &#36914;&#34892;&#20013;</span>
-    <span><span style="color:var(--text2)">&#9679;</span> &#26410;&#30528;&#25163;</span>
-   </div>
-  </div>
-
-  <div class="card biz-card">
-   <div class="card-title">&#12499;&#12472;&#12493;&#12473;&#12514;&#12487;&#12523;</div>
-   <div class="biz-model">&#12524;&#12505;&#12491;&#12517;&#12540;&#12471;&#12455;&#12450; 60/30/10</div>
-   <div class="biz-desc">AI&#21172;&#20685;&#12398;&#25104;&#26524;&#20998;&#37197;&#12452;&#12531;&#12501;&#12521;</div>
-   <div class="biz-split">
-    <div class="split-item"><div class="split-pct pct-60">60%</div><div class="split-label">&#20986;&#21697;&#32773;</div></div>
-    <div class="split-item"><div class="split-pct pct-30">30%</div><div class="split-label">&#12503;&#12521;&#12483;&#12488;&#12501;&#12457;&#12540;&#12512;</div></div>
-    <div class="split-item"><div class="split-pct pct-10">10%</div><div class="split-label">&#12456;&#12540;&#12472;&#12455;&#12531;&#12488;</div></div>
-   </div>
-  </div>
- </div>
-
- <div class="grid-2">
-  <div class="card">
-   <div class="card-title">&#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#31292;&#20685;&#29366;&#27841;</div>
-   <div style="display:flex;flex-direction:column;gap:14px">
-    <div style="display:flex;align-items:center;justify-content:space-between">
-     <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:22px">&#127919;</span>
-      <div><div style="font-weight:700">Planner</div><div style="font-size:12px;color:var(--text2)">&#20181;&#27096;&#23450;&#32681;&#12539;&#12479;&#12473;&#12463;&#20998;&#35299;</div></div>
-     </div>
-     <span class="badge badge-done">&#23436;&#20102;</span>
+<!-- Tab 1: 概要 -->
+<div class="tab-panel active" id="tab-overview">
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="label">総タスク</div>
+      <div class="value accent">10</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between">
-     <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:22px">&#9889;</span>
-      <div><div style="font-weight:700">Generator</div><div style="font-size:12px;color:var(--text2)">1&#12473;&#12503;&#12522;&#12531;&#12488;=1&#27231;&#33021;&#23455;&#35013;</div></div>
-     </div>
-     <span class="badge badge-progress">&#31292;&#20685;&#20013;</span>
+    <div class="kpi-card">
+      <div class="label">完了</div>
+      <div class="value green">5</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between">
-     <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:22px">&#128269;</span>
-      <div><div style="font-weight:700">Evaluator</div><div style="font-size:12px;color:var(--text2)">&#21427;&#26684;&#12524;&#12499;&#12517;&#12540;&#12539;PASS/FAIL&#21028;&#23450;</div></div>
-     </div>
-     <span class="badge badge-todo">&#24453;&#27231;&#20013;</span>
+    <div class="kpi-card">
+      <div class="label">進行中</div>
+      <div class="value yellow">0</div>
     </div>
-   </div>
+    <div class="kpi-card">
+      <div class="label">未着手</div>
+      <div class="value red">5</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">完了率</div>
+      <div class="value green">50%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">アクティブスプリント</div>
+      <div class="value purple">0</div>
+    </div>
   </div>
 
   <div class="card">
-   <div class="card-title">&#29694;&#22312;&#12398;&#12473;&#12503;&#12522;&#12531;&#12488;</div>
-   <div style="margin-bottom:12px">
-    <span class="sprint-id" style="font-size:16px">S002</span>
-    <span class="badge badge-progress" style="margin-left:8px">&#36914;&#34892;&#20013;</span>
-   </div>
-   <div style="font-size:18px;font-weight:700;margin-bottom:4px">F004 &#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#19968;&#35239;&#12539;&#26908;&#32034;</div>
-   <div style="font-size:13px;color:var(--text2);margin-bottom:16px">2026-03-27</div>
-   <div style="font-size:13px;color:var(--text2);margin-bottom:6px">&#21069;&#22238;&#12473;&#12503;&#12522;&#12531;&#12488;</div>
-   <div style="display:flex;align-items:center;gap:8px">
-    <span class="sprint-id">S001</span>
-    <span>F003 &#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#30331;&#37682;&#12501;&#12457;&#12540;&#12512;</span>
-    <span class="badge badge-pass">PASS</span>
-   </div>
-  </div>
- </div>
-
-</div>
-
-<!-- ========== TASKS ========== -->
-<div class="tab-panel" id="tasks">
- <div class="section-title">&#20840;&#12479;&#12473;&#12463;&#19968;&#35239;</div>
- <div class="card table-wrap">
-  <table>
-   <thead>
-    <tr><th>ID</th><th>&#12473;&#12486;&#12540;&#12479;&#12473;</th><th>&#12479;&#12473;&#12463;&#21517;</th><th>&#20778;&#20808;&#24230;</th><th>&#20381;&#23384;&#38306;&#20418;</th></tr>
-   </thead>
-   <tbody>
-    <tr>
-     <td class="task-id">F001</td>
-     <td><span class="badge badge-progress">&#36914;&#34892;&#20013;</span></td>
-     <td>Prisma&#12473;&#12461;&#12540;&#12510;&#20877;&#35373;&#35336;</td>
-     <td><span class="badge badge-p1">P1</span></td>
-     <td class="deps">&mdash;</td>
-    </tr>
-    <tr>
-     <td class="task-id">F002</td>
-     <td><span class="badge badge-progress">&#36914;&#34892;&#20013;</span></td>
-     <td>&#35469;&#35388;&#12501;&#12525;&#12540;&#25972;&#20633;</td>
-     <td><span class="badge badge-p2">P2</span></td>
-     <td class="deps">&mdash;</td>
-    </tr>
-    <tr>
-     <td class="task-id">F003</td>
-     <td><span class="badge badge-done">&#23436;&#20102;</span></td>
-     <td>&#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#30331;&#37682;&#12501;&#12457;&#12540;&#12512;</td>
-     <td><span class="badge badge-p3">P3</span></td>
-     <td class="deps">F001, F002</td>
-    </tr>
-    <tr>
-     <td class="task-id">F004</td>
-     <td><span class="badge badge-progress">&#36914;&#34892;&#20013;</span></td>
-     <td>&#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#19968;&#35239;&#12539;&#26908;&#32034;</td>
-     <td><span class="badge badge-p4">P4</span></td>
-     <td class="deps">F001</td>
-    </tr>
-    <tr>
-     <td class="task-id">F005</td>
-     <td><span class="badge badge-todo">&#26410;&#30528;&#25163;</span></td>
-     <td>&#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#35443;&#32048;&#12506;&#12540;&#12472;</td>
-     <td><span class="badge badge-p5">P5</span></td>
-     <td class="deps">F003</td>
-    </tr>
-    <tr>
-     <td class="task-id">F006</td>
-     <td><span class="badge badge-todo">&#26410;&#30528;&#25163;</span></td>
-     <td>&#25104;&#26524;&#12488;&#12521;&#12483;&#12461;&#12531;&#12464;API</td>
-     <td><span class="badge badge-p6">P6</span></td>
-     <td class="deps">F001, F002</td>
-    </tr>
-    <tr>
-     <td class="task-id">F007</td>
-     <td><span class="badge badge-todo">&#26410;&#30528;&#25163;</span></td>
-     <td>&#20998;&#37197;&#12456;&#12531;&#12472;&#12531;</td>
-     <td><span class="badge badge-p7">P7</span></td>
-     <td class="deps">F006</td>
-    </tr>
-    <tr>
-     <td class="task-id">F008</td>
-     <td><span class="badge badge-todo">&#26410;&#30528;&#25163;</span></td>
-     <td>&#20986;&#21697;&#32773;&#12480;&#12483;&#12471;&#12517;&#12508;&#12540;&#12489;</td>
-     <td><span class="badge badge-p8">P8</span></td>
-     <td class="deps">F003, F006, F007</td>
-    </tr>
-    <tr>
-     <td class="task-id">F009</td>
-     <td><span class="badge badge-todo">&#26410;&#30528;&#25163;</span></td>
-     <td>&#36092;&#20837;&#32773;&#12480;&#12483;&#12471;&#12517;&#12508;&#12540;&#12489;</td>
-     <td><span class="badge badge-p9">P9</span></td>
-     <td class="deps">F005, F006, F007</td>
-    </tr>
-    <tr>
-     <td class="task-id">F010</td>
-     <td><span class="badge badge-todo">&#26410;&#30528;&#25163;</span></td>
-     <td>&#12521;&#12531;&#12487;&#12451;&#12531;&#12464;&#12506;&#12540;&#12472;</td>
-     <td><span class="badge badge-p10">P10</span></td>
-     <td class="deps">&mdash;</td>
-    </tr>
-   </tbody>
-  </table>
- </div>
-</div>
-
-<!-- ========== AGENTS ========== -->
-<div class="tab-panel" id="agents">
- <div class="section-title">&#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#27083;&#25104;</div>
- <div class="grid-3">
-
-  <div class="card agent-card">
-   <div class="agent-icon">&#127919;</div>
-   <div>
-    <div class="agent-name">Planner</div>
-    <div class="agent-role">&#20181;&#27096;&#23450;&#32681;&#12539;&#12479;&#12473;&#12463;&#20998;&#35299;</div>
-   </div>
-   <div class="agent-status"><div class="status-dot status-complete"></div>&#23436;&#20102;</div>
-   <div style="margin-top:8px">
-    <div class="card-title">&#25285;&#24403;&#12479;&#12473;&#12463;</div>
-    <div style="font-size:13px;color:var(--text2)">
-     &#12539;&#12479;&#12473;&#12463;&#12522;&#12473;&#12488;&#31574;&#23450; (F001-F010)<br>
-     &#12539;&#20381;&#23384;&#38306;&#20418;&#12464;&#12521;&#12501;&#35373;&#35336;<br>
-     &#12539;&#12473;&#12503;&#12522;&#12531;&#12488;&#35336;&#30011;&#31435;&#26696;
+    <h2>進捗状況</h2>
+    <div class="progress-bar-container">
+      <div class="progress-bar-label">
+        <span>完了 5 / 進行中 0 / 未着手 5</span>
+        <span>50%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="seg done" style="width:50%"></div>
+        <div class="seg wip" style="width:0%"></div>
+        <div class="seg todo" style="width:50%"></div>
+      </div>
     </div>
-   </div>
-  </div>
-
-  <div class="card agent-card" style="border-color:rgba(16,185,129,.3)">
-   <div class="agent-icon">&#9889;</div>
-   <div>
-    <div class="agent-name">Generator</div>
-    <div class="agent-role">1&#12473;&#12503;&#12522;&#12531;&#12488;=1&#27231;&#33021;&#23455;&#35013;</div>
-   </div>
-   <div class="agent-status"><div class="status-dot status-active"></div><span style="color:var(--green)">&#31292;&#20685;&#20013;</span></div>
-   <div style="margin-top:8px">
-    <div class="card-title">&#29694;&#22312;&#12398;&#12479;&#12473;&#12463;</div>
-    <div style="font-size:13px">
-     <span class="badge badge-pass" style="margin-bottom:4px">PASS</span> F003 &#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#30331;&#37682;&#12501;&#12457;&#12540;&#12512;<br><br>
-     <span class="badge badge-progress">&#36914;&#34892;&#20013;</span> F004 &#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#19968;&#35239;&#12539;&#26908;&#32034;
+    <div style="display:flex;gap:16px;font-size:.75rem;color:var(--text-muted);margin-top:8px">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--green);margin-right:4px;vertical-align:middle"></span>完了</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--yellow);margin-right:4px;vertical-align:middle"></span>進行中</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--accent);margin-right:4px;vertical-align:middle"></span>未着手</span>
     </div>
-   </div>
   </div>
 
-  <div class="card agent-card">
-   <div class="agent-icon">&#128269;</div>
-   <div>
-    <div class="agent-name">Evaluator</div>
-    <div class="agent-role">&#21427;&#26684;&#12524;&#12499;&#12517;&#12540;&#12539;PASS/FAIL&#21028;&#23450;</div>
-   </div>
-   <div class="agent-status"><div class="status-dot status-idle"></div>&#24453;&#27231;&#20013;</div>
-   <div style="margin-top:8px">
-    <div class="card-title">&#12524;&#12499;&#12517;&#12540;&#23653;&#27508;</div>
-    <div style="font-size:13px">
-     <span class="badge badge-pass">PASS</span> S001: F003 &#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#30331;&#37682;&#12501;&#12457;&#12540;&#12512;
+  <div class="card">
+    <h2>エージェント状況</h2>
+    <div style="display:flex;gap:24px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="status-dot green"></span>
+        <span><strong>Planner</strong> — 完了</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="status-dot red"></span>
+        <span><strong>Generator</strong> — 停止中</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="status-dot yellow"></span>
+        <span><strong>Evaluator</strong> — 待機中</span>
+      </div>
     </div>
-   </div>
   </div>
 
- </div>
-
- <div class="card" style="margin-top:24px">
-  <div class="card-title">&#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#12527;&#12540;&#12463;&#12501;&#12525;&#12540;</div>
-  <div style="display:flex;align-items:center;justify-content:center;gap:16px;padding:20px 0;flex-wrap:wrap">
-   <div style="text-align:center;padding:16px 24px;background:rgba(99,102,241,.1);border-radius:var(--radius);border:1px solid rgba(99,102,241,.2)">
-    <div style="font-size:24px">&#127919;</div>
-    <div style="font-weight:700;font-size:14px;margin-top:4px">Planner</div>
-    <div style="font-size:11px;color:var(--text2)">&#35336;&#30011;</div>
-   </div>
-   <div style="font-size:20px;color:var(--text2)">&rarr;</div>
-   <div style="text-align:center;padding:16px 24px;background:rgba(16,185,129,.1);border-radius:var(--radius);border:1px solid rgba(16,185,129,.2)">
-    <div style="font-size:24px">&#9889;</div>
-    <div style="font-weight:700;font-size:14px;margin-top:4px">Generator</div>
-    <div style="font-size:11px;color:var(--text2)">&#23455;&#35013;</div>
-   </div>
-   <div style="font-size:20px;color:var(--text2)">&rarr;</div>
-   <div style="text-align:center;padding:16px 24px;background:rgba(168,85,247,.1);border-radius:var(--radius);border:1px solid rgba(168,85,247,.2)">
-    <div style="font-size:24px">&#128269;</div>
-    <div style="font-weight:700;font-size:14px;margin-top:4px">Evaluator</div>
-    <div style="font-size:11px;color:var(--text2)">&#35413;&#20385;</div>
-   </div>
-   <div style="font-size:20px;color:var(--text2)">&rarr;</div>
-   <div style="text-align:center;padding:16px 24px;background:rgba(99,102,241,.05);border-radius:var(--radius);border:1px dashed var(--border)">
-    <div style="font-size:20px">&#10004;</div>
-    <div style="font-weight:700;font-size:14px;margin-top:4px">PASS</div>
-    <div style="font-size:11px;color:var(--text2)">&#27425;&#12479;&#12473;&#12463;&#12408;</div>
-   </div>
+  <div class="card">
+    <h2>完了タスク</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:.85rem">
+      <span class="badge done">F003 エージェント登録フォーム</span>
+      <span class="badge done">F004 エージェント一覧・検索</span>
+      <span class="badge done">F005 エージェント詳細ページ</span>
+      <span class="badge done">F006 成果トラッキングAPI</span>
+      <span class="badge done">F008 出品者ダッシュボード</span>
+    </div>
   </div>
- </div>
+
+  <div class="card">
+    <h2>未着手タスク</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:.85rem">
+      <span class="badge todo">F001 Prismaスキーマ再設計</span>
+      <span class="badge todo">F002 認証フロー整備</span>
+      <span class="badge todo">F007 分配エンジン</span>
+      <span class="badge todo">F009 購入者ダッシュボード</span>
+      <span class="badge todo">F010 ランディングページ</span>
+    </div>
+  </div>
 </div>
 
-<!-- ========== SPRINTS ========== -->
-<div class="tab-panel" id="sprints">
- <div class="section-title">&#12473;&#12503;&#12522;&#12531;&#12488;&#23653;&#27508;</div>
-
- <div class="card sprint-card" style="margin-bottom:12px;border-left:3px solid var(--green)">
-  <div class="sprint-left">
-   <div>
-    <div class="sprint-id">S001</div>
-    <div class="sprint-task">F003 &#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#30331;&#37682;&#12501;&#12457;&#12540;&#12512;</div>
-    <div class="sprint-date">2026-03-27</div>
-   </div>
+<!-- Tab 2: タスク -->
+<div class="tab-panel" id="tab-tasks">
+  <div class="card">
+    <h2>全タスク一覧</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>ステータス</th>
+            <th>タスク名</th>
+            <th>優先度</th>
+            <th>依存関係</th>
+            <th>受け入れ基準</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>F001</strong></td>
+            <td><span class="badge todo">未着手</span></td>
+            <td>Prismaスキーマ再設計</td>
+            <td>P1</td>
+            <td>—</td>
+            <td>全テーブル定義完了、マイグレーション成功</td>
+          </tr>
+          <tr>
+            <td><strong>F002</strong></td>
+            <td><span class="badge todo">未着手</span></td>
+            <td>認証フロー整備</td>
+            <td>P2</td>
+            <td>—</td>
+            <td>ログイン・ログアウト・セッション管理が動作</td>
+          </tr>
+          <tr>
+            <td><strong>F003</strong></td>
+            <td><span class="badge done">完了 ✅</span></td>
+            <td>エージェント登録フォーム</td>
+            <td>P3</td>
+            <td>F001, F002</td>
+            <td>フォーム入力・バリデーション・DB保存が動作</td>
+          </tr>
+          <tr>
+            <td><strong>F004</strong></td>
+            <td><span class="badge done">完了 ✅</span></td>
+            <td>エージェント一覧・検索</td>
+            <td>P4</td>
+            <td>F001</td>
+            <td>一覧表示・検索・フィルタリングが動作</td>
+          </tr>
+          <tr>
+            <td><strong>F005</strong></td>
+            <td><span class="badge done">完了 ✅</span></td>
+            <td>エージェント詳細ページ</td>
+            <td>P5</td>
+            <td>F003</td>
+            <td>詳細情報表示・レビュー閲覧が動作</td>
+          </tr>
+          <tr>
+            <td><strong>F006</strong></td>
+            <td><span class="badge done">完了 ✅</span></td>
+            <td>成果トラッキングAPI</td>
+            <td>P6</td>
+            <td>F001, F002</td>
+            <td>成果記録・集計APIが動作</td>
+          </tr>
+          <tr>
+            <td><strong>F007</strong></td>
+            <td><span class="badge todo">未着手</span></td>
+            <td>分配エンジン</td>
+            <td>P7</td>
+            <td>F006</td>
+            <td>収益計算・分配ロジックが正確に動作</td>
+          </tr>
+          <tr>
+            <td><strong>F008</strong></td>
+            <td><span class="badge done">完了 ✅</span></td>
+            <td>出品者ダッシュボード</td>
+            <td>P8</td>
+            <td>F003, F006, F007</td>
+            <td>出品者向け管理画面が動作</td>
+          </tr>
+          <tr>
+            <td><strong>F009</strong></td>
+            <td><span class="badge todo">未着手</span></td>
+            <td>購入者ダッシュボード</td>
+            <td>P9</td>
+            <td>F005, F006, F007</td>
+            <td>購入者向け管理画面が動作</td>
+          </tr>
+          <tr>
+            <td><strong>F010</strong></td>
+            <td><span class="badge todo">未着手</span></td>
+            <td>ランディングページ</td>
+            <td>P10</td>
+            <td>—</td>
+            <td>LPデザイン・CTA・レスポンシブ対応</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-  <span class="badge badge-pass">PASS</span>
- </div>
-
- <div class="card sprint-card" style="margin-bottom:12px;border-left:3px solid var(--yellow)">
-  <div class="sprint-left">
-   <div>
-    <div class="sprint-id">S002</div>
-    <div class="sprint-task">F004 &#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#19968;&#35239;&#12539;&#26908;&#32034;</div>
-    <div class="sprint-date">2026-03-27</div>
-   </div>
-  </div>
-  <span class="badge badge-progress">&#36914;&#34892;&#20013;</span>
- </div>
-
- <div class="card" style="margin-top:24px">
-  <div class="card-title">&#21463;&#20837;&#22522;&#28310;&#12481;&#12455;&#12483;&#12463;&#12522;&#12473;&#12488; &mdash; S001: F003</div>
-  <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;font-size:14px">
-   <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--green)">&#10003;</span> &#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#21517;&#12539;&#35500;&#26126;&#20837;&#21147;&#12501;&#12457;&#12540;&#12512;</div>
-   <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--green)">&#10003;</span> &#12496;&#12522;&#12487;&#12540;&#12471;&#12519;&#12531;&#23455;&#35013;</div>
-   <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--green)">&#10003;</span> DB&#20445;&#23384;&#20966;&#29702;</div>
-   <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--green)">&#10003;</span> &#30331;&#37682;&#23436;&#20102;&#12501;&#12451;&#12540;&#12489;&#12496;&#12483;&#12463;</div>
-   <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--green)">&#10003;</span> Evaluator&#12524;&#12499;&#12517;&#12540;&#36890;&#36942;</div>
-  </div>
- </div>
-
- <div class="card" style="margin-top:12px">
-  <div class="card-title">&#21463;&#20837;&#22522;&#28310;&#12481;&#12455;&#12483;&#12463;&#12522;&#12473;&#12488; &mdash; S002: F004</div>
-  <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;font-size:14px">
-   <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--yellow)">&#9675;</span> &#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#19968;&#35239;&#34920;&#31034;</div>
-   <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--yellow)">&#9675;</span> &#26908;&#32034;&#12539;&#12501;&#12451;&#12523;&#12479;&#12540;&#27231;&#33021;</div>
-   <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--yellow)">&#9675;</span> &#12506;&#12540;&#12472;&#12493;&#12540;&#12471;&#12519;&#12531;</div>
-   <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--yellow)">&#9675;</span> &#12524;&#12473;&#12509;&#12531;&#12471;&#12502;&#12524;&#12452;&#12450;&#12454;&#12488;</div>
-   <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--text2)">&#9675;</span> Evaluator&#12524;&#12499;&#12517;&#12540;&#36890;&#36942;</div>
-  </div>
- </div>
 </div>
 
-<!-- ========== TIMELINE ========== -->
-<div class="tab-panel" id="timeline">
- <div class="section-title">&#12503;&#12525;&#12472;&#12455;&#12463;&#12488;&#12479;&#12452;&#12512;&#12521;&#12452;&#12531;</div>
- <div class="card" style="padding:32px">
-  <div class="timeline">
-
-   <div class="tl-item">
-    <div class="tl-dot done">&#10003;</div>
-    <div class="tl-date">2026-03-21</div>
-    <div class="tl-title">&#12503;&#12525;&#12472;&#12455;&#12463;&#12488;&#21021;&#26399;&#21270;</div>
-   </div>
-
-   <div class="tl-item">
-    <div class="tl-dot done">&#10003;</div>
-    <div class="tl-date">2026-03-21</div>
-    <div class="tl-title">Discord Bot v2&#27083;&#31689;</div>
-   </div>
-
-   <div class="tl-item">
-    <div class="tl-dot done">&#10003;</div>
-    <div class="tl-date">2026-03-25</div>
-    <div class="tl-title">&#20107;&#26989;&#12514;&#12487;&#12523;&#20877;&#23450;&#32681;&#65288;&#12524;&#12505;&#12491;&#12517;&#12540;&#12471;&#12455;&#12450;&#65289;</div>
-   </div>
-
-   <div class="tl-item">
-    <div class="tl-dot done">&#10003;</div>
-    <div class="tl-date">2026-03-27</div>
-    <div class="tl-title">3&#12456;&#12540;&#12472;&#12455;&#12531;&#12488;&#27083;&#36896;&#23566;&#20837;</div>
-   </div>
-
-   <div class="tl-item">
-    <div class="tl-dot done">&#10003;</div>
-    <div class="tl-date">2026-03-27</div>
-    <div class="tl-title">F003 PASS</div>
-   </div>
-
-   <div class="tl-item">
-    <div class="tl-dot future">&#8226;</div>
-    <div class="tl-date">TBD</div>
-    <div class="tl-title">F004-F007 &#12467;&#12450;&#27231;&#33021;&#23455;&#35013;</div>
-   </div>
-
-   <div class="tl-item">
-    <div class="tl-dot future">&#8226;</div>
-    <div class="tl-date">TBD</div>
-    <div class="tl-title">F008-F010 &#12480;&#12483;&#12471;&#12517;&#12508;&#12540;&#12489;+LP</div>
-   </div>
-
-   <div class="tl-item">
-    <div class="tl-dot future" style="border-color:var(--yellow)">&#9733;</div>
-    <div class="tl-date">TBD</div>
-    <div class="tl-title"><span class="goal">&#21021;&#22238;&#12488;&#12521;&#12531;&#12470;&#12463;&#12471;&#12519;&#12531;&#25104;&#31435;</span></div>
-   </div>
-
+<!-- Tab 3: エージェント -->
+<div class="tab-panel" id="tab-agents">
+  <div class="agent-grid">
+    <div class="agent-card planner">
+      <div class="icon">🎯</div>
+      <div class="name">Planner</div>
+      <div class="desc">仕様定義・タスク分解を担当。プロジェクト全体の計画を策定し、各タスクの依存関係と優先度を決定する。</div>
+      <div class="status-line">
+        <span class="status-dot green"></span>
+        <span class="badge done">完了</span>
+      </div>
+    </div>
+    <div class="agent-card generator">
+      <div class="icon">⚡</div>
+      <div class="name">Generator</div>
+      <div class="desc">1スプリント=1機能で実装を担当。タスク仕様に基づきコードを生成し、テストを含めた成果物を出力する。</div>
+      <div class="status-line">
+        <span class="status-dot red"></span>
+        <span class="badge fail">停止中</span>
+      </div>
+    </div>
+    <div class="agent-card evaluator">
+      <div class="icon">🔍</div>
+      <div class="name">Evaluator</div>
+      <div class="desc">厳格レビュー・PASS/FAIL判定を担当。受け入れ基準に基づき成果物を評価し、品質を保証する。</div>
+      <div class="status-line">
+        <span class="status-dot yellow"></span>
+        <span class="badge wip">待機中</span>
+      </div>
+    </div>
   </div>
- </div>
+
+  <div class="card">
+    <h2>ワークフロー</h2>
+    <div class="workflow">
+      <div class="node" style="border-color:var(--green)">🎯 Planner</div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:var(--yellow)">⚡ Generator</div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:var(--purple)">🔍 Evaluator</div>
+      <div class="arrow">→</div>
+      <div class="decision">PASS?</div>
+      <div class="arrow">→</div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+        <div class="node" style="border-color:var(--green)">✅ 次タスクへ</div>
+        <div class="branch">PASS</div>
+      </div>
+      <div style="margin:0 8px;color:var(--text-muted);font-size:.75rem">/</div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+        <div class="node" style="border-color:var(--red)">🔄 Generator（修正）</div>
+        <div class="branch">FAIL</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>運用ルール</h2>
+    <div class="rules-box">
+      <ul style="list-style:none;padding:0">
+        <li style="padding:6px 0">📌 <strong>1スプリント=1機能</strong> — 各スプリントでは1つの機能のみを実装する</li>
+        <li style="padding:6px 0">📌 <strong>評価省略禁止</strong> — すべての成果物はEvaluatorによる評価を必ず通す</li>
+        <li style="padding:6px 0">📌 <strong>ファイル管理必須</strong> — 変更ファイルの追跡とバージョン管理を徹底する</li>
+      </ul>
+    </div>
+  </div>
 </div>
 
-</div><!-- /content -->
+<!-- Tab 4: スプリント -->
+<div class="tab-panel" id="tab-sprints">
+  <div class="card">
+    <h2>スプリント履歴</h2>
+    <div class="sprint-list">
+      <div class="sprint-item">
+        <div class="id">S001</div>
+        <div class="task"><strong>F003</strong> エージェント登録フォーム</div>
+        <span class="badge pass">PASS ✅</span>
+        <div class="date">2026-03-27</div>
+      </div>
+      <div class="sprint-item">
+        <div class="id">S002</div>
+        <div class="task"><strong>F004</strong> エージェント一覧・検索</div>
+        <span class="badge pass">PASS ✅</span>
+        <div class="date">2026-03-27</div>
+      </div>
+      <div class="sprint-item">
+        <div class="id">S003</div>
+        <div class="task"><strong>F005</strong> エージェント詳細ページ</div>
+        <span class="badge pass">PASS ✅</span>
+        <div class="date">2026-03-27</div>
+      </div>
+      <div class="sprint-item">
+        <div class="id">S004</div>
+        <div class="task"><strong>F006</strong> 成果トラッキングAPI</div>
+        <span class="badge pass">PASS ✅</span>
+        <div class="date">2026-03-27</div>
+      </div>
+      <div class="sprint-item">
+        <div class="id">S005</div>
+        <div class="task"><strong>F008</strong> 出品者ダッシュボード</div>
+        <span class="badge pass">PASS ✅</span>
+        <div class="date">2026-03-27</div>
+      </div>
+    </div>
+  </div>
 
-<div class="footer">
- VAX Project Command Center &mdash; Built with 3-Agent Architecture &mdash; 2026
+  <div class="card">
+    <h2>スプリント統計</h2>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="label">完了スプリント</div>
+        <div class="value green">5</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">成功率</div>
+        <div class="value green">100%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">FAIL回数</div>
+        <div class="value accent">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">アクティブ</div>
+        <div class="value yellow">0</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tab 5: ロードマップ -->
+<div class="tab-panel" id="tab-roadmap">
+  <div class="card">
+    <h2>プロジェクトロードマップ</h2>
+    <div class="roadmap">
+      <div class="phase">
+        <div class="phase-dot done"></div>
+        <div class="phase-title">
+          Phase 1: 基盤構築
+          <span class="badge done">完了</span>
+        </div>
+        <ul class="phase-items">
+          <li class="done">プロジェクト初期化</li>
+          <li class="done">Discord Bot v2構築</li>
+          <li class="done">事業モデル定義</li>
+        </ul>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot wip"></div>
+        <div class="phase-title">
+          Phase 2: コア機能MVP
+          <span class="badge wip">進行中 50%</span>
+        </div>
+        <ul class="phase-items">
+          <li>F001 DBスキーマ</li>
+          <li>F002 認証</li>
+          <li class="done">F003 出品登録 ✅</li>
+          <li class="done">F004 一覧検索 ✅</li>
+          <li class="done">F005 詳細ページ ✅</li>
+          <li class="done">F006 成果トラッキング ✅</li>
+        </ul>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot todo"></div>
+        <div class="phase-title">
+          Phase 3: 収益基盤
+          <span class="badge todo">未着手</span>
+        </div>
+        <ul class="phase-items">
+          <li>F007 分配エンジン</li>
+          <li class="done">F008 出品者ダッシュボード ✅</li>
+          <li>F009 購入者ダッシュボード</li>
+        </ul>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot todo"></div>
+        <div class="phase-title">
+          Phase 4: ローンチ準備
+          <span class="badge todo">未着手</span>
+        </div>
+        <ul class="phase-items">
+          <li>F010 ランディングページ</li>
+          <li>統合テスト</li>
+          <li>セキュリティ監査</li>
+          <li>初回トランザクション</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tab 6: 事業概要 -->
+<div class="tab-panel" id="tab-business">
+  <div class="card">
+    <div class="biz-section">
+      <h3>事業定義</h3>
+      <p><strong style="color:var(--accent);font-size:1.1rem">VAX — Verified Agent Exchange</strong></p>
+      <p style="margin-top:8px;font-size:1rem;color:var(--text)">AI労働の成果を分配するインフラ</p>
+      <p style="margin-top:8px">エージェントを売るのではなく、<strong style="color:var(--green)">エージェントの成果を流通させる</strong>プラットフォーム。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="biz-section">
+      <h3>基本設計ルール</h3>
+      <ul>
+        <li><strong>コード非公開</strong> — プラットフォーム内実行のみ（コピー不可）</li>
+        <li><strong>買い切り禁止</strong> — レベニューシェアのみ（継続収益モデル）</li>
+        <li><strong>成果定義必須</strong> — KPI・計測方法・責任範囲を事前に定義</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="biz-section">
+      <h3>収益フロー</h3>
+      <div class="biz-flow">
+        <span>エージェント実行</span>
+        <span class="arr">→</span>
+        <span>成果発生</span>
+        <span class="arr">→</span>
+        <span>プラットフォーム計測</span>
+        <span class="arr">→</span>
+        <span>収益分配</span>
+      </div>
+      <div class="revenue-grid">
+        <div class="revenue-card">
+          <div class="pct" style="color:var(--green)">60%</div>
+          <div class="role">出品者</div>
+        </div>
+        <div class="revenue-card">
+          <div class="pct" style="color:var(--accent)">30%</div>
+          <div class="role">購入者</div>
+        </div>
+        <div class="revenue-card">
+          <div class="pct" style="color:var(--purple)">10%</div>
+          <div class="role">プラットフォーム</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="biz-section">
+      <h3>ターゲット</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+        <div>
+          <h4 style="font-size:.85rem;color:var(--green);margin-bottom:8px">出品者（AI開発者）</h4>
+          <ul>
+            <li>n8n ワークフロー開発者</li>
+            <li>LangGraph エージェント開発者</li>
+            <li>AutoGen マルチエージェント開発者</li>
+            <li>Claude Code 開発者</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="font-size:.85rem;color:var(--accent);margin-bottom:8px">購入者（中小企業）</h4>
+          <ul>
+            <li>営業自動化を求める企業</li>
+            <li>コンテンツ生成を効率化したい企業</li>
+            <li>データ分析を自動化したい企業</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="biz-section">
+      <h3>エージェントカテゴリ</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>カテゴリ</th>
+              <th>成果指標（KPI）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:var(--green)">Sales Agents</strong></td>
+              <td>リード数・商談数・売上</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--accent)">Content Agents</strong></td>
+              <td>生成数・流入・CV</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--purple)">Data Agents</strong></td>
+              <td>取得件数・工数削減</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="biz-section">
+      <h3>差別化ポイント</h3>
+      <ul>
+        <li><strong>成果連動型課金</strong> — 買い切りなし、成果に応じた支払い</li>
+        <li><strong>コード非公開</strong> — コピー不可、知的財産を保護</li>
+        <li><strong>透明な成果トラッキング</strong> — リアルタイムで成果を可視化</li>
+        <li><strong>自動収益分配</strong> — Stripe Connect連携で自動精算</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="biz-section">
+      <h3>最大のネック（リスクと対策）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>リスク</th>
+              <th>対策</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>インフラコスト</td>
+              <td>usage課金で対応（使った分だけ課金）</td>
+            </tr>
+            <tr>
+              <td>品質保証</td>
+              <td>成果出なければ自然淘汰（市場メカニズム）</td>
+            </tr>
+            <tr>
+              <td>成果定義の曖昧さ</td>
+              <td>KPI単位で契約（事前に定量基準を設定）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="biz-section">
+      <h3>技術スタック</h3>
+      <div class="tech-stack">
+        <span class="tech-tag">Next.js</span>
+        <span class="tech-tag">Tailwind CSS</span>
+        <span class="tech-tag">shadcn/ui</span>
+        <span class="tech-tag">Supabase</span>
+        <span class="tech-tag">Prisma</span>
+        <span class="tech-tag">Auth.js</span>
+        <span class="tech-tag">Stripe Connect</span>
+        <span class="tech-tag">Vercel</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <script>
-// Tab switching
-document.querySelectorAll('.tab').forEach(tab=>{
- tab.addEventListener('click',()=>{
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  tab.classList.add('active');
-  document.getElementById(tab.dataset.tab).classList.add('active');
- });
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
 });
-
-// Clock
-function updateClock(){
- const now=new Date();
- const s=now.toLocaleString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
- document.getElementById('clock').textContent=s;
-}
-updateClock();
-setInterval(updateClock,1000);
 </script>
 </body>
 </html>
