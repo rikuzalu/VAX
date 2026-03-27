@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VAX // サイバーパンク・ダッシュボード v3.0 — MAXIMUM OVERDRIVE</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>VAX // CYBER DASHBOARD v4.0 — BEYOND ALL LIMITS</title>
 <style>
 /* ================================================================
    RESET & CSS VARIABLES
@@ -12,6 +12,7 @@
 :root{
   --black:#030308;--cyan:#00fff2;--magenta:#ff00ff;--blue:#0066ff;
   --purple:#8b00ff;--pink:#ff0066;--green:#00ff88;--amber:#ffaa00;
+  --red:#ff3333;--white:#e0e0e0;
   --card-bg:rgba(3,3,8,.78);--border:rgba(0,255,242,.18);
   --glow-cyan:0 0 10px #00fff2,0 0 40px rgba(0,255,242,.35);
   --glow-magenta:0 0 10px #ff00ff,0 0 40px rgba(255,0,255,.35);
@@ -23,532 +24,856 @@
 }
 html{font-size:13px;scroll-behavior:smooth}
 body{
-  background:var(--black);color:#e0e0e0;
-  font-family:'Courier New','SF Mono',monospace;
-  overflow-x:hidden;min-height:100vh;position:relative;
-  cursor:crosshair;
+  background:var(--black);color:var(--white);
+  font-family:'Courier New','SF Mono','Menlo',monospace;
+  overflow-x:hidden;min-height:100vh;position:relative;cursor:crosshair;
 }
 ::selection{background:var(--cyan);color:var(--black)}
 
 /* ================================================================
    BACKGROUND LAYERS
    ================================================================ */
-/* Layer 1: Circuit board grid canvas */
-#circuit-bg{position:fixed;inset:0;z-index:0;pointer-events:none}
-#circuit-bg canvas{width:100%;height:100%}
-
-/* Layer 2: Matrix rain canvas */
-#matrix-rain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.25}
-#matrix-rain canvas{width:100%;height:100%}
-
-/* Layer 3: Floating geometry canvas */
-#geo-layer{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.15}
-#geo-layer canvas{width:100%;height:100%}
-
-/* Layer 4: Noise texture */
+#neural-bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+#matrix-rain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.22}
+.holo-geo{position:fixed;z-index:2;pointer-events:none;opacity:.12}
+#particle-nebula{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.4}
+#scan-grid{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.08}
 .noise-overlay{
   position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.04;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
-  background-size:128px;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size:128px 128px;
+}
+.crt-lines{
+  position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.06;
+  background:repeating-linear-gradient(0deg,transparent,transparent 1px,rgba(0,255,242,.03) 1px,rgba(0,255,242,.03) 2px);
+}
+.crt-flicker{
+  position:fixed;inset:0;z-index:3;pointer-events:none;
+  animation:crtFlicker 0.1s infinite;
+}
+@keyframes crtFlicker{
+  0%{opacity:0.01}50%{opacity:0.02}100%{opacity:0.01}
 }
 
-/* Layer 5: Radial vignette */
-.vignette{
-  position:fixed;inset:0;z-index:4;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(3,3,8,.6) 70%,rgba(3,3,8,.95) 100%);
+/* Scan grid perspective floor */
+#scan-grid canvas{width:100%;height:100%}
+
+/* Holographic geometry - CSS 3D wireframes */
+.holo-shape{
+  position:fixed;pointer-events:none;
+  border:1px solid rgba(0,255,242,.15);
+  animation:holoSpin 20s linear infinite;
+  transform-style:preserve-3d;
+}
+@keyframes holoSpin{
+  0%{transform:rotateX(0deg) rotateY(0deg) rotateZ(0deg)}
+  100%{transform:rotateX(360deg) rotateY(360deg) rotateZ(360deg)}
+}
+.holo-shape:nth-child(2n){border-color:rgba(255,0,255,.12);animation-duration:30s;animation-direction:reverse}
+.holo-shape:nth-child(3n){border-color:rgba(0,102,255,.12);animation-duration:25s}
+
+/* ================================================================
+   HUD ELEMENTS
+   ================================================================ */
+/* Corner brackets */
+.corner-bracket{
+  position:fixed;z-index:100;width:40px;height:40px;pointer-events:none;
+  animation:bracketPulse 2s ease-in-out infinite;
+}
+@keyframes bracketPulse{
+  0%,100%{opacity:.4}50%{opacity:1}
+}
+.corner-bracket.tl{top:8px;left:8px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan)}
+.corner-bracket.tr{top:8px;right:8px;border-top:2px solid var(--cyan);border-right:2px solid var(--cyan)}
+.corner-bracket.bl{bottom:8px;left:8px;border-bottom:2px solid var(--magenta);border-left:2px solid var(--magenta)}
+.corner-bracket.br{bottom:8px;right:8px;border-bottom:2px solid var(--magenta);border-right:2px solid var(--magenta)}
+
+/* Top status bar - scrolling ticker */
+.top-bar{
+  position:fixed;top:0;left:0;right:0;z-index:200;height:28px;
+  background:linear-gradient(180deg,rgba(0,255,242,.08),transparent);
+  border-bottom:1px solid rgba(0,255,242,.15);
+  overflow:hidden;display:flex;align-items:center;
+  font-size:.75rem;color:var(--cyan);
+}
+.ticker{
+  white-space:nowrap;animation:tickerScroll 30s linear infinite;
+}
+@keyframes tickerScroll{
+  0%{transform:translateX(100vw)}
+  100%{transform:translateX(-200%)}
+}
+
+/* Bottom info bar */
+.bottom-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;height:24px;
+  background:linear-gradient(0deg,rgba(255,0,255,.06),transparent);
+  border-top:1px solid rgba(255,0,255,.15);
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:.65rem;color:var(--magenta);padding:0 60px;
+}
+.bottom-bar span{opacity:.7}
+
+/* Side vertical text */
+.side-text{
+  position:fixed;z-index:100;writing-mode:vertical-rl;
+  font-size:.6rem;letter-spacing:4px;opacity:.25;
+  pointer-events:none;text-transform:uppercase;
+}
+.side-text.left{left:6px;top:50%;transform:translateY(-50%);color:var(--cyan)}
+.side-text.right{right:6px;top:50%;transform:translateY(-50%) rotate(180deg);color:var(--magenta)}
+
+/* Live clock */
+.hud-clock{
+  position:fixed;top:34px;right:16px;z-index:201;
+  font-size:.8rem;color:var(--cyan);text-align:right;
+  text-shadow:var(--glow-cyan);font-variant-numeric:tabular-nums;
+}
+.hud-clock .date{font-size:.6rem;opacity:.6;color:var(--magenta)}
+
+/* Minimap */
+.minimap{
+  position:fixed;bottom:34px;right:12px;z-index:201;
+  width:60px;height:100px;border:1px solid rgba(0,255,242,.2);
+  background:rgba(3,3,8,.6);border-radius:2px;
+}
+.minimap-viewport{
+  position:absolute;background:rgba(0,255,242,.15);
+  border:1px solid var(--cyan);width:100%;
+  transition:top .2s,height .2s;
+}
+.minimap-section{
+  position:absolute;width:100%;font-size:4px;color:rgba(0,255,242,.4);
+  text-align:center;overflow:hidden;
 }
 
 /* ================================================================
-   SCANLINES
+   MAIN CONTENT WRAPPER
    ================================================================ */
-.scanlines{
-  position:fixed;inset:0;z-index:9990;pointer-events:none;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,242,.012) 2px,rgba(0,255,242,.012) 4px);
-}
-.h-scanline{
-  position:fixed;left:0;right:0;height:3px;z-index:9991;pointer-events:none;
-  background:linear-gradient(180deg,transparent,rgba(0,255,242,.12),transparent);
-  animation:hscan 3s linear infinite;
-}
-@keyframes hscan{0%{top:-3px}100%{top:100vh}}
-.v-scanline{
-  position:fixed;top:0;bottom:0;width:2px;z-index:9991;pointer-events:none;
-  background:linear-gradient(90deg,transparent,rgba(255,0,255,.1),transparent);
-  animation:vscan 5s linear infinite;
-}
-@keyframes vscan{0%{left:-2px}100%{left:100vw}}
-
-/* Corner targeting brackets */
-.corner-bracket{position:fixed;z-index:9992;pointer-events:none;width:40px;height:40px;animation:cornerPulse 2s ease-in-out infinite}
-.corner-bracket.tl{top:12px;left:12px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan)}
-.corner-bracket.tr{top:12px;right:12px;border-top:2px solid var(--cyan);border-right:2px solid var(--cyan)}
-.corner-bracket.bl{bottom:12px;left:12px;border-bottom:2px solid var(--magenta);border-left:2px solid var(--magenta)}
-.corner-bracket.br{bottom:12px;right:12px;border-bottom:2px solid var(--magenta);border-right:2px solid var(--magenta)}
-@keyframes cornerPulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
-
-/* ================================================================
-   MOUSE TRAIL PARTICLES CANVAS
-   ================================================================ */
-#particle-canvas{position:fixed;inset:0;z-index:9989;pointer-events:none}
-
-/* ================================================================
-   CLICK RIPPLE
-   ================================================================ */
-.click-ripple{
-  position:fixed;pointer-events:none;z-index:9993;
-  border:2px solid var(--cyan);border-radius:50%;
-  animation:rippleExpand .6s ease-out forwards;
-}
-@keyframes rippleExpand{0%{width:0;height:0;opacity:1;transform:translate(-50%,-50%)}100%{width:120px;height:120px;opacity:0;transform:translate(-50%,-50%)}}
-.click-ripple-inner{
-  position:fixed;pointer-events:none;z-index:9993;
-  border:1px solid var(--magenta);border-radius:50%;
-  animation:rippleExpand2 .8s ease-out .1s forwards;opacity:0;
-}
-@keyframes rippleExpand2{0%{width:0;height:0;opacity:1;transform:translate(-50%,-50%)}100%{width:180px;height:180px;opacity:0;transform:translate(-50%,-50%)}}
-
-/* ================================================================
-   MAIN LAYOUT
-   ================================================================ */
-.app-wrapper{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column}
-header{
-  padding:1.5rem 2rem 1rem;
-  border-bottom:1px solid var(--border);
-  background:linear-gradient(180deg,rgba(0,255,242,.03),transparent);
-  position:relative;
+.main-wrap{
+  position:relative;z-index:10;
+  padding:40px 70px 40px 70px;
+  max-width:1600px;margin:0 auto;
 }
 
 /* ================================================================
-   TITLE — EXTREME GLITCH
+   TITLE - 3 LAYER GLITCH
    ================================================================ */
-.main-title{
-  font-size:3rem;font-weight:900;letter-spacing:.3em;text-transform:uppercase;
-  color:#fff;text-align:center;position:relative;
-  text-shadow:0 0 10px var(--cyan),0 0 30px var(--cyan),0 0 60px var(--blue);
-  animation:titleGlitch 3s infinite;
+.title-section{text-align:center;padding:20px 0 10px;position:relative}
+.title-vax{
+  font-size:6rem;font-weight:900;letter-spacing:.3em;
+  position:relative;display:inline-block;
+  background:linear-gradient(135deg,var(--cyan),var(--magenta),var(--blue),var(--cyan));
+  background-size:300% 300%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:chromaShift 4s ease infinite;
+  filter:drop-shadow(0 0 30px rgba(0,255,242,.4));
 }
-.main-title::before,.main-title::after{
-  content:attr(data-text);position:absolute;top:0;left:0;right:0;
-  overflow:hidden;
+@keyframes chromaShift{
+  0%,100%{background-position:0% 50%}50%{background-position:100% 50%}
 }
-.main-title::before{
-  color:var(--cyan);z-index:-1;
-  animation:glitchR 2s infinite linear alternate-reverse;
-  clip-path:polygon(0 0,100% 0,100% 35%,0 35%);
+.title-vax::before,.title-vax::after{
+  content:'VAX';position:absolute;top:0;left:0;
+  background:inherit;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
-.main-title::after{
-  color:var(--magenta);z-index:-2;
-  animation:glitchL 2.5s infinite linear alternate-reverse;
-  clip-path:polygon(0 65%,100% 65%,100% 100%,0 100%);
+.title-vax::before{
+  color:var(--red);mix-blend-mode:screen;
+  animation:glitchR 3s infinite;
 }
-@keyframes titleGlitch{
-  0%,93%,95%,97%,100%{transform:none;filter:none}
-  94%{transform:translate(-3px,1px) skewX(-2deg);filter:hue-rotate(90deg)}
-  96%{transform:translate(3px,-1px) skewX(2deg);filter:hue-rotate(-90deg)}
-  98%{transform:translate(-1px,2px);filter:brightness(1.5)}
+.title-vax::after{
+  color:var(--blue);mix-blend-mode:screen;
+  animation:glitchB 3s infinite;
 }
 @keyframes glitchR{
-  0%,100%{transform:translate(0)}
-  25%{transform:translate(3px,1px)}50%{transform:translate(-2px,-1px)}75%{transform:translate(1px,2px)}
+  0%,92%,100%{transform:translate(0)}93%{transform:translate(4px,-2px)}
+  95%{transform:translate(-3px,1px)}97%{transform:translate(2px,2px);clip-path:inset(20% 0 40% 0)}
 }
-@keyframes glitchL{
-  0%,100%{transform:translate(0)}
-  20%{transform:translate(-3px,1px)}40%{transform:translate(2px,-2px)}60%{transform:translate(-1px,1px)}80%{transform:translate(3px,-1px)}
+@keyframes glitchB{
+  0%,90%,100%{transform:translate(0)}91%{transform:translate(-4px,2px)}
+  94%{transform:translate(3px,-1px)}96%{transform:translate(-2px,-2px);clip-path:inset(60% 0 10% 0)}
 }
-
-.sub-title{
-  text-align:center;color:var(--cyan);font-size:.85rem;letter-spacing:.5em;margin-top:.5rem;
-  opacity:.7;
+.title-vax .letter{
+  display:inline-block;
+  animation:letterFloat 3s ease-in-out infinite;
 }
+.title-vax .letter:nth-child(2){animation-delay:.15s}
+.title-vax .letter:nth-child(3){animation-delay:.3s}
+@keyframes letterFloat{
+  0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}
+}
+.subtitle{
+  font-size:1rem;color:var(--magenta);margin-top:4px;
+  letter-spacing:.4em;text-transform:uppercase;
+  opacity:0;animation:fadeIn 1s .5s forwards;
+}
+.subtitle .typed-cursor{animation:blink 1s step-end infinite;color:var(--cyan)}
+@keyframes blink{50%{opacity:0}}
+@keyframes fadeIn{to{opacity:1}}
+.subtitle-version{
+  font-size:.65rem;color:var(--purple);margin-top:4px;
+  letter-spacing:.3em;opacity:.5;
+}
+.scan-line{
+  position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  animation:scanMove 4s linear infinite;opacity:.3;
+}
+@keyframes scanMove{0%{top:0}100%{top:100%}}
 
 /* ================================================================
-   TAB NAVIGATION
+   NAVIGATION TABS
    ================================================================ */
-.tab-nav{
-  display:flex;justify-content:center;gap:.5rem;padding:.8rem 1rem;
-  border-bottom:1px solid var(--border);flex-wrap:wrap;
-  background:rgba(0,0,0,.4);
+.nav-tabs{
+  display:flex;gap:4px;margin:20px 0 16px;
+  border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
+  position:sticky;top:28px;z-index:50;
+  background:rgba(3,3,8,.9);
+  backdrop-filter:blur(20px);
+  padding:8px 0;
 }
-.tab-btn{
-  background:transparent;border:1px solid rgba(0,255,242,.15);color:var(--cyan);
-  padding:.5rem 1.2rem;font-family:inherit;font-size:.85rem;cursor:pointer;
-  letter-spacing:.1em;transition:all .3s;position:relative;overflow:hidden;
-  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);
+.nav-tab{
+  padding:8px 16px;font-size:.75rem;color:rgba(255,255,255,.5);
+  border:1px solid transparent;border-bottom:none;
+  cursor:pointer;transition:all .3s;position:relative;
+  background:transparent;font-family:inherit;
+  letter-spacing:.1em;text-transform:uppercase;
 }
-.tab-btn:hover{background:rgba(0,255,242,.08);border-color:var(--cyan);text-shadow:var(--glow-cyan)}
-.tab-btn.active{
-  background:rgba(0,255,242,.12);border-color:var(--cyan);color:#fff;
+.nav-tab:hover{color:var(--cyan);border-color:var(--border)}
+.nav-tab.active{
+  color:var(--cyan);
+  border-color:var(--cyan);
+  background:rgba(0,255,242,.05);
   text-shadow:var(--glow-cyan);
-  box-shadow:0 0 20px rgba(0,255,242,.15);
 }
-.tab-btn::after{
-  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(0,255,242,.15),transparent);
-  transition:left .5s;
+.nav-tab .shortcut{
+  font-size:.5rem;opacity:.3;margin-left:4px;
+  vertical-align:super;
 }
-.tab-btn:hover::after{left:100%}
+
+/* Search & Filter bar */
+.filter-bar{
+  display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;align-items:center;
+}
+.search-input{
+  flex:1;min-width:200px;padding:8px 14px;
+  background:rgba(0,255,242,.05);border:1px solid var(--border);
+  color:var(--cyan);font-family:inherit;font-size:.8rem;
+  border-radius:2px;outline:none;
+  transition:border-color .3s,box-shadow .3s;
+}
+.search-input:focus{
+  border-color:var(--cyan);
+  box-shadow:0 0 15px rgba(0,255,242,.2);
+}
+.search-input::placeholder{color:rgba(0,255,242,.3)}
+.filter-btn{
+  padding:6px 14px;font-size:.7rem;font-family:inherit;
+  background:rgba(255,255,255,.03);border:1px solid var(--border);
+  color:var(--white);cursor:pointer;transition:all .3s;
+  border-radius:2px;letter-spacing:.05em;
+}
+.filter-btn:hover,.filter-btn.active{
+  background:rgba(0,255,242,.1);border-color:var(--cyan);
+  color:var(--cyan);text-shadow:var(--glow-cyan);
+}
+.sort-select{
+  padding:6px 10px;font-size:.7rem;font-family:inherit;
+  background:rgba(3,3,8,.9);border:1px solid var(--border);
+  color:var(--cyan);cursor:pointer;border-radius:2px;
+}
 
 /* ================================================================
-   MAIN CONTENT
+   TAB PANELS
    ================================================================ */
-main{flex:1;padding:1.5rem 2rem 3rem;position:relative}
-.tab-panel{display:none;animation:fadeIn .4s ease}
-.tab-panel.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.tab-panel{
+  display:none;opacity:0;
+  animation:panelIn .5s forwards;
+}
+.tab-panel.active{display:block;opacity:1}
+@keyframes panelIn{
+  from{opacity:0;transform:translateX(20px);filter:blur(4px)}
+  to{opacity:1;transform:translateX(0);filter:blur(0)}
+}
+
+/* Static noise flash on tab switch */
+.static-flash{
+  position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity:0;transition:opacity .05s;
+}
+.static-flash.show{opacity:.15}
 
 /* ================================================================
-   GLASSMORPHISM CARDS
+   CARD SYSTEM - GLASSMORPHISM + 3D
    ================================================================ */
-.glass-card{
-  background:rgba(3,3,8,.75);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+.cyber-card{
+  position:relative;
+  background:var(--card-bg);
+  backdrop-filter:blur(30px);
   border:1px solid var(--border);
-  border-radius:8px;padding:1.5rem;position:relative;overflow:hidden;
-  transition:transform .4s cubic-bezier(.23,1,.32,1),box-shadow .4s;
-  transform-style:preserve-3d;perspective:800px;
+  border-radius:4px;
+  padding:20px;
+  transition:transform .4s,box-shadow .4s;
+  transform-style:preserve-3d;
+  perspective:800px;
+  overflow:hidden;
+  cursor:pointer;
 }
-/* Rotating conic gradient border */
-.glass-card::before{
-  content:'';position:absolute;inset:-2px;z-index:-1;border-radius:9px;
-  background:conic-gradient(from var(--card-angle,0deg),var(--cyan),var(--magenta),var(--blue),var(--green),var(--purple),var(--pink),var(--cyan));
-  opacity:0;transition:opacity .4s;
-  animation:rotateBorder 4s linear infinite;
+.cyber-card::before{
+  content:'';position:absolute;inset:-2px;border-radius:6px;
+  background:conic-gradient(from var(--card-angle,0deg),var(--cyan),var(--magenta),var(--blue),var(--purple),var(--cyan));
+  opacity:0;transition:opacity .4s;z-index:-1;
+  animation:borderRotate 4s linear infinite;
 }
-@property --card-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
-@keyframes rotateBorder{from{--card-angle:0deg}to{--card-angle:360deg}}
-.glass-card:hover::before{opacity:.6}
-.glass-card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 10px 40px rgba(0,255,242,.1),0 0 60px rgba(0,255,242,.05);
+@keyframes borderRotate{
+  to{--card-angle:360deg}
+}
+@property --card-angle{
+  syntax:'<angle>';initial-value:0deg;inherits:false;
+}
+.cyber-card:hover::before{opacity:.6}
+.cyber-card:hover{
+  transform:translateY(-4px) scale(1.01);
+  box-shadow:0 10px 40px rgba(0,255,242,.15),0 0 80px rgba(0,255,242,.05);
+}
+/* Holographic film overlay */
+.cyber-card::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,
+    transparent 30%,
+    rgba(0,255,242,.03) 40%,
+    rgba(255,0,255,.03) 50%,
+    rgba(0,102,255,.03) 60%,
+    transparent 70%
+  );
+  background-size:200% 200%;
+  pointer-events:none;
+  transition:background-position .3s;
+}
+.cyber-card:hover::after{
+  background-position:100% 100%;
 }
 
-/* Holographic shimmer overlay */
-.glass-card::after{
-  content:'';position:absolute;inset:0;border-radius:8px;
-  background:linear-gradient(105deg,transparent 40%,rgba(0,255,242,.06) 45%,rgba(255,0,255,.06) 50%,transparent 55%);
-  background-size:300% 100%;
-  animation:holoShimmer 3s ease-in-out infinite;
+/* Data stream inside card borders */
+.card-data-stream{
+  position:absolute;top:0;left:0;right:0;height:1px;
+  overflow:hidden;pointer-events:none;opacity:.3;
+}
+.card-data-stream span{
+  position:absolute;font-size:6px;color:var(--cyan);
+  animation:streamFlow 3s linear infinite;white-space:nowrap;
+}
+@keyframes streamFlow{
+  from{transform:translateX(-100%)}to{transform:translateX(calc(100vw))}
+}
+
+/* Click ripple */
+.ripple{
+  position:absolute;border-radius:50%;
+  background:rgba(0,255,242,.3);
+  transform:scale(0);animation:rippleOut .6s linear;
   pointer-events:none;
 }
-@keyframes holoShimmer{0%{background-position:200% 0}100%{background-position:-100% 0}}
+@keyframes rippleOut{to{transform:scale(4);opacity:0}}
 
-/* Glitch on hover */
-.glass-card.glitch-hover:hover{animation:cardGlitch .3s steps(2)}
-@keyframes cardGlitch{
-  0%{clip-path:inset(0)}
-  25%{clip-path:inset(10% 0 30% 0);transform:translate(3px,-2px)}
-  50%{clip-path:inset(40% 0 10% 0);transform:translate(-3px,2px)}
-  75%{clip-path:inset(20% 0 20% 0);transform:translate(2px,1px)}
-  100%{clip-path:inset(0);transform:none}
+/* Screen flash on click */
+.screen-flash{
+  position:fixed;inset:0;z-index:9998;
+  background:rgba(0,255,242,.05);
+  pointer-events:none;opacity:0;
+  transition:opacity .1s;
+}
+.screen-flash.active{opacity:1}
+
+/* Card label / header */
+.card-label{
+  font-size:.6rem;color:var(--cyan);letter-spacing:.2em;
+  text-transform:uppercase;margin-bottom:8px;opacity:.6;
 }
 
 /* ================================================================
-   NEON TEXT CLASSES
+   KPI CARDS
    ================================================================ */
-.neon-cyan{color:var(--cyan);text-shadow:var(--glow-cyan)}
-.neon-magenta{color:var(--magenta);text-shadow:var(--glow-magenta)}
-.neon-green{color:var(--green);text-shadow:var(--glow-green)}
-.neon-amber{color:var(--amber);text-shadow:var(--glow-amber)}
-.neon-pink{color:var(--pink);text-shadow:var(--glow-pink)}
-.neon-purple{color:var(--purple);text-shadow:var(--glow-purple)}
-.neon-blue{color:var(--blue);text-shadow:var(--glow-blue)}
-
-.section-title{
-  font-size:1.4rem;font-weight:700;letter-spacing:.2em;margin-bottom:1.2rem;
-  text-transform:uppercase;position:relative;padding-left:1rem;
-  text-shadow:0 0 8px currentColor,0 0 20px currentColor;
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;margin:16px 0;
 }
-.section-title::before{
-  content:'//';position:absolute;left:0;opacity:.5;
+.kpi-card{
+  text-align:center;padding:20px 12px;
 }
-
-/* Typing cursor */
-.typing-cursor::after{content:'_';animation:blink 1s step-end infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-
-/* Holographic text */
-.holo-text{
-  background:linear-gradient(90deg,var(--cyan),var(--magenta),var(--green),var(--cyan));
-  background-size:300% 100%;
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  animation:holoText 4s linear infinite;
+.kpi-value{
+  font-size:2.5rem;font-weight:900;
+  text-shadow:var(--glow-cyan);
+  position:relative;display:inline-block;
+  font-variant-numeric:tabular-nums;
 }
-@keyframes holoText{0%{background-position:0 0}100%{background-position:300% 0}}
+.kpi-value.green{color:var(--green);text-shadow:var(--glow-green)}
+.kpi-value.amber{color:var(--amber);text-shadow:var(--glow-amber)}
+.kpi-value.magenta{color:var(--magenta);text-shadow:var(--glow-magenta)}
+.kpi-value.cyan{color:var(--cyan);text-shadow:var(--glow-cyan)}
+.kpi-value.purple{color:var(--purple);text-shadow:var(--glow-purple)}
+.kpi-value.blue{color:var(--blue);text-shadow:var(--glow-blue)}
+.kpi-title{
+  font-size:.7rem;color:rgba(255,255,255,.5);
+  margin-top:6px;letter-spacing:.1em;
+}
+/* Sparkle particles */
+.sparkle{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:var(--cyan);pointer-events:none;
+  animation:sparkleFade 1s forwards;
+}
+@keyframes sparkleFade{
+  0%{opacity:1;transform:translate(0,0) scale(1)}
+  100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(0)}
+}
+/* Micro glitch on KPI */
+@keyframes microGlitch{
+  0%,95%,100%{transform:translate(0)}96%{transform:translate(2px,-1px)}98%{transform:translate(-1px,1px)}
+}
+.kpi-value{animation:microGlitch 5s infinite}
 
 /* ================================================================
-   KPI CARDS GRID
+   RING CHART (SVG)
    ================================================================ */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
-.kpi-card{text-align:center;padding:1.5rem 1rem}
-.kpi-label{font-size:.75rem;letter-spacing:.2em;color:rgba(255,255,255,.5);text-transform:uppercase;margin-bottom:.5rem}
-.kpi-value{font-size:2.5rem;font-weight:900;line-height:1}
-.kpi-sub{font-size:.7rem;color:rgba(255,255,255,.4);margin-top:.3rem}
-
-/* Animated ring inside KPI */
-.ring-container{position:relative;width:80px;height:80px;margin:0 auto .5rem}
-.ring-container svg{width:100%;height:100%;transform:rotate(-90deg)}
-.ring-container svg circle{fill:none;stroke-width:4;stroke-linecap:round}
-.ring-bg{stroke:rgba(255,255,255,.06)}
-.ring-fill{stroke-dasharray:220;stroke-dashoffset:220;transition:stroke-dashoffset 2s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 6px currentColor)}
-.ring-value{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900}
+.ring-chart{position:relative;width:120px;height:120px;margin:0 auto 8px}
+.ring-chart svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-chart circle{fill:none;stroke-width:6}
+.ring-bg{stroke:rgba(255,255,255,.05)}
+.ring-fill{
+  stroke:var(--cyan);
+  stroke-linecap:round;
+  transition:stroke-dashoffset 1.5s ease;
+}
+.ring-glow{
+  stroke:var(--cyan);
+  stroke-linecap:round;
+  filter:blur(6px);opacity:.4;
+  transition:stroke-dashoffset 1.5s ease;
+}
+.ring-value{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;font-weight:900;
+}
+/* Rotating marker on ring */
+.ring-marker{
+  position:absolute;width:6px;height:6px;border-radius:50%;
+  background:var(--cyan);top:0;left:50%;transform:translate(-50%,-50%);
+  box-shadow:var(--glow-cyan);
+  animation:ringMarkerSpin 3s linear infinite;
+}
+@keyframes ringMarkerSpin{
+  from{transform:translate(-50%,-50%) rotate(0deg) translateY(-54px)}
+  to{transform:translate(-50%,-50%) rotate(360deg) translateY(-54px)}
+}
 
 /* Big center ring */
-.big-ring{width:140px;height:140px;margin:0 auto 1rem}
-.big-ring svg circle{stroke-width:6}
-.big-ring .ring-value{font-size:2rem}
+.big-ring{width:200px;height:200px;margin:0 auto 12px}
+.big-ring .ring-value{font-size:2.4rem}
 
 /* ================================================================
    ACTIVITY FEED
    ================================================================ */
-.activity-feed{max-height:260px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--cyan) transparent}
-.activity-item{
-  padding:.5rem .8rem;border-left:2px solid var(--border);margin-bottom:.3rem;
-  font-size:.8rem;opacity:0;animation:feedIn .4s ease forwards;
+.activity-feed{
+  max-height:250px;overflow-y:auto;
+  border:1px solid var(--border);
+  background:rgba(0,0,0,.3);
+  border-radius:2px;padding:8px;
 }
-.activity-item .pass{color:var(--green);font-weight:700}
-.activity-item .fail{color:var(--pink);font-weight:700}
+.activity-feed::-webkit-scrollbar{width:4px}
+.activity-feed::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:2px}
+.activity-item{
+  padding:6px 8px;font-size:.75rem;
+  border-bottom:1px solid rgba(255,255,255,.03);
+  display:flex;align-items:center;gap:8px;
+  animation:feedIn .5s forwards;opacity:0;
+}
+.activity-item:nth-child(1){animation-delay:.1s}
+.activity-item:nth-child(2){animation-delay:.2s}
+.activity-item:nth-child(3){animation-delay:.3s}
+.activity-item:nth-child(4){animation-delay:.4s}
+.activity-item:nth-child(5){animation-delay:.5s}
 @keyframes feedIn{to{opacity:1}}
+.activity-badge{
+  padding:2px 6px;font-size:.6rem;border-radius:2px;font-weight:700;
+  background:rgba(0,255,136,.15);color:var(--green);border:1px solid var(--green);
+}
 
 /* ================================================================
-   AGENT STATUS CARDS
+   AGENT CARDS
    ================================================================ */
-.agent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
-.agent-card{padding:2rem;text-align:center;position:relative}
-.agent-icon{font-size:3rem;margin-bottom:.5rem;animation:agentFloat 3s ease-in-out infinite}
-@keyframes agentFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.agent-name{font-size:1.3rem;font-weight:700;letter-spacing:.15em}
-.agent-status{font-size:.8rem;margin-top:.3rem;letter-spacing:.1em}
-
-/* Radar pulse behind agent */
-.radar-pulse{
-  position:absolute;top:50%;left:50%;width:60px;height:60px;
-  border-radius:50%;border:1px solid var(--cyan);
-  transform:translate(-50%,-50%);
-  animation:radarPing 2s ease-out infinite;opacity:0;
+.agent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0}
+.agent-card{padding:24px;text-align:center}
+.agent-icon{font-size:2.5rem;margin-bottom:8px}
+.agent-name{font-size:1.1rem;font-weight:700;color:var(--cyan);letter-spacing:.1em}
+.agent-role{font-size:.7rem;color:rgba(255,255,255,.4);margin-top:2px}
+.agent-status{
+  display:inline-block;padding:3px 10px;font-size:.65rem;
+  border-radius:2px;margin-top:8px;letter-spacing:.1em;
 }
-.radar-pulse:nth-child(2){animation-delay:.5s}
-.radar-pulse:nth-child(3){animation-delay:1s}
-@keyframes radarPing{0%{width:40px;height:40px;opacity:.6}100%{width:180px;height:180px;opacity:0}}
+.agent-status.active{background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.3)}
+.agent-status.idle{background:rgba(255,170,0,.1);color:var(--amber);border:1px solid rgba(255,170,0,.3)}
+.agent-status.stopped{background:rgba(255,51,51,.1);color:var(--red);border:1px solid rgba(255,51,51,.3)}
+
+/* Radar chart */
+.radar-chart{width:140px;height:140px;margin:12px auto}
+.radar-chart svg{width:100%;height:100%}
 
 /* ================================================================
    TASK TABLE
    ================================================================ */
-.task-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.task-table{width:100%;border-collapse:collapse;font-size:.75rem}
 .task-table th{
-  text-align:left;padding:.7rem .8rem;border-bottom:2px solid var(--cyan);
-  color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;font-weight:600;
-  text-shadow:var(--glow-cyan);
+  text-align:left;padding:8px 10px;
+  color:var(--cyan);font-size:.65rem;letter-spacing:.15em;
+  border-bottom:1px solid var(--border);
+  text-transform:uppercase;
 }
-.task-table td{padding:.6rem .8rem;border-bottom:1px solid rgba(0,255,242,.06)}
-.task-table tr{transition:background .2s}
-.task-table tr:hover{background:rgba(0,255,242,.04)}
-.badge{
-  display:inline-block;padding:.15rem .6rem;border-radius:2px;font-size:.7rem;
-  letter-spacing:.08em;font-weight:700;
+.task-table td{
+  padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.03);
+  vertical-align:top;
 }
-.badge-done{background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.3)}
-.badge-progress{background:rgba(255,170,0,.15);color:var(--amber);border:1px solid rgba(255,170,0,.3)}
-.badge-todo{background:rgba(0,102,255,.15);color:var(--blue);border:1px solid rgba(0,102,255,.3)}
-.expand-btn{
-  background:none;border:1px solid var(--border);color:var(--cyan);cursor:pointer;
-  font-family:inherit;font-size:.7rem;padding:.1rem .4rem;transition:all .2s;
+.task-table tr{transition:background .2s;cursor:pointer}
+.task-table tr:hover{background:rgba(0,255,242,.03)}
+.task-id{color:var(--cyan);font-weight:700}
+.task-status{
+  display:inline-block;padding:2px 8px;font-size:.6rem;
+  border-radius:2px;font-weight:700;letter-spacing:.05em;
 }
-.expand-btn:hover{background:rgba(0,255,242,.1);border-color:var(--cyan)}
-.criteria-row{display:none;background:rgba(0,255,242,.02)}
-.criteria-row.open{display:table-row}
-.criteria-row td{padding:.5rem .8rem .5rem 2.5rem;font-size:.75rem;color:rgba(255,255,255,.6)}
+.task-status.done{background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.3)}
+.task-status.wip{background:rgba(0,255,242,.1);color:var(--cyan);border:1px solid rgba(0,255,242,.3)}
+.task-status.todo{background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1)}
+.task-deps{font-size:.6rem;color:rgba(255,255,255,.3)}
+.task-priority{font-size:.6rem;color:var(--amber)}
+.task-expand{
+  display:none;padding:10px 10px 10px 40px;
+  background:rgba(0,255,242,.02);font-size:.7rem;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  color:rgba(255,255,255,.6);line-height:1.6;
+}
+.task-expand.open{display:table-row}
+.task-expand td{padding:12px 16px}
 
 /* ================================================================
-   WORKFLOW ANIMATION
+   TIMELINE / ROADMAP
    ================================================================ */
-.workflow-flow{
-  display:flex;align-items:center;justify-content:center;gap:1rem;margin:2rem 0;flex-wrap:wrap;
+.timeline{
+  display:flex;gap:0;margin:20px 0;position:relative;
+  overflow-x:auto;padding-bottom:20px;
 }
-.workflow-node{
-  padding:1rem 2rem;border:1px solid var(--border);border-radius:4px;
-  text-align:center;font-weight:700;letter-spacing:.1em;position:relative;
-  background:rgba(3,3,8,.8);
-}
-.workflow-arrow{color:var(--cyan);font-size:1.5rem;animation:arrowPulse 1s ease-in-out infinite}
-@keyframes arrowPulse{0%,100%{opacity:.4}50%{opacity:1}}
-.workflow-loop{
-  border:1px dashed var(--pink);border-radius:4px;padding:.5rem 1rem;
-  font-size:.75rem;color:var(--pink);
-}
-
-/* ================================================================
-   TIMELINE (ロードマップ)
-   ================================================================ */
-.timeline{display:flex;gap:0;position:relative;overflow-x:auto;padding:2rem 0}
 .timeline-phase{
-  flex:1;min-width:220px;padding:1.5rem;border:1px solid var(--border);
-  position:relative;text-align:center;
+  flex:1;min-width:220px;padding:20px;position:relative;
 }
-.timeline-phase:not(:last-child)::after{
-  content:'';position:absolute;right:-20px;top:50%;width:40px;height:2px;
-  background:linear-gradient(90deg,var(--cyan),var(--magenta));z-index:1;
-  animation:arcPulse 2s ease-in-out infinite;
+.timeline-connector{
+  position:absolute;top:40px;right:-20px;width:40px;height:2px;z-index:5;
 }
-@keyframes arcPulse{0%,100%{opacity:.3;box-shadow:none}50%{opacity:1;box-shadow:0 0 10px var(--cyan)}}
-.phase-bar{
-  width:100%;height:6px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:.8rem;overflow:hidden;
+.timeline-connector svg{width:100%;height:20px;overflow:visible}
+.phase-label{
+  font-size:.6rem;color:var(--magenta);letter-spacing:.2em;
+  text-transform:uppercase;margin-bottom:6px;
 }
-.phase-bar-fill{height:100%;border-radius:3px;transition:width 2s cubic-bezier(.4,0,.2,1);position:relative}
-.phase-bar-fill::after{
-  content:'';position:absolute;right:0;top:-2px;bottom:-2px;width:10px;
-  background:inherit;filter:blur(4px);border-radius:50%;
+.phase-title{font-size:1rem;font-weight:700;color:var(--cyan);margin-bottom:4px}
+.phase-progress{
+  height:4px;background:rgba(255,255,255,.05);
+  border-radius:2px;margin-top:8px;overflow:hidden;
+}
+.phase-progress-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));
+  transition:width 1.5s ease;
+  box-shadow:0 0 10px rgba(0,255,242,.4);
+}
+.phase-pct{
+  font-size:1.8rem;font-weight:900;margin-top:8px;
+  font-variant-numeric:tabular-nums;
+}
+.phase-status{
+  font-size:.65rem;margin-top:4px;
 }
 
 /* ================================================================
    SPRINT CARDS
    ================================================================ */
-.sprint-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
-.sprint-card{padding:1.5rem;position:relative}
-.sprint-id{font-size:1.2rem;font-weight:900;letter-spacing:.15em}
-.sprint-label{font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.2rem}
-.sprint-pass{
-  position:absolute;top:1rem;right:1rem;
-  font-size:1.5rem;color:var(--green);text-shadow:var(--glow-green);
-  animation:checkPulse 2s ease-in-out infinite;
-}
-@keyframes checkPulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
+.sprint-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin:16px 0}
+.sprint-card{padding:20px}
+.sprint-id{font-size:.6rem;color:var(--magenta);letter-spacing:.2em}
+.sprint-title{font-size:.9rem;font-weight:700;color:var(--cyan);margin:4px 0}
+.sprint-tasks{font-size:.7rem;color:rgba(255,255,255,.5);margin-top:6px}
+.sprint-tasks li{margin:3px 0;list-style:none}
+.sprint-tasks li::before{content:'▸ ';color:var(--cyan)}
 
 /* ================================================================
-   BUSINESS PLAN SECTIONS
+   事業計画 (Business Plan)
    ================================================================ */
-.biz-section{margin-bottom:2.5rem}
+.biz-section{margin:24px 0;padding:20px}
 .biz-section h3{
-  font-size:1.1rem;letter-spacing:.2em;color:var(--cyan);margin-bottom:.8rem;
-  text-shadow:0 0 8px var(--cyan);text-transform:uppercase;
-  border-bottom:1px solid rgba(0,255,242,.15);padding-bottom:.4rem;
+  font-size:1.1rem;color:var(--cyan);margin-bottom:12px;
+  padding-bottom:6px;border-bottom:1px solid var(--border);
+  letter-spacing:.1em;
 }
-.biz-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
-.biz-stat{text-align:center;padding:1.2rem}
-.biz-stat-value{font-size:2rem;font-weight:900}
-.biz-stat-label{font-size:.7rem;color:rgba(255,255,255,.5);letter-spacing:.15em;margin-top:.2rem}
-.biz-table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:.5rem}
-.biz-table th{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--cyan);color:var(--cyan);font-weight:600;letter-spacing:.08em}
-.biz-table td{padding:.4rem .6rem;border-bottom:1px solid rgba(255,255,255,.04)}
-.biz-table tr:hover{background:rgba(0,255,242,.03)}
-.biz-list{list-style:none;padding:0}
-.biz-list li{padding:.4rem 0 .4rem 1.2rem;position:relative;font-size:.85rem}
-.biz-list li::before{content:'▹';position:absolute;left:0;color:var(--cyan)}
-.scenario-card{padding:1.2rem;text-align:center}
-.scenario-card .scenario-val{font-size:1.8rem;font-weight:900}
-.scenario-card .scenario-label{font-size:.7rem;letter-spacing:.15em;color:rgba(255,255,255,.5);margin-top:.2rem}
+.biz-table{width:100%;border-collapse:collapse;font-size:.75rem;margin:10px 0}
+.biz-table th{
+  text-align:left;padding:6px 8px;color:var(--cyan);
+  font-size:.65rem;letter-spacing:.1em;
+  border-bottom:1px solid var(--border);
+}
+.biz-table td{
+  padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.03);
+}
+.biz-highlight{color:var(--green);font-weight:700}
+.biz-number{font-variant-numeric:tabular-nums;color:var(--amber)}
+.biz-text{line-height:1.8;font-size:.8rem;color:rgba(255,255,255,.7)}
+.biz-text strong{color:var(--cyan)}
+
+/* Scenario cards */
+.scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:12px 0}
+.scenario-card{padding:16px;text-align:center}
+.scenario-label{font-size:.6rem;letter-spacing:.2em;margin-bottom:6px}
+.scenario-value{font-size:1.8rem;font-weight:900}
 
 /* ================================================================
-   MARKET ANALYSIS — SVG CHARTS
+   市場分析 (Market Analysis)
    ================================================================ */
-.chart-container{display:flex;justify-content:center;align-items:center;padding:2rem;flex-wrap:wrap;gap:2rem}
-.tam-circles{position:relative;width:300px;height:300px}
+.tam-circles{
+  display:flex;justify-content:center;align-items:center;
+  position:relative;height:300px;margin:20px 0;
+}
 .tam-circle{
-  position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  flex-direction:column;text-align:center;font-size:.7rem;
-  border:1px solid;transition:transform .3s;
+  position:absolute;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:2px solid;
+  animation:tamPulse 3s ease-in-out infinite;
 }
-.tam-circle:hover{transform:scale(1.05)}
-.tam-tam{width:300px;height:300px;top:0;left:0;background:rgba(0,102,255,.08);border-color:rgba(0,102,255,.3);color:var(--blue)}
-.tam-sam{width:200px;height:200px;top:50px;left:50px;background:rgba(139,0,255,.1);border-color:rgba(139,0,255,.3);color:var(--purple)}
-.tam-som{width:100px;height:100px;top:100px;left:100px;background:rgba(0,255,242,.12);border-color:rgba(0,255,242,.4);color:var(--cyan)}
+@keyframes tamPulse{
+  0%,100%{transform:scale(1)}50%{transform:scale(1.02)}
+}
+.tam-circle.tam{
+  width:280px;height:280px;border-color:rgba(0,255,242,.2);
+  background:rgba(0,255,242,.03);
+}
+.tam-circle.sam{
+  width:190px;height:190px;border-color:rgba(255,0,255,.3);
+  background:rgba(255,0,255,.04);animation-delay:.5s;
+}
+.tam-circle.som{
+  width:100px;height:100px;border-color:rgba(0,255,136,.4);
+  background:rgba(0,255,136,.06);animation-delay:1s;
+}
+.tam-label{font-size:.6rem;letter-spacing:.15em;opacity:.6}
+.tam-value{font-size:1.2rem;font-weight:900;margin-top:2px}
 
-.bar-chart{display:flex;align-items:flex-end;gap:.8rem;height:200px;padding:1rem 0}
-.bar{display:flex;flex-direction:column;align-items:center;flex:1}
+/* Bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:14px;height:200px;margin:20px 0;padding:0 20px}
+.bar-col{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-end;height:100%;
+}
 .bar-fill{
-  width:100%;min-width:30px;border-radius:3px 3px 0 0;position:relative;
-  transition:height 2s cubic-bezier(.4,0,.2,1);
+  width:100%;border-radius:2px 2px 0 0;
+  background:linear-gradient(180deg,var(--cyan),var(--blue));
+  transition:height 1.5s ease;
+  box-shadow:0 0 15px rgba(0,255,242,.2);
+  position:relative;
+  min-height:4px;
 }
-.bar-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.1),transparent);border-radius:inherit}
-.bar-label{font-size:.6rem;color:rgba(255,255,255,.5);margin-top:.4rem;text-align:center}
-.bar-value{font-size:.65rem;margin-bottom:.3rem;font-weight:700}
+.bar-label{font-size:.55rem;color:rgba(255,255,255,.4);margin-top:6px;text-align:center}
+.bar-value{
+  font-size:.6rem;color:var(--cyan);margin-bottom:4px;
+  font-weight:700;
+}
 
-/* Positioning map */
+/* Quadrant positioning map */
 .quadrant-map{
-  width:100%;max-width:500px;aspect-ratio:1;border:1px solid var(--border);position:relative;
-  background:rgba(0,0,0,.3);margin:0 auto;
+  position:relative;width:100%;max-width:500px;height:400px;
+  margin:20px auto;border:1px solid var(--border);
 }
-.quadrant-map::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border)}
-.quadrant-map::after{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border)}
-.q-label{position:absolute;font-size:.6rem;color:rgba(255,255,255,.3);letter-spacing:.1em}
-.q-label.top{top:8px;left:50%;transform:translateX(-50%)}
-.q-label.bottom{bottom:8px;left:50%;transform:translateX(-50%)}
-.q-label.left{left:8px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;text-orientation:mixed}
-.q-label.right{right:8px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;text-orientation:mixed}
-.q-dot{
-  position:absolute;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);
-  animation:dotPulse 2s ease-in-out infinite;
+.quadrant-map .axis-x,.quadrant-map .axis-y{
+  position:absolute;background:var(--border);
 }
-.q-dot-label{
-  position:absolute;transform:translate(-50%,10px);font-size:.6rem;white-space:nowrap;
-  text-shadow:0 0 4px rgba(0,0,0,.8);
+.quadrant-map .axis-x{left:0;right:0;top:50%;height:1px}
+.quadrant-map .axis-y{top:0;bottom:0;left:50%;width:1px}
+.quadrant-label{
+  position:absolute;font-size:.55rem;color:rgba(255,255,255,.3);
+  letter-spacing:.1em;
 }
-@keyframes dotPulse{0%,100%{box-shadow:0 0 4px currentColor}50%{box-shadow:0 0 15px currentColor,0 0 30px currentColor}}
-
-/* ================================================================
-   RADAR CHART (SVG)
-   ================================================================ */
-.radar-chart{width:250px;height:250px;margin:0 auto}
-
-/* ================================================================
-   FOOTER
-   ================================================================ */
-footer{
-  text-align:center;padding:1rem;font-size:.65rem;color:rgba(255,255,255,.25);
-  letter-spacing:.2em;border-top:1px solid var(--border);
-  position:relative;z-index:10;
+.quadrant-dot{
+  position:absolute;width:12px;height:12px;border-radius:50%;
+  transform:translate(-50%,-50%);
+  transition:all .3s;cursor:pointer;
+}
+.quadrant-dot:hover{transform:translate(-50%,-50%) scale(1.5)}
+.quadrant-dot-label{
+  position:absolute;font-size:.6rem;white-space:nowrap;
+  top:16px;left:50%;transform:translateX(-50%);
 }
 
+/* Competition matrix */
+.comp-matrix{width:100%;border-collapse:collapse;font-size:.7rem;margin:12px 0}
+.comp-matrix th{
+  padding:8px;text-align:center;color:var(--cyan);
+  font-size:.6rem;letter-spacing:.1em;
+  border-bottom:1px solid var(--border);
+}
+.comp-matrix td{
+  padding:6px 8px;text-align:center;
+  border-bottom:1px solid rgba(255,255,255,.03);
+}
+.comp-check{color:var(--green)}
+.comp-x{color:var(--red);opacity:.4}
+
 /* ================================================================
-   SCROLLBAR
+   SVG LINE CHART
    ================================================================ */
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:3px}
+.line-chart{margin:20px 0;position:relative}
+.line-chart svg{width:100%;height:200px}
+.line-path{
+  fill:none;stroke:var(--cyan);stroke-width:2;
+  stroke-dasharray:1000;stroke-dashoffset:1000;
+  animation:drawLine 2s forwards;
+  filter:drop-shadow(0 0 6px rgba(0,255,242,.5));
+}
+@keyframes drawLine{to{stroke-dashoffset:0}}
+.line-area{
+  fill:url(#lineGradient);opacity:.2;
+}
+.line-dot{
+  fill:var(--cyan);stroke:var(--black);stroke-width:2;
+  filter:drop-shadow(0 0 4px rgba(0,255,242,.6));
+}
+
+/* ================================================================
+   WORKFLOW VISUALIZATION
+   ================================================================ */
+.workflow{
+  display:flex;align-items:center;justify-content:center;
+  gap:0;margin:24px 0;flex-wrap:wrap;
+}
+.workflow-node{
+  padding:16px 24px;text-align:center;
+  position:relative;min-width:160px;
+}
+.workflow-node .agent-icon{font-size:2rem}
+.workflow-arrow{
+  width:60px;display:flex;align-items:center;justify-content:center;
+  color:var(--cyan);font-size:1.5rem;
+  animation:arrowPulse 1.5s ease-in-out infinite;
+}
+@keyframes arrowPulse{
+  0%,100%{opacity:.3;transform:translateX(0)}
+  50%{opacity:1;transform:translateX(5px)}
+}
+.workflow-arrow svg{overflow:visible}
+
+/* Electric connection lines */
+.electric-line{
+  stroke:var(--cyan);stroke-width:2;
+  stroke-dasharray:8 4;
+  animation:electricFlow 1s linear infinite;
+  filter:drop-shadow(0 0 4px rgba(0,255,242,.5));
+}
+@keyframes electricFlow{
+  from{stroke-dashoffset:0}to{stroke-dashoffset:-12}
+}
 
 /* ================================================================
    RESPONSIVE
    ================================================================ */
-@media(max-width:768px){
-  .main-title{font-size:1.8rem;letter-spacing:.15em}
+@media(max-width:900px){
+  .main-wrap{padding:40px 20px 40px 20px}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
-  main{padding:1rem}
-  .tab-btn{font-size:.7rem;padding:.4rem .8rem}
+  .agent-grid{grid-template-columns:1fr}
+  .scenario-grid{grid-template-columns:1fr}
+  .timeline{flex-direction:column}
+  .title-vax{font-size:3rem}
+  .side-text{display:none}
+  .minimap{display:none}
+  .nav-tab .shortcut{display:none}
+}
+@media(max-width:500px){
+  .kpi-grid{grid-template-columns:1fr}
+  .title-vax{font-size:2.2rem}
+  .hud-clock{font-size:.6rem}
 }
 
 /* ================================================================
-   COUNT-UP number animation helper
+   PRINT MODE - 事業計画
    ================================================================ */
-.countup{display:inline-block}
+@media print{
+  body{background:#fff;color:#000;cursor:default}
+  .top-bar,.bottom-bar,.side-text,.corner-bracket,.minimap,
+  .hud-clock,.noise-overlay,.crt-lines,.crt-flicker,
+  #neural-bg,#matrix-rain,#particle-nebula,#scan-grid,
+  .holo-shape,.nav-tabs,.filter-bar,.static-flash,.screen-flash{
+    display:none!important;
+  }
+  .main-wrap{padding:20px;max-width:100%}
+  .cyber-card{
+    background:#fff;border:1px solid #ccc;
+    backdrop-filter:none;box-shadow:none;
+    break-inside:avoid;
+  }
+  .cyber-card::before,.cyber-card::after{display:none}
+  .title-vax{
+    -webkit-text-fill-color:#000;font-size:2rem;
+    filter:none;animation:none;
+  }
+  .kpi-value,.phase-pct,.scenario-value{
+    -webkit-text-fill-color:#000;color:#000;
+    text-shadow:none;animation:none;
+  }
+  .biz-section{padding:10px 0;border:none}
+  .biz-section h3{color:#000;border-bottom:1px solid #ccc}
+  .biz-table th{color:#000}
+  .biz-text{color:#333}
+  .biz-text strong{color:#000}
+  .tab-panel{display:block!important;opacity:1!important;animation:none!important}
+  .tab-panel:not(#tab-biz){display:none!important}
+}
 
 /* ================================================================
-   NEON BAR CHART ANIMATION
+   MISC UTILITIES
    ================================================================ */
-.bar-fill{height:0}
+.section-title{
+  font-size:1.2rem;font-weight:700;color:var(--cyan);
+  margin:16px 0 10px;letter-spacing:.1em;
+  text-shadow:var(--glow-cyan);
+}
+.section-subtitle{
+  font-size:.7rem;color:rgba(255,255,255,.3);
+  letter-spacing:.15em;margin-bottom:12px;
+}
+.neon-divider{
+  height:1px;margin:20px 0;
+  background:linear-gradient(90deg,transparent,var(--cyan),var(--magenta),transparent);
+  opacity:.3;
+}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:700px){.grid-2,.grid-3{grid-template-columns:1fr}}
+.text-center{text-align:center}
+.text-cyan{color:var(--cyan)}
+.text-green{color:var(--green)}
+.text-magenta{color:var(--magenta)}
+.text-amber{color:var(--amber)}
+.mt-8{margin-top:8px}
+.mt-16{margin-top:16px}
+.mb-8{margin-bottom:8px}
 
-/* Sound-wave hover effect for cards */
-.glass-card .sound-wave{
-  position:absolute;bottom:0;left:0;right:0;height:30px;opacity:0;
-  transition:opacity .3s;pointer-events:none;overflow:hidden;
+/* Rules panel */
+.rules-panel{
+  border:1px solid var(--border);padding:16px;
+  background:rgba(0,0,0,.3);border-radius:2px;
+  font-size:.75rem;line-height:1.8;
 }
-.glass-card:hover .sound-wave{opacity:.3}
-.sound-wave span{
-  display:inline-block;width:2px;background:var(--cyan);margin:0 1px;
-  animation:soundBar 1s ease-in-out infinite;
-  transform-origin:bottom;vertical-align:bottom;
-}
-.sound-wave span:nth-child(2n){animation-delay:.1s}
-.sound-wave span:nth-child(3n){animation-delay:.2s}
-.sound-wave span:nth-child(5n){animation-delay:.3s}
-@keyframes soundBar{0%,100%{height:4px}50%{height:20px}}
+.rules-panel li{margin:4px 0;list-style:none}
+.rules-panel li::before{content:'⟩ ';color:var(--cyan)}
 
-/* Data corruption micro-animation */
-@keyframes dataCorrupt{
-  0%,90%,100%{filter:none;transform:none}
-  92%{filter:hue-rotate(90deg) saturate(2);transform:skewX(-1deg)}
-  94%{filter:invert(.1);transform:skewX(1deg)}
-  96%{filter:brightness(1.3);transform:translate(1px,-1px)}
-}
-.data-corrupt{animation:dataCorrupt 5s infinite}
+/* Dependency SVG overlay */
+.dep-svg{position:absolute;inset:0;pointer-events:none;z-index:5}
 </style>
 </head>
 <body>
@@ -556,999 +881,1487 @@ footer{
 <!-- ============================================================
      BACKGROUND LAYERS
      ============================================================ -->
-<div id="circuit-bg"><canvas id="circuitCanvas"></canvas></div>
+<!-- Layer 1: Neural network -->
+<div id="neural-bg"><canvas id="neuralCanvas"></canvas></div>
+<!-- Layer 2: Matrix rain -->
 <div id="matrix-rain"><canvas id="matrixCanvas"></canvas></div>
-<div id="geo-layer"><canvas id="geoCanvas"></canvas></div>
+<!-- Layer 3: Particle nebula -->
+<div id="particle-nebula"><canvas id="nebulaCanvas"></canvas></div>
+<!-- Layer 4: Scan grid -->
+<div id="scan-grid"><canvas id="gridCanvas"></canvas></div>
+<!-- Layer 5: Holographic geometry (CSS) -->
+<div class="holo-geo" id="holoGeo"></div>
+<!-- Layer 6: Noise + CRT -->
 <div class="noise-overlay"></div>
-<div class="vignette"></div>
-<div class="scanlines"></div>
-<div class="h-scanline"></div>
-<div class="v-scanline"></div>
+<div class="crt-lines"></div>
+<div class="crt-flicker"></div>
+
+<!-- Static flash overlay -->
+<div class="static-flash" id="staticFlash"></div>
+<div class="screen-flash" id="screenFlash"></div>
+
+<!-- ============================================================
+     HUD ELEMENTS
+     ============================================================ -->
 <div class="corner-bracket tl"></div>
 <div class="corner-bracket tr"></div>
 <div class="corner-bracket bl"></div>
 <div class="corner-bracket br"></div>
-<canvas id="particle-canvas"></canvas>
+
+<div class="top-bar">
+  <div class="ticker" id="ticker">
+    VAX SYSTEM v4.0 オンライン ▸ ニューラルリンク接続中 ▸ タスク完了 5/10 ▸ 完了率 50% ▸ スプリント5完了 ▸ エージェント3体制 ▸ セキュリティレベル: 最大 ▸ 市場規模 $47.1B ▸ CAGR 54% ▸ データストリーム安定 ▸ 量子暗号化有効 ▸
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <span id="sysMetric1">CPU: <span class="text-cyan">23%</span></span>
+  <span id="sysMetric2">MEM: <span class="text-magenta">4.2GB</span></span>
+  <span id="sysMetric3">NET: <span class="text-green">1.2Gbps</span></span>
+  <span id="sysMetric4">LATENCY: <span class="text-amber">12ms</span></span>
+  <span id="sysMetric5">UPTIME: <span class="text-cyan" id="uptimeVal">99.97%</span></span>
+  <span id="sysMetric6">NODES: <span class="text-magenta">128</span></span>
+</div>
+
+<div class="side-text left">V E R I F I E D &nbsp; A G E N T &nbsp; E X C H A N G E</div>
+<div class="side-text right">V E R I F I E D &nbsp; A G E N T &nbsp; E X C H A N G E</div>
+
+<div class="hud-clock" id="hudClock">
+  <div class="time">00:00:00.000</div>
+  <div class="date">2026年03月27日（金）</div>
+</div>
+
+<div class="minimap" id="minimap">
+  <div class="minimap-viewport" id="minimapViewport"></div>
+</div>
 
 <!-- ============================================================
-     APP WRAPPER
+     MAIN CONTENT
      ============================================================ -->
-<div class="app-wrapper">
+<div class="main-wrap" id="mainWrap">
 
-<header>
-  <div class="main-title" data-text="VAX // SYSTEM DASHBOARD">VAX // SYSTEM DASHBOARD</div>
-  <div class="sub-title">AI エージェント・エクスチェンジ — マキシマム・オーバードライブ v3.0</div>
-</header>
+  <!-- TITLE -->
+  <div class="title-section">
+    <div class="scan-line"></div>
+    <h1 class="title-vax"><span class="letter">V</span><span class="letter">A</span><span class="letter">X</span></h1>
+    <div class="subtitle" id="subtitleTyped"></div>
+    <div class="subtitle-version">VERSION 4.0 — BEYOND ALL LIMITS</div>
+  </div>
 
-<nav class="tab-nav">
-  <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
-  <button class="tab-btn" data-tab="tasks">タスク管理</button>
-  <button class="tab-btn" data-tab="agents">エージェント</button>
-  <button class="tab-btn" data-tab="roadmap">ロードマップ</button>
-  <button class="tab-btn" data-tab="sprints">スプリント</button>
-  <button class="tab-btn" data-tab="business">事業計画</button>
-  <button class="tab-btn" data-tab="market">市場分析</button>
-</nav>
+  <!-- NAV TABS -->
+  <nav class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-tab="tab-dash">ダッシュボード<span class="shortcut">1</span></button>
+    <button class="nav-tab" data-tab="tab-tasks">タスク管理<span class="shortcut">2</span></button>
+    <button class="nav-tab" data-tab="tab-agents">エージェント<span class="shortcut">3</span></button>
+    <button class="nav-tab" data-tab="tab-roadmap">ロードマップ<span class="shortcut">4</span></button>
+    <button class="nav-tab" data-tab="tab-sprint">スプリント<span class="shortcut">5</span></button>
+    <button class="nav-tab" data-tab="tab-biz">事業計画<span class="shortcut">6</span></button>
+    <button class="nav-tab" data-tab="tab-market">市場分析<span class="shortcut">7</span></button>
+  </nav>
 
-<main>
-
-<!-- ========================= TAB 1: ダッシュボード ========================= -->
-<section class="tab-panel active" id="panel-dashboard">
-  <h2 class="section-title neon-cyan">ダッシュボード</h2>
-
-  <div class="kpi-grid">
-    <!-- KPI 1 -->
-    <div class="glass-card glitch-hover kpi-card data-corrupt">
-      <div class="ring-container"><svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="35"/><circle class="ring-fill" cx="40" cy="40" r="35" stroke="var(--cyan)" data-target="220"/></svg><div class="ring-value neon-cyan"><span class="countup" data-target="10">0</span></div></div>
-      <div class="kpi-label">総タスク</div>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  <!-- ============================================================
+       TAB 1: DASHBOARD
+       ============================================================ -->
+  <div class="tab-panel active" id="tab-dash">
+    <div class="kpi-grid" id="kpiGrid">
+      <!-- KPI 1: Total Tasks -->
+      <div class="cyber-card kpi-card">
+        <div class="card-label">総タスク</div>
+        <div class="ring-chart">
+          <svg viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="52"/>
+            <circle class="ring-glow" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7" data-target="0"/>
+            <circle class="ring-fill" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0" style="stroke:var(--cyan)"/>
+          </svg>
+          <div class="ring-value text-cyan"><span class="counter" data-target="10">0</span></div>
+          <div class="ring-marker"></div>
+        </div>
+        <div class="kpi-title">全タスク数</div>
+      </div>
+      <!-- KPI 2: Done -->
+      <div class="cyber-card kpi-card">
+        <div class="card-label">完了</div>
+        <div class="kpi-value green"><span class="counter" data-target="5">0</span></div>
+        <div class="kpi-title">タスク完了</div>
+      </div>
+      <!-- KPI 3: WIP -->
+      <div class="cyber-card kpi-card">
+        <div class="card-label">進行中</div>
+        <div class="kpi-value amber"><span class="counter" data-target="0">0</span></div>
+        <div class="kpi-title">作業中タスク</div>
+      </div>
+      <!-- KPI 4: Todo -->
+      <div class="cyber-card kpi-card">
+        <div class="card-label">未着手</div>
+        <div class="kpi-value magenta"><span class="counter" data-target="5">0</span></div>
+        <div class="kpi-title">待機タスク</div>
+      </div>
+      <!-- KPI 5: Completion Rate (big ring) -->
+      <div class="cyber-card kpi-card" style="grid-column:span 2">
+        <div class="card-label">完了率</div>
+        <div class="ring-chart big-ring">
+          <svg viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="52"/>
+            <circle class="ring-glow" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7" data-pct="50"/>
+            <circle class="ring-fill" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7" data-pct="50" style="stroke:var(--green)"/>
+          </svg>
+          <div class="ring-value text-green"><span class="counter" data-target="50">0</span>%</div>
+          <div class="ring-marker" style="--ring-color:var(--green)"></div>
+        </div>
+        <div class="kpi-title">プロジェクト達成度</div>
+      </div>
+      <!-- KPI 6: Sprint Done -->
+      <div class="cyber-card kpi-card">
+        <div class="card-label">スプリント完了</div>
+        <div class="kpi-value cyan"><span class="counter" data-target="5">0</span>/5</div>
+        <div class="kpi-title">完了スプリント</div>
+      </div>
+      <!-- KPI 7: Agents -->
+      <div class="cyber-card kpi-card">
+        <div class="card-label">エージェント</div>
+        <div class="kpi-value purple"><span class="counter" data-target="3">0</span>体制</div>
+        <div class="kpi-title">AI稼働数</div>
+      </div>
     </div>
-    <!-- KPI 2 -->
-    <div class="glass-card glitch-hover kpi-card">
-      <div class="ring-container"><svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="35"/><circle class="ring-fill" cx="40" cy="40" r="35" stroke="var(--green)" data-target="110"/></svg><div class="ring-value neon-green"><span class="countup" data-target="5">0</span></div></div>
-      <div class="kpi-label">完了</div>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+    <div class="neon-divider"></div>
+
+    <div class="grid-2">
+      <!-- Activity Feed -->
+      <div>
+        <div class="section-title">アクティビティフィード</div>
+        <div class="section-subtitle">最新のシステムイベント</div>
+        <div class="activity-feed cyber-card">
+          <div class="activity-item"><span class="activity-badge">PASS</span> F003 エージェント登録フォーム ✅</div>
+          <div class="activity-item"><span class="activity-badge">PASS</span> F004 エージェント一覧・検索 ✅</div>
+          <div class="activity-item"><span class="activity-badge">PASS</span> F005 エージェント詳細ページ ✅</div>
+          <div class="activity-item"><span class="activity-badge">PASS</span> F006 成果トラッキングAPI ✅</div>
+          <div class="activity-item"><span class="activity-badge">PASS</span> F008 出品者ダッシュボード ✅</div>
+        </div>
+      </div>
+      <!-- Revenue Model -->
+      <div>
+        <div class="section-title">収益モデル</div>
+        <div class="section-subtitle">レベニューシェア配分</div>
+        <div class="cyber-card" style="padding:20px;text-align:center">
+          <svg viewBox="0 0 200 200" width="200" height="200" style="margin:0 auto;display:block">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="30"/>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="var(--cyan)" stroke-width="30"
+              stroke-dasharray="301.6 502.7" stroke-dashoffset="0" transform="rotate(-90 100 100)"
+              style="filter:drop-shadow(0 0 6px rgba(0,255,242,.5))"/>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="var(--magenta)" stroke-width="30"
+              stroke-dasharray="150.8 502.7" stroke-dashoffset="-301.6" transform="rotate(-90 100 100)"
+              style="filter:drop-shadow(0 0 6px rgba(255,0,255,.5))"/>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="var(--amber)" stroke-width="30"
+              stroke-dasharray="50.3 502.7" stroke-dashoffset="-452.4" transform="rotate(-90 100 100)"
+              style="filter:drop-shadow(0 0 6px rgba(255,170,0,.5))"/>
+            <text x="100" y="95" text-anchor="middle" fill="var(--white)" font-size="14" font-weight="900" font-family="monospace">60/30/10</text>
+            <text x="100" y="115" text-anchor="middle" fill="rgba(255,255,255,.4)" font-size="8" font-family="monospace">レベニューシェア</text>
+          </svg>
+          <div style="display:flex;justify-content:center;gap:16px;margin-top:12px;font-size:.7rem">
+            <span class="text-cyan">■ プラットフォーム 60%</span>
+            <span class="text-magenta">■ 出品者 30%</span>
+            <span class="text-amber">■ エージェント 10%</span>
+          </div>
+        </div>
+      </div>
     </div>
-    <!-- KPI 3 -->
-    <div class="glass-card glitch-hover kpi-card">
-      <div class="ring-container"><svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="35"/><circle class="ring-fill" cx="40" cy="40" r="35" stroke="var(--amber)" data-target="0"/></svg><div class="ring-value neon-amber"><span class="countup" data-target="0">0</span></div></div>
-      <div class="kpi-label">進行中</div>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    </div>
-    <!-- KPI 4 -->
-    <div class="glass-card glitch-hover kpi-card">
-      <div class="ring-container"><svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="35"/><circle class="ring-fill" cx="40" cy="40" r="35" stroke="var(--blue)" data-target="110"/></svg><div class="ring-value neon-blue"><span class="countup" data-target="5">0</span></div></div>
-      <div class="kpi-label">未着手</div>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+    <div class="neon-divider"></div>
+
+    <!-- Agent Overview Cards -->
+    <div class="section-title">エージェント概要</div>
+    <div class="section-subtitle">AI三位一体システム</div>
+    <div class="agent-grid">
+      <div class="cyber-card agent-card">
+        <div class="agent-icon">🎯</div>
+        <div class="agent-name">Planner</div>
+        <div class="agent-role">計画立案エージェント</div>
+        <div class="agent-status active">完了</div>
+        <div class="radar-chart">
+          <svg viewBox="0 0 140 140">
+            <polygon points="70,10 130,50 110,120 30,120 10,50" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
+            <polygon points="70,30 110,55 98,105 42,105 30,55" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+            <polygon points="70,50 90,65 84,90 56,90 50,65" fill="none" stroke="rgba(255,255,255,.03)" stroke-width="1"/>
+            <polygon points="70,20 125,48 105,115 35,115 15,48" fill="rgba(0,255,242,.1)" stroke="var(--cyan)" stroke-width="1.5"
+              style="filter:drop-shadow(0 0 4px rgba(0,255,242,.4))"/>
+            <circle cx="70" cy="20" r="3" fill="var(--cyan)"/>
+            <circle cx="125" cy="48" r="3" fill="var(--cyan)"/>
+            <circle cx="105" cy="115" r="3" fill="var(--cyan)"/>
+            <circle cx="35" cy="115" r="3" fill="var(--cyan)"/>
+            <circle cx="15" cy="48" r="3" fill="var(--cyan)"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cyber-card agent-card">
+        <div class="agent-icon">⚡</div>
+        <div class="agent-name">Generator</div>
+        <div class="agent-role">コード生成エージェント</div>
+        <div class="agent-status stopped">停止中</div>
+        <div class="radar-chart">
+          <svg viewBox="0 0 140 140">
+            <polygon points="70,10 130,50 110,120 30,120 10,50" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
+            <polygon points="70,30 110,55 98,105 42,105 30,55" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+            <polygon points="70,50 90,65 84,90 56,90 50,65" fill="none" stroke="rgba(255,255,255,.03)" stroke-width="1"/>
+            <polygon points="70,35 120,55 115,110 40,100 20,50" fill="rgba(255,0,255,.08)" stroke="var(--magenta)" stroke-width="1.5"
+              style="filter:drop-shadow(0 0 4px rgba(255,0,255,.4))"/>
+            <circle cx="70" cy="35" r="3" fill="var(--magenta)"/>
+            <circle cx="120" cy="55" r="3" fill="var(--magenta)"/>
+            <circle cx="115" cy="110" r="3" fill="var(--magenta)"/>
+            <circle cx="40" cy="100" r="3" fill="var(--magenta)"/>
+            <circle cx="20" cy="50" r="3" fill="var(--magenta)"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cyber-card agent-card">
+        <div class="agent-icon">🔍</div>
+        <div class="agent-name">Evaluator</div>
+        <div class="agent-role">品質評価エージェント</div>
+        <div class="agent-status idle">待機中</div>
+        <div class="radar-chart">
+          <svg viewBox="0 0 140 140">
+            <polygon points="70,10 130,50 110,120 30,120 10,50" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
+            <polygon points="70,30 110,55 98,105 42,105 30,55" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+            <polygon points="70,50 90,65 84,90 56,90 50,65" fill="none" stroke="rgba(255,255,255,.03)" stroke-width="1"/>
+            <polygon points="70,25 115,52 100,118 38,108 25,45" fill="rgba(0,255,136,.08)" stroke="var(--green)" stroke-width="1.5"
+              style="filter:drop-shadow(0 0 4px rgba(0,255,136,.4))"/>
+            <circle cx="70" cy="25" r="3" fill="var(--green)"/>
+            <circle cx="115" cy="52" r="3" fill="var(--green)"/>
+            <circle cx="100" cy="118" r="3" fill="var(--green)"/>
+            <circle cx="38" cy="108" r="3" fill="var(--green)"/>
+            <circle cx="25" cy="45" r="3" fill="var(--green)"/>
+          </svg>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Big center completion ring -->
-  <div style="text-align:center;margin-bottom:2rem">
-    <div class="big-ring ring-container">
-      <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="35" stroke-width="6"/><circle class="ring-fill" cx="40" cy="40" r="35" stroke="var(--magenta)" stroke-width="6" data-target="110"/></svg>
-      <div class="ring-value holo-text" style="font-size:2.2rem"><span class="countup" data-target="50">0</span>%</div>
+  <!-- ============================================================
+       TAB 2: TASK MANAGEMENT
+       ============================================================ -->
+  <div class="tab-panel" id="tab-tasks">
+    <div class="section-title">タスク管理</div>
+    <div class="section-subtitle">全機能タスク一覧 ▸ クリックで展開</div>
+
+    <div class="filter-bar">
+      <input type="text" class="search-input" id="taskSearch" placeholder="🔍 タスクを検索...">
+      <button class="filter-btn active" data-filter="all" onclick="filterTasks('all',this)">すべて</button>
+      <button class="filter-btn" data-filter="done" onclick="filterTasks('done',this)">完了</button>
+      <button class="filter-btn" data-filter="wip" onclick="filterTasks('wip',this)">進行中</button>
+      <button class="filter-btn" data-filter="todo" onclick="filterTasks('todo',this)">未着手</button>
+      <select class="sort-select" id="taskSort" onchange="sortTasks()">
+        <option value="id">ID順</option>
+        <option value="priority">優先度順</option>
+        <option value="status">ステータス順</option>
+      </select>
     </div>
-    <div class="kpi-label" style="font-size:.9rem;letter-spacing:.3em">完了率</div>
+
+    <!-- Task dependency SVG -->
+    <div style="position:relative">
+      <div class="cyber-card" style="overflow-x:auto;padding:0">
+        <table class="task-table" id="taskTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>タスク名</th>
+              <th>ステータス</th>
+              <th>優先度</th>
+              <th>依存関係</th>
+            </tr>
+          </thead>
+          <tbody id="taskBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
-  <div class="kpi-grid" style="margin-bottom:2rem">
-    <!-- KPI 5 -->
-    <div class="glass-card glitch-hover kpi-card">
-      <div class="kpi-value neon-magenta"><span class="countup" data-target="5">0</span></div>
-      <div class="kpi-label">スプリント完了</div>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    </div>
-    <!-- KPI 6 -->
-    <div class="glass-card glitch-hover kpi-card">
-      <div class="kpi-value neon-purple"><span class="countup" data-target="3">0</span><span style="font-size:1rem">体制</span></div>
-      <div class="kpi-label">エージェント</div>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    </div>
-    <!-- KPI 7 -->
-    <div class="glass-card glitch-hover kpi-card">
-      <div class="kpi-value holo-text" style="font-size:1.5rem">60/30/10</div>
-      <div class="kpi-label">レベシェア配分</div>
-      <div class="kpi-sub">出品者 / 購入者 / PF</div>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    </div>
-    <!-- KPI 8 -->
-    <div class="glass-card glitch-hover kpi-card">
-      <div class="kpi-value neon-green">100<span style="font-size:1rem">%</span></div>
-      <div class="kpi-label">スプリント成功率</div>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    </div>
-  </div>
+  <!-- ============================================================
+       TAB 3: AGENTS
+       ============================================================ -->
+  <div class="tab-panel" id="tab-agents">
+    <div class="section-title">エージェントシステム</div>
+    <div class="section-subtitle">AI三位一体アーキテクチャ</div>
 
-  <!-- Activity Feed -->
-  <h2 class="section-title neon-green" style="margin-top:2rem">アクティビティ・フィード</h2>
-  <div class="glass-card" style="margin-bottom:2rem">
-    <div class="activity-feed" id="activityFeed"></div>
-  </div>
-
-  <!-- Agent Status -->
-  <h2 class="section-title neon-magenta">エージェント・ステータス</h2>
-  <div class="agent-grid">
-    <div class="glass-card agent-card glitch-hover">
-      <div class="radar-pulse"></div><div class="radar-pulse"></div><div class="radar-pulse"></div>
-      <div class="agent-icon">&#x1F3AF;</div>
-      <div class="agent-name neon-cyan">Planner</div>
-      <div class="agent-status neon-green typing-cursor">完了</div>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <!-- Workflow visualization -->
+    <div class="cyber-card" style="padding:30px;margin-bottom:20px">
+      <div class="workflow">
+        <div class="workflow-node cyber-card">
+          <div class="agent-icon">🎯</div>
+          <div class="agent-name">Planner</div>
+          <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:4px">計画 → タスク分解</div>
+          <div class="agent-status active" style="margin-top:6px">稼働中</div>
+        </div>
+        <div class="workflow-arrow">
+          <svg width="60" height="20">
+            <line x1="0" y1="10" x2="50" y2="10" class="electric-line"/>
+            <polygon points="50,5 60,10 50,15" fill="var(--cyan)"/>
+          </svg>
+        </div>
+        <div class="workflow-node cyber-card">
+          <div class="agent-icon">⚡</div>
+          <div class="agent-name">Generator</div>
+          <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:4px">コード生成 → 実装</div>
+          <div class="agent-status stopped" style="margin-top:6px">停止中</div>
+        </div>
+        <div class="workflow-arrow">
+          <svg width="60" height="20">
+            <line x1="0" y1="10" x2="50" y2="10" class="electric-line"/>
+            <polygon points="50,5 60,10 50,15" fill="var(--cyan)"/>
+          </svg>
+        </div>
+        <div class="workflow-node cyber-card">
+          <div class="agent-icon">🔍</div>
+          <div class="agent-name">Evaluator</div>
+          <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:4px">検証 → 品質保証</div>
+          <div class="agent-status idle" style="margin-top:6px">待機中</div>
+        </div>
+      </div>
     </div>
-    <div class="glass-card agent-card glitch-hover">
-      <div class="radar-pulse"></div><div class="radar-pulse"></div><div class="radar-pulse"></div>
-      <div class="agent-icon">&#x26A1;</div>
-      <div class="agent-name neon-magenta">Generator</div>
-      <div class="agent-status neon-amber typing-cursor">停止中</div>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+    <div class="agent-grid">
+      <div class="cyber-card" style="padding:24px">
+        <h3 class="text-cyan" style="margin-bottom:12px">🎯 Planner — 計画立案</h3>
+        <div class="biz-text">
+          PRDを解析し、タスクグラフを構築。依存関係を自動検出し、最適な実行順序を決定する。<br><br>
+          <strong>能力:</strong> タスク分解、依存関係解析、優先度付け、スプリント計画<br>
+          <strong>モデル:</strong> Claude Opus 4<br>
+          <strong>ステータス:</strong> <span class="text-green">全タスク計画完了</span>
+        </div>
+      </div>
+      <div class="cyber-card" style="padding:24px">
+        <h3 class="text-magenta" style="margin-bottom:12px">⚡ Generator — コード生成</h3>
+        <div class="biz-text">
+          Plannerの計画に基づき、実際のコードを生成・実装する。テスト駆動開発を採用。<br><br>
+          <strong>能力:</strong> コード生成、テスト作成、リファクタリング、ドキュメント<br>
+          <strong>モデル:</strong> Claude Sonnet 4<br>
+          <strong>ステータス:</strong> <span class="text-red" style="color:var(--red)">次スプリント待ち</span>
+        </div>
+      </div>
+      <div class="cyber-card" style="padding:24px">
+        <h3 class="text-green" style="margin-bottom:12px">🔍 Evaluator — 品質評価</h3>
+        <div class="biz-text">
+          生成されたコードを多角的に評価。受入基準の充足、セキュリティ、パフォーマンスを検証。<br><br>
+          <strong>能力:</strong> コードレビュー、テスト実行、セキュリティ監査、性能分析<br>
+          <strong>モデル:</strong> Claude Opus 4<br>
+          <strong>ステータス:</strong> <span class="text-amber">Generatorの出力待ち</span>
+        </div>
+      </div>
     </div>
-    <div class="glass-card agent-card glitch-hover">
-      <div class="radar-pulse"></div><div class="radar-pulse"></div><div class="radar-pulse"></div>
-      <div class="agent-icon">&#x1F50D;</div>
-      <div class="agent-name neon-purple">Evaluator</div>
-      <div class="agent-status neon-blue typing-cursor">待機中</div>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    </div>
-  </div>
-</section>
 
-<!-- ========================= TAB 2: タスク管理 ========================= -->
-<section class="tab-panel" id="panel-tasks">
-  <h2 class="section-title neon-cyan">タスク管理</h2>
-  <div class="glass-card" style="overflow-x:auto">
-    <table class="task-table" id="taskTable">
-      <thead>
-        <tr><th>ID</th><th>機能名</th><th>ステータス</th><th>優先度</th><th>スプリント</th><th>詳細</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-</section>
-
-<!-- ========================= TAB 3: エージェント ========================= -->
-<section class="tab-panel" id="panel-agents">
-  <h2 class="section-title neon-magenta">マルチエージェント・アーキテクチャ</h2>
-
-  <!-- Workflow -->
-  <div class="workflow-flow">
-    <div class="workflow-node neon-cyan">&#x1F3AF; Planner<br><small>計画立案</small></div>
-    <div class="workflow-arrow">&#x25B6;</div>
-    <div class="workflow-node neon-magenta">&#x26A1; Generator<br><small>コード生成</small></div>
-    <div class="workflow-arrow">&#x25B6;</div>
-    <div class="workflow-node neon-purple">&#x1F50D; Evaluator<br><small>品質評価</small></div>
-    <div class="workflow-arrow">&#x25B6;</div>
-    <div class="workflow-loop">PASS &#x2714; / FAIL &#x21BB;</div>
-  </div>
-
-  <div class="agent-grid" style="margin-top:2rem">
-    <!-- Planner -->
-    <div class="glass-card glitch-hover" style="padding:2rem">
-      <h3 class="neon-cyan" style="font-size:1.5rem;margin-bottom:1rem;letter-spacing:.2em">&#x1F3AF; Planner エージェント</h3>
-      <p style="color:rgba(255,255,255,.6);margin-bottom:1rem;font-size:.85rem">PRDとWBSからタスク分解、優先度設定、スプリント割り当てを自動実行</p>
-      <ul class="biz-list">
-        <li>タスク依存関係の解析</li>
-        <li>スプリント容量の最適化</li>
-        <li>リスク要因の事前検知</li>
-        <li>受入条件の自動生成</li>
+    <div class="neon-divider"></div>
+    <div class="section-title">エージェント運用ルール</div>
+    <div class="cyber-card rules-panel">
+      <ul>
+        <li>各エージェントは独立したコンテキストで動作し、成果物のみを共有する</li>
+        <li>Plannerが全タスクのDAGを構築し、依存関係の解決順序を決定</li>
+        <li>Generatorはテストファースト：まずテストを書き、次に実装コードを生成</li>
+        <li>Evaluatorは受入基準チェックリストに基づき合否判定（80%以上で合格）</li>
+        <li>不合格の場合、フィードバックループでGeneratorに差し戻し（最大3回）</li>
+        <li>全エージェントのログは監査証跡として保存</li>
+        <li>人間のレビューはEvaluator合格後に実施（最終承認ゲート）</li>
       </ul>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    </div>
-    <!-- Generator -->
-    <div class="glass-card glitch-hover" style="padding:2rem">
-      <h3 class="neon-magenta" style="font-size:1.5rem;margin-bottom:1rem;letter-spacing:.2em">&#x26A1; Generator エージェント</h3>
-      <p style="color:rgba(255,255,255,.6);margin-bottom:1rem;font-size:.85rem">設計書からプロダクションレベルのコードを自動生成、テスト含む</p>
-      <ul class="biz-list">
-        <li>Next.js / TypeScript生成</li>
-        <li>Prismaスキーマ連携</li>
-        <li>API設計→実装の自動化</li>
-        <li>テストコード同時生成</li>
-      </ul>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    </div>
-    <!-- Evaluator -->
-    <div class="glass-card glitch-hover" style="padding:2rem">
-      <h3 class="neon-purple" style="font-size:1.5rem;margin-bottom:1rem;letter-spacing:.2em">&#x1F50D; Evaluator エージェント</h3>
-      <p style="color:rgba(255,255,255,.6);margin-bottom:1rem;font-size:.85rem">受入条件に基づく自動品質検証、PASS/FAILの判定とフィードバック</p>
-      <ul class="biz-list">
-        <li>受入条件チェック自動化</li>
-        <li>コード品質スコアリング</li>
-        <li>セキュリティ脆弱性検査</li>
-        <li>失敗時のフィードバックループ</li>
-      </ul>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     </div>
   </div>
 
-  <h3 class="section-title neon-amber" style="margin-top:2rem">運用ルール</h3>
-  <div class="glass-card">
-    <ul class="biz-list">
-      <li>全タスクは必ずEvaluatorのPASS判定を経由する</li>
-      <li>FAILの場合はGeneratorが自動修正を試行（最大3回）</li>
-      <li>3回FAIL時はPlannerが再設計を実施</li>
-      <li>人間の介入は最小限 — AIファースト・ポリシー</li>
-      <li>全プロセスログは自動保存・監査可能</li>
-    </ul>
-  </div>
-</section>
+  <!-- ============================================================
+       TAB 4: ROADMAP
+       ============================================================ -->
+  <div class="tab-panel" id="tab-roadmap">
+    <div class="section-title">ロードマップ</div>
+    <div class="section-subtitle">フェーズ別進捗</div>
 
-<!-- ========================= TAB 4: ロードマップ ========================= -->
-<section class="tab-panel" id="panel-roadmap">
-  <h2 class="section-title neon-cyan">ロードマップ</h2>
-  <div class="timeline">
-    <div class="glass-card timeline-phase">
-      <div class="neon-green" style="font-size:1.5rem;margin-bottom:.5rem">&#x2705;</div>
-      <div class="neon-green" style="font-weight:700;letter-spacing:.15em">Phase 1</div>
-      <div style="font-size:.85rem;margin:.3rem 0">基盤構築</div>
-      <div style="font-size:.7rem;color:rgba(255,255,255,.4)">PRD / WBS / マルチエージェント</div>
-      <div class="phase-bar"><div class="phase-bar-fill" style="width:100%;background:linear-gradient(90deg,var(--green),var(--cyan))" data-width="100"></div></div>
-      <div style="font-size:.8rem;margin-top:.3rem;font-weight:700" class="neon-green">100%</div>
-    </div>
-    <div class="glass-card timeline-phase">
-      <div class="neon-amber" style="font-size:1.5rem;margin-bottom:.5rem">&#x1F6A7;</div>
-      <div class="neon-amber" style="font-weight:700;letter-spacing:.15em">Phase 2</div>
-      <div style="font-size:.85rem;margin:.3rem 0">コアMVP</div>
-      <div style="font-size:.7rem;color:rgba(255,255,255,.4)">認証 / エージェントCRUD / 成果API</div>
-      <div class="phase-bar"><div class="phase-bar-fill" style="width:50%;background:linear-gradient(90deg,var(--amber),var(--pink))" data-width="50"></div></div>
-      <div style="font-size:.8rem;margin-top:.3rem;font-weight:700" class="neon-amber">50%</div>
-    </div>
-    <div class="glass-card timeline-phase">
-      <div class="neon-blue" style="font-size:1.5rem;margin-bottom:.5rem">&#x1F4B0;</div>
-      <div class="neon-blue" style="font-weight:700;letter-spacing:.15em">Phase 3</div>
-      <div style="font-size:.85rem;margin:.3rem 0">収益基盤</div>
-      <div style="font-size:.7rem;color:rgba(255,255,255,.4)">決済 / レベシェア / 通知</div>
-      <div class="phase-bar"><div class="phase-bar-fill" style="width:20%;background:linear-gradient(90deg,var(--blue),var(--purple))" data-width="20"></div></div>
-      <div style="font-size:.8rem;margin-top:.3rem;font-weight:700" class="neon-blue">20%</div>
-    </div>
-    <div class="glass-card timeline-phase">
-      <div class="neon-magenta" style="font-size:1.5rem;margin-bottom:.5rem">&#x1F680;</div>
-      <div class="neon-magenta" style="font-weight:700;letter-spacing:.15em">Phase 4</div>
-      <div style="font-size:.85rem;margin:.3rem 0">ローンチ</div>
-      <div style="font-size:.7rem;color:rgba(255,255,255,.4)">β公開 / マーケティング / 拡大</div>
-      <div class="phase-bar"><div class="phase-bar-fill" style="width:0%;background:linear-gradient(90deg,var(--magenta),var(--pink))" data-width="0"></div></div>
-      <div style="font-size:.8rem;margin-top:.3rem;font-weight:700" class="neon-magenta">0%</div>
-    </div>
-  </div>
-</section>
-
-<!-- ========================= TAB 5: スプリント ========================= -->
-<section class="tab-panel" id="panel-sprints">
-  <h2 class="section-title neon-green">スプリント</h2>
-
-  <div style="text-align:center;margin-bottom:2rem">
-    <div class="glass-card" style="display:inline-block;padding:1.5rem 3rem">
-      <div style="font-size:.7rem;letter-spacing:.3em;color:rgba(255,255,255,.4);margin-bottom:.3rem">成功率</div>
-      <div class="holo-text" style="font-size:3rem;font-weight:900"><span class="countup" data-target="100">0</span>%</div>
-      <div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-top:.3rem">5 / 5 スプリント PASS</div>
-    </div>
-  </div>
-
-  <div class="sprint-grid" id="sprintGrid"></div>
-</section>
-
-<!-- ========================= TAB 6: 事業計画 ========================= -->
-<section class="tab-panel" id="panel-business">
-  <h2 class="section-title holo-text">事業計画</h2>
-
-  <!-- エグゼクティブサマリー -->
-  <div class="biz-section">
-    <h3>&#x1F4CB; エグゼクティブサマリー</h3>
-    <div class="glass-card">
-      <p style="font-size:.9rem;line-height:1.8;color:rgba(255,255,255,.75)">
-        <strong class="neon-cyan">VAX</strong>は「AI労働の成果分配インフラ」として、AIエージェントの売買・共有プラットフォームを構築する。
-        出品者がAIエージェントを登録し、購入者が成果に応じて報酬を支払う<strong class="neon-magenta">レベニューシェアモデル（60/30/10）</strong>を採用。
-        AIエージェント市場は2024年の$5.4Bから2030年に$47.1B（CAGR 54%）へ急成長が予測されており、
-        VAXはこの波に乗り<strong class="neon-green">成果連動型課金</strong>という独自ポジションで市場を開拓する。
-      </p>
-    </div>
-  </div>
-
-  <!-- 市場規模 -->
-  <div class="biz-section">
-    <h3>&#x1F4CA; 市場分析</h3>
-    <div class="biz-grid">
-      <div class="glass-card biz-stat">
-        <div class="biz-stat-value neon-cyan">$5.4B</div>
-        <div class="biz-stat-label">AIエージェント市場 (2024)</div>
+    <div class="timeline">
+      <div class="timeline-phase cyber-card">
+        <div class="phase-label">フェーズ 1</div>
+        <div class="phase-title">基盤構築</div>
+        <div class="phase-pct text-green"><span class="counter" data-target="100">0</span>%</div>
+        <div class="phase-progress"><div class="phase-progress-fill" data-width="100"></div></div>
+        <div class="phase-status text-green mt-8">✅ 完了</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:8px">
+          Prismaスキーマ設計<br>認証フロー<br>基本API
+        </div>
+        <div class="timeline-connector">
+          <svg><line x1="0" y1="10" x2="40" y2="10" class="electric-line"/></svg>
+        </div>
       </div>
-      <div class="glass-card biz-stat">
-        <div class="biz-stat-value neon-magenta">$47.1B</div>
-        <div class="biz-stat-label">AIエージェント市場 (2030)</div>
+      <div class="timeline-phase cyber-card">
+        <div class="phase-label">フェーズ 2</div>
+        <div class="phase-title">コアMVP</div>
+        <div class="phase-pct text-cyan"><span class="counter" data-target="50">0</span>%</div>
+        <div class="phase-progress"><div class="phase-progress-fill" data-width="50"></div></div>
+        <div class="phase-status text-cyan mt-8">⟩ 進行中</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:8px">
+          エージェント登録<br>検索・詳細<br>トラッキング
+        </div>
+        <div class="timeline-connector">
+          <svg><line x1="0" y1="10" x2="40" y2="10" class="electric-line"/></svg>
+        </div>
       </div>
-      <div class="glass-card biz-stat">
-        <div class="biz-stat-value neon-green">54%</div>
-        <div class="biz-stat-label">CAGR</div>
+      <div class="timeline-phase cyber-card">
+        <div class="phase-label">フェーズ 3</div>
+        <div class="phase-title">収益基盤</div>
+        <div class="phase-pct text-amber"><span class="counter" data-target="20">0</span>%</div>
+        <div class="phase-progress"><div class="phase-progress-fill" data-width="20"></div></div>
+        <div class="phase-status text-amber mt-8">◇ 準備中</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:8px">
+          分配エンジン<br>ダッシュボード<br>決済連携
+        </div>
+        <div class="timeline-connector">
+          <svg><line x1="0" y1="10" x2="40" y2="10" class="electric-line"/></svg>
+        </div>
       </div>
-      <div class="glass-card biz-stat">
-        <div class="biz-stat-value neon-amber">10兆円</div>
-        <div class="biz-stat-label">日本AI市場 (2030)</div>
+      <div class="timeline-phase cyber-card">
+        <div class="phase-label">フェーズ 4</div>
+        <div class="phase-title">ローンチ</div>
+        <div class="phase-pct" style="color:rgba(255,255,255,.3)"><span class="counter" data-target="0">0</span>%</div>
+        <div class="phase-progress"><div class="phase-progress-fill" data-width="0"></div></div>
+        <div class="phase-status mt-8" style="color:rgba(255,255,255,.3)">○ 未着手</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:8px">
+          LP公開<br>ベータ招待<br>本番リリース
+        </div>
+      </div>
+    </div>
+
+    <div class="neon-divider"></div>
+    <!-- Line chart: progress over time -->
+    <div class="section-title">進捗推移</div>
+    <div class="cyber-card line-chart">
+      <svg viewBox="0 0 600 200" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--cyan)" stop-opacity=".3"/>
+            <stop offset="100%" stop-color="var(--cyan)" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- Grid lines -->
+        <line x1="0" y1="50" x2="600" y2="50" stroke="rgba(255,255,255,.03)" stroke-width="1"/>
+        <line x1="0" y1="100" x2="600" y2="100" stroke="rgba(255,255,255,.03)" stroke-width="1"/>
+        <line x1="0" y1="150" x2="600" y2="150" stroke="rgba(255,255,255,.03)" stroke-width="1"/>
+        <!-- Area -->
+        <path class="line-area" d="M0,200 L0,180 L100,170 L200,140 L300,120 L400,100 L500,80 L600,60 L600,200 Z"/>
+        <!-- Line -->
+        <path class="line-path" d="M0,180 L100,170 L200,140 L300,120 L400,100 L500,80 L600,60"/>
+        <!-- Dots -->
+        <circle class="line-dot" cx="0" cy="180" r="4"/>
+        <circle class="line-dot" cx="100" cy="170" r="4"/>
+        <circle class="line-dot" cx="200" cy="140" r="4"/>
+        <circle class="line-dot" cx="300" cy="120" r="4"/>
+        <circle class="line-dot" cx="400" cy="100" r="4"/>
+        <circle class="line-dot" cx="500" cy="80" r="4"/>
+        <circle class="line-dot" cx="600" cy="60" r="4"/>
+      </svg>
+      <div style="display:flex;justify-content:space-between;font-size:.55rem;color:rgba(255,255,255,.3);padding:4px 0">
+        <span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span><span>W7</span>
       </div>
     </div>
   </div>
 
-  <!-- TAM/SAM/SOM -->
-  <div class="biz-section">
-    <h3>&#x1F3AF; TAM / SAM / SOM</h3>
-    <div class="biz-grid">
-      <div class="glass-card biz-stat">
-        <div class="biz-stat-value neon-blue">$47.1B</div>
-        <div class="biz-stat-label">TAM — 総市場規模</div>
+  <!-- ============================================================
+       TAB 5: SPRINTS
+       ============================================================ -->
+  <div class="tab-panel" id="tab-sprint">
+    <div class="section-title">スプリント管理</div>
+    <div class="section-subtitle">全5スプリント完了</div>
+
+    <!-- Sprint completion ring -->
+    <div style="text-align:center;margin:16px 0">
+      <div class="ring-chart big-ring" style="margin:0 auto">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="52"/>
+          <circle class="ring-fill" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0" style="stroke:var(--green)"/>
+        </svg>
+        <div class="ring-value text-green">5/5</div>
       </div>
-      <div class="glass-card biz-stat">
-        <div class="biz-stat-value neon-purple">$8.2B</div>
-        <div class="biz-stat-label">SAM — 獲得可能市場</div>
+      <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-top:6px">スプリント完了率: 100%</div>
+    </div>
+
+    <div class="sprint-grid">
+      <div class="cyber-card sprint-card">
+        <div class="sprint-id">スプリント 1</div>
+        <div class="sprint-title text-green">基盤設計 ✅</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.4)">完了日: 2026-03-15</div>
+        <ul class="sprint-tasks">
+          <li>PRD構造分析</li>
+          <li>タスクグラフ構築</li>
+          <li>依存関係マッピング</li>
+        </ul>
       </div>
-      <div class="glass-card biz-stat">
-        <div class="biz-stat-value neon-pink">$2M</div>
-        <div class="biz-stat-label">SOM — 初年度目標</div>
+      <div class="cyber-card sprint-card">
+        <div class="sprint-id">スプリント 2</div>
+        <div class="sprint-title text-green">エージェント登録 ✅</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.4)">完了日: 2026-03-18</div>
+        <ul class="sprint-tasks">
+          <li>F003 登録フォーム実装</li>
+          <li>バリデーション</li>
+          <li>E2Eテスト</li>
+        </ul>
+      </div>
+      <div class="cyber-card sprint-card">
+        <div class="sprint-id">スプリント 3</div>
+        <div class="sprint-title text-green">検索・詳細 ✅</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.4)">完了日: 2026-03-21</div>
+        <ul class="sprint-tasks">
+          <li>F004 一覧・検索ページ</li>
+          <li>F005 詳細ページ</li>
+          <li>フィルタリング機能</li>
+        </ul>
+      </div>
+      <div class="cyber-card sprint-card">
+        <div class="sprint-id">スプリント 4</div>
+        <div class="sprint-title text-green">トラッキング ✅</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.4)">完了日: 2026-03-24</div>
+        <ul class="sprint-tasks">
+          <li>F006 成果トラッキングAPI</li>
+          <li>メトリクス収集</li>
+          <li>パフォーマンス最適化</li>
+        </ul>
+      </div>
+      <div class="cyber-card sprint-card">
+        <div class="sprint-id">スプリント 5</div>
+        <div class="sprint-title text-green">出品者ダッシュボード ✅</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.4)">完了日: 2026-03-27</div>
+        <ul class="sprint-tasks">
+          <li>F008 ダッシュボードUI</li>
+          <li>分析グラフ</li>
+          <li>リアルタイム更新</li>
+        </ul>
       </div>
     </div>
   </div>
 
-  <!-- 競合分析 -->
-  <div class="biz-section">
-    <h3>&#x2694;&#xFE0F; 競合分析</h3>
-    <div class="glass-card" style="overflow-x:auto">
-      <table class="biz-table">
+  <!-- ============================================================
+       TAB 6: BUSINESS PLAN (事業計画)
+       ============================================================ -->
+  <div class="tab-panel" id="tab-biz">
+    <div class="section-title">事業計画書</div>
+    <div class="section-subtitle">VERIFIED AGENT EXCHANGE — 投資家向け資料</div>
+
+    <div class="biz-section cyber-card">
+      <h3>エグゼクティブサマリー</h3>
+      <div class="biz-text">
+        <strong>Verified Agent Exchange (VAX)</strong> は、AIエージェントの品質保証付きマーケットプレイスである。
+        企業がAIエージェントを安心して導入できるよう、<strong>第三者評価</strong>・<strong>成果トラッキング</strong>・<strong>収益分配</strong>を一体化したプラットフォームを構築する。<br><br>
+        AIエージェント市場は <strong>$5.4B（2024年）→ $47.1B（2030年）</strong>、CAGR <strong>54%</strong> で成長中。
+        しかし品質基準の欠如が普及のボトルネックとなっている。VAXはこの課題を解決し、<strong>「信頼のインフラ」</strong>としてデファクトスタンダードを目指す。
+      </div>
+    </div>
+
+    <div class="biz-section cyber-card">
+      <h3>市場概要</h3>
+      <div class="biz-text">
+        <strong>市場規模:</strong> $5.4B → $47.1B（2024-2030、CAGR 54%）<br>
+        <strong>TAM:</strong> $47.1B — AIエージェント市場全体<br>
+        <strong>SAM:</strong> $4.7B — エンタープライズ向けマーケットプレイス（10%）<br>
+        <strong>SOM:</strong> $47M — 初期ターゲット（SAMの1%）
+      </div>
+    </div>
+
+    <div class="biz-section cyber-card">
+      <h3>競合分析</h3>
+      <table class="comp-matrix">
         <thead>
-          <tr><th>項目</th><th class="neon-cyan">VAX</th><th>GPT Store</th><th>Google AI</th><th>Definable</th><th>自社開発</th></tr>
+          <tr>
+            <th>機能</th>
+            <th class="text-cyan">VAX</th>
+            <th>HuggingFace</th>
+            <th>LangChain Hub</th>
+            <th>AWS Bedrock</th>
+            <th>Zapier AI</th>
+          </tr>
         </thead>
         <tbody>
-          <tr><td>課金モデル</td><td class="neon-green">成果連動</td><td>固定/サブスク</td><td>API従量</td><td>月額固定</td><td>人件費</td></tr>
-          <tr><td>エージェント種類</td><td class="neon-green">マルチ・汎用</td><td>GPTsのみ</td><td>Googleのみ</td><td>DX特化</td><td>自社のみ</td></tr>
-          <tr><td>コード保護</td><td class="neon-green">&#x2714; 完全</td><td>&#x2718;</td><td>&#x2718;</td><td>&#x25CB;</td><td>N/A</td></tr>
-          <tr><td>成果可視化</td><td class="neon-green">&#x2714; リアルタイム</td><td>&#x25CB;</td><td>&#x25CB;</td><td>&#x25B3;</td><td>&#x25B3;</td></tr>
-          <tr><td>マーケットプレイス</td><td class="neon-green">&#x2714;</td><td>&#x2714;</td><td>&#x2718;</td><td>&#x2718;</td><td>&#x2718;</td></tr>
+          <tr><td>品質認証</td><td class="comp-check">✓</td><td class="comp-x">✗</td><td class="comp-x">✗</td><td class="comp-x">✗</td><td class="comp-x">✗</td></tr>
+          <tr><td>成果トラッキング</td><td class="comp-check">✓</td><td class="comp-x">✗</td><td class="comp-x">✗</td><td class="comp-check">✓</td><td class="comp-check">✓</td></tr>
+          <tr><td>収益分配</td><td class="comp-check">✓</td><td class="comp-x">✗</td><td class="comp-x">✗</td><td class="comp-x">✗</td><td class="comp-x">✗</td></tr>
+          <tr><td>マーケットプレイス</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td></tr>
+          <tr><td>AIエージェント特化</td><td class="comp-check">✓</td><td class="comp-x">✗</td><td class="comp-check">✓</td><td class="comp-x">✗</td><td class="comp-x">✗</td></tr>
+          <tr><td>オープンソース</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-x">✗</td><td class="comp-x">✗</td></tr>
         </tbody>
       </table>
     </div>
-  </div>
 
-  <!-- 勝ち筋 -->
-  <div class="biz-section">
-    <h3>&#x1F3C6; 5つの勝ち筋（Moat）</h3>
-    <div class="biz-grid">
-      <div class="glass-card" style="padding:1.2rem;text-align:center">
-        <div class="neon-cyan" style="font-size:1.5rem;margin-bottom:.3rem">&#x1F310;</div>
-        <div style="font-weight:700;letter-spacing:.1em;margin-bottom:.3rem">ネットワーク効果</div>
-        <div style="font-size:.75rem;color:rgba(255,255,255,.5)">出品者と購入者の相互成長</div>
-      </div>
-      <div class="glass-card" style="padding:1.2rem;text-align:center">
-        <div class="neon-magenta" style="font-size:1.5rem;margin-bottom:.3rem">&#x1F4BE;</div>
-        <div style="font-weight:700;letter-spacing:.1em;margin-bottom:.3rem">データモート</div>
-        <div style="font-size:.75rem;color:rgba(255,255,255,.5)">利用データの蓄積で精度向上</div>
-      </div>
-      <div class="glass-card" style="padding:1.2rem;text-align:center">
-        <div class="neon-green" style="font-size:1.5rem;margin-bottom:.3rem">&#x1F512;</div>
-        <div style="font-weight:700;letter-spacing:.1em;margin-bottom:.3rem">スイッチングコスト</div>
-        <div style="font-size:.75rem;color:rgba(255,255,255,.5)">カスタマイズ資産の蓄積</div>
-      </div>
-      <div class="glass-card" style="padding:1.2rem;text-align:center">
-        <div class="neon-amber" style="font-size:1.5rem;margin-bottom:.3rem">&#x1F4B0;</div>
-        <div style="font-weight:700;letter-spacing:.1em;margin-bottom:.3rem">成果連動</div>
-        <div style="font-size:.75rem;color:rgba(255,255,255,.5)">業界唯一の成果ベース課金</div>
-      </div>
-      <div class="glass-card" style="padding:1.2rem;text-align:center">
-        <div class="neon-purple" style="font-size:1.5rem;margin-bottom:.3rem">&#x1F6E1;&#xFE0F;</div>
-        <div style="font-weight:700;letter-spacing:.1em;margin-bottom:.3rem">コード保護</div>
-        <div style="font-size:.75rem;color:rgba(255,255,255,.5)">知的財産の完全保護機構</div>
+    <div class="biz-section cyber-card">
+      <h3>勝ち筋（5つの競争優位）</h3>
+      <div class="biz-text">
+        <strong>1. 品質認証プロトコル:</strong> 独自の評価フレームワークで全エージェントをスコアリング<br>
+        <strong>2. 成果ベース課金:</strong> 導入効果に連動した課金モデルで顧客リスクを最小化<br>
+        <strong>3. 三位一体AIシステム:</strong> Planner/Generator/Evaluatorの自動開発パイプライン<br>
+        <strong>4. 透明性インフラ:</strong> 全エージェントの実行ログ・成果物を公開<br>
+        <strong>5. コミュニティ駆動:</strong> オープンソースで開発者エコシステムを構築
       </div>
     </div>
-  </div>
 
-  <!-- 収益フロー -->
-  <div class="biz-section">
-    <h3>&#x1F4B8; 収益フロー</h3>
-    <div class="glass-card" style="text-align:center;padding:2rem">
-      <div style="display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap;font-size:1.3rem;font-weight:700">
-        <span class="neon-green">出品者 60%</span>
-        <span style="color:rgba(255,255,255,.3)">|</span>
-        <span class="neon-blue">購入者 30%</span>
-        <span style="color:rgba(255,255,255,.3)">|</span>
-        <span class="neon-magenta">プラットフォーム 10%</span>
-      </div>
-      <div style="margin-top:1rem;font-size:.8rem;color:rgba(255,255,255,.5)">成果報酬型 — エージェントが生み出した価値に連動して分配</div>
-    </div>
-  </div>
-
-  <!-- 3シナリオ -->
-  <div class="biz-section">
-    <h3>&#x1F4C8; 収益シナリオ（年間）</h3>
-    <div class="biz-grid">
-      <div class="glass-card scenario-card">
-        <div style="font-size:.7rem;letter-spacing:.2em;color:rgba(255,255,255,.4);margin-bottom:.3rem">保守シナリオ</div>
-        <div class="scenario-val neon-blue">$120K</div>
-        <div class="scenario-label">年間収益</div>
-      </div>
-      <div class="glass-card scenario-card" style="border-color:var(--green)">
-        <div style="font-size:.7rem;letter-spacing:.2em;color:rgba(255,255,255,.4);margin-bottom:.3rem">標準シナリオ</div>
-        <div class="scenario-val neon-green">$2.4M</div>
-        <div class="scenario-label">年間収益</div>
-      </div>
-      <div class="glass-card scenario-card">
-        <div style="font-size:.7rem;letter-spacing:.2em;color:rgba(255,255,255,.4);margin-bottom:.3rem">強気シナリオ</div>
-        <div class="scenario-val neon-magenta">$18M</div>
-        <div class="scenario-label">年間収益</div>
+    <div class="biz-section cyber-card">
+      <h3>収益フロー</h3>
+      <div class="biz-text">
+        レベニューシェアモデル: <strong>60/30/10</strong><br><br>
+        <strong>プラットフォーム手数料: 60%</strong> — 取引仲介・品質保証・インフラ運用<br>
+        <strong>出品者還元: 30%</strong> — エージェント開発者への報酬<br>
+        <strong>エージェント基金: 10%</strong> — エコシステム発展・研究開発基金
       </div>
     </div>
-  </div>
 
-  <!-- 12ヶ月計画 -->
-  <div class="biz-section">
-    <h3>&#x1F4C5; 12ヶ月マイルストーン</h3>
-    <div class="glass-card" style="overflow-x:auto">
+    <div class="biz-section cyber-card">
+      <h3>収益シナリオ（3年目）</h3>
+      <div class="scenario-grid">
+        <div class="cyber-card scenario-card">
+          <div class="scenario-label text-amber">保守シナリオ</div>
+          <div class="scenario-value text-amber">$120K</div>
+          <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:4px">年間売上</div>
+          <div style="font-size:.6rem;color:rgba(255,255,255,.3);margin-top:8px">月100件取引<br>平均$100/件</div>
+        </div>
+        <div class="cyber-card scenario-card">
+          <div class="scenario-label text-cyan">標準シナリオ</div>
+          <div class="scenario-value text-cyan">$2.4M</div>
+          <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:4px">年間売上</div>
+          <div style="font-size:.6rem;color:rgba(255,255,255,.3);margin-top:8px">月2,000件取引<br>平均$100/件</div>
+        </div>
+        <div class="cyber-card scenario-card">
+          <div class="scenario-label text-green">強気シナリオ</div>
+          <div class="scenario-value text-green">$18M</div>
+          <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:4px">年間売上</div>
+          <div style="font-size:.6rem;color:rgba(255,255,255,.3);margin-top:8px">月10,000件取引<br>平均$150/件</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="biz-section cyber-card">
+      <h3>12ヶ月計画</h3>
       <table class="biz-table">
-        <thead><tr><th>月</th><th>マイルストーン</th><th>KPI</th></tr></thead>
+        <thead>
+          <tr><th>月</th><th>マイルストーン</th><th>KPI</th></tr>
+        </thead>
         <tbody>
-          <tr><td class="neon-cyan">M1-2</td><td>MVP開発・内部テスト</td><td>プロトタイプ完成</td></tr>
-          <tr><td class="neon-cyan">M3</td><td>クローズドβ開始</td><td>出品者10社</td></tr>
-          <tr><td class="neon-green">M4-5</td><td>オープンβ・初回取引</td><td>GMV $10K/月</td></tr>
-          <tr><td class="neon-green">M6</td><td>正式ローンチ</td><td>エージェント100体</td></tr>
-          <tr><td class="neon-amber">M7-9</td><td>グロースハック</td><td>GMV $100K/月</td></tr>
-          <tr><td class="neon-magenta">M10-12</td><td>シリーズA準備</td><td>GMV $850K/月・BEP</td></tr>
+          <tr><td class="biz-number">1-2月</td><td>MVP開発完了</td><td>コア機能10個実装</td></tr>
+          <tr><td class="biz-number">3月</td><td>クローズドベータ</td><td>招待ユーザー50名</td></tr>
+          <tr><td class="biz-number">4-5月</td><td>オープンベータ</td><td>登録エージェント100体</td></tr>
+          <tr><td class="biz-number">6月</td><td>正式ローンチ</td><td>月間取引100件</td></tr>
+          <tr><td class="biz-number">7-9月</td><td>グロースフェーズ</td><td>月間取引500件</td></tr>
+          <tr><td class="biz-number">10-12月</td><td>スケール</td><td>月間取引2,000件</td></tr>
         </tbody>
       </table>
     </div>
-  </div>
 
-  <!-- 資金計画 -->
-  <div class="biz-section">
-    <h3>&#x1F4B0; 資金計画</h3>
-    <div class="biz-grid">
-      <div class="glass-card biz-stat">
-        <div class="biz-stat-value neon-green">&#xA5;0</div>
-        <div class="biz-stat-label">初期投資</div>
-      </div>
-      <div class="glass-card biz-stat">
-        <div class="biz-stat-value neon-amber">&#xA5;85K</div>
-        <div class="biz-stat-label">月間コスト</div>
-      </div>
-      <div class="glass-card biz-stat">
-        <div class="biz-stat-value neon-cyan">$850K</div>
-        <div class="biz-stat-label">BEP (GMV/月)</div>
+    <div class="biz-section cyber-card">
+      <h3>資金計画</h3>
+      <div class="biz-text">
+        <strong>初期投資:</strong> ¥0（ブートストラップ）<br>
+        <strong>月間運用コスト:</strong> ¥85,000（クラウド¥30K + API¥40K + ドメイン等¥15K）<br>
+        <strong>BEP（損益分岐点）:</strong> 月間取引142件（平均¥1,000/件 × 手数料60%）<br>
+        <strong>ランウェイ:</strong> 個人資金で12ヶ月分確保済み
       </div>
     </div>
-  </div>
 
-  <!-- リスク対策 -->
-  <div class="biz-section">
-    <h3>&#x26A0;&#xFE0F; リスク対策</h3>
-    <div class="glass-card" style="overflow-x:auto">
+    <div class="biz-section cyber-card">
+      <h3>リスクと対策（6項目）</h3>
       <table class="biz-table">
         <thead><tr><th>リスク</th><th>影響度</th><th>対策</th></tr></thead>
         <tbody>
-          <tr><td>競合参入</td><td class="neon-pink">高</td><td>ネットワーク効果で先行者優位確立</td></tr>
-          <tr><td>AI規制強化</td><td class="neon-amber">中</td><td>コンプライアンス体制の先行構築</td></tr>
-          <tr><td>技術変化</td><td class="neon-amber">中</td><td>マルチLLM対応・プラグイン化</td></tr>
-          <tr><td>品質問題</td><td class="neon-amber">中</td><td>Evaluatorによる自動品質保証</td></tr>
-          <tr><td>集客困難</td><td class="neon-amber">中</td><td>コミュニティ・ドリブン成長戦略</td></tr>
-          <tr><td>資金ショート</td><td class="neon-pink">高</td><td>初期コストゼロ・リーンオペレーション</td></tr>
+          <tr><td>大手プラットフォーム参入</td><td class="text-red" style="color:var(--red)">高</td><td>ニッチ特化・コミュニティロックイン</td></tr>
+          <tr><td>AI規制強化</td><td class="text-amber">中</td><td>コンプライアンス先行対応</td></tr>
+          <tr><td>品質基準の陳腐化</td><td class="text-amber">中</td><td>継続的フレームワーク更新</td></tr>
+          <tr><td>開発者離反</td><td class="text-amber">中</td><td>高還元率・透明性維持</td></tr>
+          <tr><td>セキュリティ侵害</td><td class="text-red" style="color:var(--red)">高</td><td>多層防御・監査ログ・バグバウンティ</td></tr>
+          <tr><td>収益化の遅延</td><td class="text-amber">中</td><td>低コスト運用・段階的拡大</td></tr>
         </tbody>
       </table>
     </div>
-  </div>
 
-  <!-- チーム・技術 -->
-  <div class="biz-section">
-    <h3>&#x1F465; チーム体制 &amp; 技術スタック</h3>
-    <div class="biz-grid">
-      <div class="glass-card" style="padding:1.5rem">
-        <h4 class="neon-cyan" style="margin-bottom:.8rem;letter-spacing:.15em">チーム</h4>
-        <ul class="biz-list">
-          <li>ファウンダー / フルスタック開発</li>
-          <li>AIエージェント 3体（Planner / Generator / Evaluator）</li>
-          <li>初期は1人+AI体制 → 資金調達後に採用</li>
-        </ul>
-      </div>
-      <div class="glass-card" style="padding:1.5rem">
-        <h4 class="neon-magenta" style="margin-bottom:.8rem;letter-spacing:.15em">技術スタック</h4>
-        <ul class="biz-list">
-          <li>Next.js (App Router) / TypeScript</li>
-          <li>Prisma ORM / PostgreSQL</li>
-          <li>Stripe Connect (決済)</li>
-          <li>Vercel (ホスティング)</li>
-          <li>Claude API (AIバックエンド)</li>
-        </ul>
+    <div class="biz-section cyber-card">
+      <h3>チーム・技術スタック</h3>
+      <div class="biz-text">
+        <strong>チーム:</strong> ソロファウンダー + AI三位一体エージェント<br>
+        <strong>フロントエンド:</strong> Next.js 15 / React 19 / TypeScript / Tailwind CSS<br>
+        <strong>バックエンド:</strong> Next.js API Routes / Prisma ORM / PostgreSQL<br>
+        <strong>AI:</strong> Claude API (Opus 4 / Sonnet 4) / エージェントフレームワーク自社開発<br>
+        <strong>インフラ:</strong> Vercel / Supabase / Cloudflare<br>
+        <strong>CI/CD:</strong> GitHub Actions / 自動テスト・デプロイ
       </div>
     </div>
   </div>
-</section>
 
-<!-- ========================= TAB 7: 市場分析 ========================= -->
-<section class="tab-panel" id="panel-market">
-  <h2 class="section-title neon-blue">市場分析</h2>
+  <!-- ============================================================
+       TAB 7: MARKET ANALYSIS (市場分析)
+       ============================================================ -->
+  <div class="tab-panel" id="tab-market">
+    <div class="section-title">市場分析</div>
+    <div class="section-subtitle">AIエージェント市場の全貌</div>
 
-  <!-- TAM/SAM/SOM Concentric Circles -->
-  <h3 class="section-title neon-cyan" style="font-size:1rem">TAM / SAM / SOM</h3>
-  <div class="chart-container">
-    <div class="tam-circles">
-      <div class="tam-circle tam-tam"><div style="margin-top:15px"><strong>TAM</strong><br>$47.1B</div></div>
-      <div class="tam-circle tam-sam"><div><strong>SAM</strong><br>$8.2B</div></div>
-      <div class="tam-circle tam-som"><div><strong>SOM</strong><br>$2M</div></div>
+    <!-- TAM/SAM/SOM -->
+    <div class="cyber-card">
+      <div class="card-label text-center">TAM / SAM / SOM</div>
+      <div class="tam-circles">
+        <div class="tam-circle tam">
+          <div class="tam-label text-cyan">TAM</div>
+          <div class="tam-value text-cyan">$47.1B</div>
+          <div style="font-size:.5rem;color:rgba(255,255,255,.3)">AIエージェント市場全体</div>
+        </div>
+        <div class="tam-circle sam">
+          <div class="tam-label text-magenta">SAM</div>
+          <div class="tam-value text-magenta">$4.7B</div>
+          <div style="font-size:.5rem;color:rgba(255,255,255,.3)">エンタープライズMP</div>
+        </div>
+        <div class="tam-circle som">
+          <div class="tam-label text-green">SOM</div>
+          <div class="tam-value text-green">$47M</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="neon-divider"></div>
+
+    <!-- Growth bar chart -->
+    <div class="section-title">市場成長推移</div>
+    <div class="cyber-card">
+      <div class="bar-chart" id="growthChart">
+        <div class="bar-col">
+          <div class="bar-value">$5.4B</div>
+          <div class="bar-fill" data-height="11" style="height:0"></div>
+          <div class="bar-label">2024</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-value">$8.3B</div>
+          <div class="bar-fill" data-height="18" style="height:0"></div>
+          <div class="bar-label">2025</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-value">$12.8B</div>
+          <div class="bar-fill" data-height="27" style="height:0"></div>
+          <div class="bar-label">2026</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-value">$19.7B</div>
+          <div class="bar-fill" data-height="42" style="height:0"></div>
+          <div class="bar-label">2027</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-value">$30.3B</div>
+          <div class="bar-fill" data-height="64" style="height:0"></div>
+          <div class="bar-label">2028</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-value">$38.6B</div>
+          <div class="bar-fill" data-height="82" style="height:0"></div>
+          <div class="bar-label">2029</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-value">$47.1B</div>
+          <div class="bar-fill" data-height="100" style="height:0"></div>
+          <div class="bar-label">2030</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="neon-divider"></div>
+
+    <!-- Competition matrix -->
+    <div class="section-title">競合マトリックス</div>
+    <div class="cyber-card" style="overflow-x:auto">
+      <table class="comp-matrix">
+        <thead>
+          <tr>
+            <th>プレイヤー</th>
+            <th>品質認証</th>
+            <th>MP機能</th>
+            <th>成果課金</th>
+            <th>OSS</th>
+            <th>エージェント特化</th>
+            <th>収益分配</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="text-cyan" style="font-weight:700">VAX</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td></tr>
+          <tr><td>HuggingFace</td><td class="comp-x">✗</td><td class="comp-check">✓</td><td class="comp-x">✗</td><td class="comp-check">✓</td><td class="comp-x">✗</td><td class="comp-x">✗</td></tr>
+          <tr><td>LangChain Hub</td><td class="comp-x">✗</td><td class="comp-check">✓</td><td class="comp-x">✗</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-x">✗</td></tr>
+          <tr><td>AWS Bedrock</td><td class="comp-x">✗</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-x">✗</td><td class="comp-x">✗</td><td class="comp-x">✗</td></tr>
+          <tr><td>Zapier AI</td><td class="comp-x">✗</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-x">✗</td><td class="comp-x">✗</td><td class="comp-x">✗</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="neon-divider"></div>
+
+    <!-- Positioning map -->
+    <div class="section-title">ポジショニングマップ</div>
+    <div class="cyber-card">
+      <div class="quadrant-map" id="quadrantMap">
+        <div class="axis-x"></div>
+        <div class="axis-y"></div>
+        <div class="quadrant-label" style="top:8px;left:52%;color:var(--cyan)">エージェント特化度 →</div>
+        <div class="quadrant-label" style="top:52%;right:8px;writing-mode:vertical-rl;color:var(--magenta)">品質保証 →</div>
+        <div class="quadrant-label" style="bottom:8px;left:8px;color:rgba(255,255,255,.2)">汎用 × 低品質保証</div>
+        <div class="quadrant-label" style="top:8px;right:8px;color:rgba(0,255,136,.4)">特化 × 高品質保証</div>
+        <!-- Dots -->
+        <div class="quadrant-dot" style="left:85%;top:15%;background:var(--cyan);box-shadow:var(--glow-cyan)">
+          <div class="quadrant-dot-label text-cyan">VAX</div>
+        </div>
+        <div class="quadrant-dot" style="left:30%;top:55%;background:var(--amber);box-shadow:var(--glow-amber)">
+          <div class="quadrant-dot-label text-amber">HuggingFace</div>
+        </div>
+        <div class="quadrant-dot" style="left:65%;top:60%;background:var(--magenta);box-shadow:var(--glow-magenta)">
+          <div class="quadrant-dot-label text-magenta">LangChain</div>
+        </div>
+        <div class="quadrant-dot" style="left:25%;top:35%;background:var(--blue);box-shadow:var(--glow-blue)">
+          <div class="quadrant-dot-label text-blue" style="color:var(--blue)">AWS Bedrock</div>
+        </div>
+        <div class="quadrant-dot" style="left:20%;top:70%;background:var(--purple);box-shadow:var(--glow-purple)">
+          <div class="quadrant-dot-label" style="color:var(--purple)">Zapier AI</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Market Growth Bar Chart -->
-  <h3 class="section-title neon-green" style="font-size:1rem">市場成長予測</h3>
-  <div class="glass-card">
-    <div class="bar-chart" id="marketBarChart">
-      <div class="bar"><div class="bar-value neon-cyan">$5.4B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--cyan),var(--blue))" data-height="27"></div><div class="bar-label">2024</div></div>
-      <div class="bar"><div class="bar-value neon-cyan">$8.4B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--cyan),var(--blue))" data-height="42"></div><div class="bar-label">2025</div></div>
-      <div class="bar"><div class="bar-value neon-green">$13B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--green),var(--cyan))" data-height="65"></div><div class="bar-label">2026</div></div>
-      <div class="bar"><div class="bar-value neon-green">$20B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--green),var(--cyan))" data-height="100"></div><div class="bar-label">2027</div></div>
-      <div class="bar"><div class="bar-value neon-amber">$30B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--amber),var(--green))" data-height="150"></div><div class="bar-label">2028</div></div>
-      <div class="bar"><div class="bar-value neon-magenta">$38B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--magenta),var(--amber))" data-height="190"></div><div class="bar-label">2029</div></div>
-      <div class="bar"><div class="bar-value neon-pink">$47.1B</div><div class="bar-fill" style="background:linear-gradient(180deg,var(--pink),var(--magenta))" data-height="200"></div><div class="bar-label">2030</div></div>
-    </div>
-  </div>
-
-  <!-- 競合マトリックス -->
-  <h3 class="section-title neon-magenta" style="font-size:1rem;margin-top:2rem">競合マトリックス</h3>
-  <div class="glass-card" style="overflow-x:auto">
-    <table class="biz-table">
-      <thead><tr><th>プレイヤー</th><th>課金</th><th>マーケット</th><th>成果連動</th><th>コード保護</th><th>脅威度</th></tr></thead>
-      <tbody>
-        <tr><td class="neon-cyan">VAX</td><td>レベシェア</td><td>&#x2714;</td><td class="neon-green">&#x2714;</td><td class="neon-green">&#x2714;</td><td>—</td></tr>
-        <tr><td>GPT Store</td><td>サブスク</td><td>&#x2714;</td><td>&#x2718;</td><td>&#x2718;</td><td class="neon-pink">高</td></tr>
-        <tr><td>Google AI</td><td>従量課金</td><td>&#x2718;</td><td>&#x2718;</td><td>&#x2718;</td><td class="neon-amber">中</td></tr>
-        <tr><td>Definable</td><td>月額固定</td><td>&#x2718;</td><td>&#x25B3;</td><td>&#x25CB;</td><td class="neon-blue">低</td></tr>
-        <tr><td>自社開発</td><td>人件費</td><td>&#x2718;</td><td>N/A</td><td>N/A</td><td class="neon-blue">低</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- ポジショニングマップ -->
-  <h3 class="section-title neon-purple" style="font-size:1rem;margin-top:2rem">ポジショニングマップ</h3>
-  <div class="glass-card">
-    <div class="quadrant-map">
-      <span class="q-label top">高カスタマイズ性</span>
-      <span class="q-label bottom">低カスタマイズ性</span>
-      <span class="q-label left">低コスト</span>
-      <span class="q-label right">高コスト</span>
-      <!-- VAX -->
-      <div class="q-dot" style="top:20%;left:30%;background:var(--cyan);color:var(--cyan)"><span class="q-dot-label neon-cyan">VAX</span></div>
-      <!-- GPT Store -->
-      <div class="q-dot" style="top:40%;left:50%;background:var(--green);color:var(--green)"><span class="q-dot-label" style="color:var(--green)">GPT Store</span></div>
-      <!-- Google AI -->
-      <div class="q-dot" style="top:35%;left:75%;background:var(--amber);color:var(--amber)"><span class="q-dot-label" style="color:var(--amber)">Google AI</span></div>
-      <!-- Definable -->
-      <div class="q-dot" style="top:60%;left:55%;background:var(--purple);color:var(--purple)"><span class="q-dot-label" style="color:var(--purple)">Definable</span></div>
-      <!-- 自社開発 -->
-      <div class="q-dot" style="top:25%;left:85%;background:var(--pink);color:var(--pink)"><span class="q-dot-label" style="color:var(--pink)">自社開発</span></div>
-    </div>
-  </div>
-
-  <!-- 技術トレンド -->
-  <h3 class="section-title neon-amber" style="font-size:1rem;margin-top:2rem">技術トレンド</h3>
-  <div class="biz-grid">
-    <div class="glass-card glitch-hover" style="padding:1.2rem;text-align:center">
-      <div class="neon-cyan" style="font-size:2rem;margin-bottom:.3rem">&#x1F916;</div>
-      <div style="font-weight:700;letter-spacing:.1em">マルチエージェント</div>
-      <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.3rem">複数AIが協調して複雑なタスクを実行</div>
-    </div>
-    <div class="glass-card glitch-hover" style="padding:1.2rem;text-align:center">
-      <div class="neon-magenta" style="font-size:2rem;margin-bottom:.3rem">&#x1F50C;</div>
-      <div style="font-weight:700;letter-spacing:.1em">ツール統合</div>
-      <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.3rem">外部API・ツールとのシームレス連携</div>
-    </div>
-    <div class="glass-card glitch-hover" style="padding:1.2rem;text-align:center">
-      <div class="neon-green" style="font-size:2rem;margin-bottom:.3rem">&#x1F9E0;</div>
-      <div style="font-weight:700;letter-spacing:.1em">推論モデル</div>
-      <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.3rem">高度な推論能力を持つ次世代LLM</div>
-    </div>
-    <div class="glass-card glitch-hover" style="padding:1.2rem;text-align:center">
-      <div class="neon-amber" style="font-size:2rem;margin-bottom:.3rem">&#x1F3ED;</div>
-      <div style="font-weight:700;letter-spacing:.1em">AIファクトリー</div>
-      <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:.3rem">AI大量生産・デプロイの自動化基盤</div>
-    </div>
-  </div>
-</section>
-
-</main>
-
-<footer>
-  VAX // AI AGENT EXCHANGE — SYSTEM DASHBOARD v3.0 — MAXIMUM OVERDRIVE — &copy; 2026
-</footer>
-
-</div><!-- /app-wrapper -->
+</div><!-- /main-wrap -->
 
 <!-- ============================================================
-     JAVASCRIPT — MAXIMUM OVERDRIVE
+     JAVASCRIPT - THE ENGINE
      ============================================================ -->
 <script>
+// ================================================================
+// TASK DATA
+// ================================================================
+const TASKS = [
+  {id:'F001',name:'Prismaスキーマ再設計',status:'todo',priority:1,deps:[],
+   criteria:'全テーブル定義完了、マイグレーション成功、リレーション検証OK'},
+  {id:'F002',name:'認証フロー整備',status:'todo',priority:2,deps:[],
+   criteria:'ログイン/ログアウト/セッション管理、OAuth対応、CSRF対策'},
+  {id:'F003',name:'エージェント登録フォーム',status:'done',priority:3,deps:['F001','F002'],
+   criteria:'バリデーション完備、画像アップロード、プレビュー機能'},
+  {id:'F004',name:'エージェント一覧・検索',status:'done',priority:4,deps:['F001'],
+   criteria:'フィルタ/ソート/ページネーション、レスポンシブ対応'},
+  {id:'F005',name:'エージェント詳細ページ',status:'done',priority:5,deps:['F003'],
+   criteria:'メトリクス表示、レビュー機能、関連エージェント推薦'},
+  {id:'F006',name:'成果トラッキングAPI',status:'done',priority:6,deps:['F001','F002'],
+   criteria:'リアルタイム計測、ダッシュボード連携、履歴保存'},
+  {id:'F007',name:'分配エンジン',status:'todo',priority:7,deps:['F006'],
+   criteria:'60/30/10分配ロジック、監査ログ、異常検知'},
+  {id:'F008',name:'出品者ダッシュボード',status:'done',priority:8,deps:['F003','F006','F007'],
+   criteria:'収益グラフ、DL統計、エージェント管理UI'},
+  {id:'F009',name:'購入者ダッシュボード',status:'todo',priority:9,deps:['F005','F006','F007'],
+   criteria:'利用履歴、コスト分析、エージェント評価'},
+  {id:'F010',name:'ランディングページ',status:'todo',priority:10,deps:[],
+   criteria:'ヒーローセクション、機能紹介、CTA、レスポンシブ'}
+];
+
+// ================================================================
+// UTILITY
+// ================================================================
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+let mouseX=0,mouseY=0;
+document.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY});
+
+// ================================================================
+// NEURAL NETWORK CANVAS (Layer 1)
+// ================================================================
 (function(){
-'use strict';
+  const c=document.getElementById('neuralCanvas');
+  const ctx=c.getContext('2d');
+  let W,H;
+  const nodes=[];
+  const NODE_COUNT=120;
 
-/* ================================================================
-   TASK DATA
-   ================================================================ */
-const TASKS=[
-  {id:'F001',name:'ユーザー認証（メール/Google）',status:'完了',pri:'高',sprint:'S001',criteria:['メールアドレスでの新規登録・ログイン','Googleアカウントでのソーシャルログイン','パスワードリセット機能','JWTトークンベースの認証','セッション管理']},
-  {id:'F002',name:'ユーザープロフィール管理',status:'完了',pri:'中',sprint:'S001',criteria:['プロフィール情報の表示・編集','アバター画像のアップロード','出品者/購入者ロール切替','公開プロフィールページ']},
-  {id:'F003',name:'エージェント登録フォーム',status:'完了',pri:'高',sprint:'S002',criteria:['エージェント基本情報の入力','カテゴリ・タグの設定','コードファイルのアップロード','プレビュー機能','下書き保存']},
-  {id:'F004',name:'エージェント一覧・検索',status:'完了',pri:'高',sprint:'S002',criteria:['カテゴリ別フィルタリング','キーワード検索','ソート機能（人気順/新着順/価格順）','ページネーション','タグフィルタ']},
-  {id:'F005',name:'エージェント詳細ページ',status:'完了',pri:'高',sprint:'S003',criteria:['エージェント情報の詳細表示','デモ実行機能','レビュー・評価の表示','関連エージェントの推薦','パフォーマンスメトリクス']},
-  {id:'F006',name:'成果トラッキングAPI',status:'未着手',pri:'高',sprint:'S003',criteria:['API呼び出し回数の記録','実行結果のログ保存','成果メトリクスの集計','リアルタイムダッシュボード','Webhook通知']},
-  {id:'F007',name:'レベニューシェア計算エンジン',status:'未着手',pri:'最高',sprint:'S004',criteria:['60/30/10の分配計算','月次精算処理','最低支払額の管理','通貨換算対応','税務レポート生成']},
-  {id:'F008',name:'出品者ダッシュボード',status:'未着手',pri:'高',sprint:'S004',criteria:['売上・収益のリアルタイム表示','エージェント別パフォーマンス','顧客フィードバック一覧','出金申請・履歴','分析レポート']},
-  {id:'F009',name:'Stripe Connect決済統合',status:'未着手',pri:'最高',sprint:'S005',criteria:['Stripe Connectアカウント連携','定期課金の設定','成果連動課金の実装','支払い履歴','請求書自動生成']},
-  {id:'F010',name:'通知システム',status:'未着手',pri:'中',sprint:'S005',criteria:['アプリ内通知','メール通知','Slack連携','通知設定のカスタマイズ','リアルタイムプッシュ']},
-];
+  function resize(){
+    W=c.width=window.innerWidth;
+    H=c.height=window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize',resize);
 
-const SPRINTS=[
-  {id:'S001',name:'認証・プロフィール基盤',tasks:['F001','F002'],result:'PASS'},
-  {id:'S002',name:'エージェント登録・検索',tasks:['F003','F004'],result:'PASS'},
-  {id:'S003',name:'詳細ページ・成果API',tasks:['F005','F006'],result:'PASS'},
-  {id:'S004',name:'収益エンジン・ダッシュボード',tasks:['F007','F008'],result:'PASS'},
-  {id:'S005',name:'決済・通知統合',tasks:['F009','F010'],result:'PASS'},
-];
+  // Create nodes
+  for(let i=0;i<NODE_COUNT;i++){
+    nodes.push({
+      x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,
+      r:Math.random()*2+1,
+      pulse:0
+    });
+  }
 
-const ACTIVITY=[
-  {type:'pass',text:'F003 エージェント登録フォーム'},
-  {type:'pass',text:'F004 エージェント一覧・検索'},
-  {type:'pass',text:'F005 エージェント詳細ページ'},
-  {type:'pass',text:'F006 成果トラッキングAPI'},
-  {type:'pass',text:'F008 出品者ダッシュボード'},
-];
+  // Data packets
+  const packets=[];
+  function spawnPacket(){
+    if(nodes.length<2)return;
+    const a=nodes[Math.floor(Math.random()*nodes.length)];
+    const b=nodes[Math.floor(Math.random()*nodes.length)];
+    if(a===b)return;
+    packets.push({ax:a.x,ay:a.y,bx:b.x,by:b.y,t:0,speed:.005+Math.random()*.01});
+  }
+  setInterval(spawnPacket,200);
 
-/* ================================================================
-   TAB NAVIGATION
-   ================================================================ */
-const tabBtns=document.querySelectorAll('.tab-btn');
-const tabPanels=document.querySelectorAll('.tab-panel');
-tabBtns.forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    tabBtns.forEach(b=>b.classList.remove('active'));
-    tabPanels.forEach(p=>p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
-    animateVisibleElements();
-  });
-});
-
-/* ================================================================
-   CIRCUIT BOARD BACKGROUND
-   ================================================================ */
-const circuitC=document.getElementById('circuitCanvas');
-const circuitCtx=circuitC.getContext('2d');
-let cW,cH;
-function resizeCircuit(){cW=circuitC.width=window.innerWidth;cH=circuitC.height=window.innerHeight}
-resizeCircuit();
-window.addEventListener('resize',resizeCircuit);
-
-const nodes=[];
-const nodeCount=80;
-for(let i=0;i<nodeCount;i++){
-  nodes.push({x:Math.random()*cW,y:Math.random()*cH,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:1.5+Math.random()*2,pulse:Math.random()*Math.PI*2});
-}
-function drawCircuit(t){
-  circuitCtx.clearRect(0,0,cW,cH);
-  // Grid lines
-  circuitCtx.strokeStyle='rgba(0,255,242,.025)';
-  circuitCtx.lineWidth=.5;
-  for(let x=0;x<cW;x+=60){circuitCtx.beginPath();circuitCtx.moveTo(x,0);circuitCtx.lineTo(x,cH);circuitCtx.stroke()}
-  for(let y=0;y<cH;y+=60){circuitCtx.beginPath();circuitCtx.moveTo(0,y);circuitCtx.lineTo(cW,y);circuitCtx.stroke()}
-
-  // Connections
-  for(let i=0;i<nodes.length;i++){
-    for(let j=i+1;j<nodes.length;j++){
-      const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;
-      const dist=Math.sqrt(dx*dx+dy*dy);
-      if(dist<150){
-        const alpha=(.15*(1-dist/150))*(0.5+0.5*Math.sin(t/1000+nodes[i].pulse));
-        circuitCtx.strokeStyle=`rgba(0,255,242,${alpha})`;
-        circuitCtx.lineWidth=.5;
-        circuitCtx.beginPath();circuitCtx.moveTo(nodes[i].x,nodes[i].y);circuitCtx.lineTo(nodes[j].x,nodes[j].y);circuitCtx.stroke();
-        // Data pulse
-        if(dist<80&&Math.random()<.001){
-          const px=nodes[i].x+(nodes[j].x-nodes[i].x)*((t/500)%1);
-          const py=nodes[i].y+(nodes[j].y-nodes[i].y)*((t/500)%1);
-          circuitCtx.fillStyle='rgba(0,255,242,.8)';
-          circuitCtx.beginPath();circuitCtx.arc(px,py,2,0,Math.PI*2);circuitCtx.fill();
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // Update nodes
+    for(const n of nodes){
+      n.x+=n.vx;n.y+=n.vy;
+      if(n.x<0||n.x>W)n.vx*=-1;
+      if(n.y<0||n.y>H)n.vy*=-1;
+      n.pulse*=.95;
+    }
+    // Draw connections
+    const maxDist=150;
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const dx=nodes[i].x-nodes[j].x;
+        const dy=nodes[i].y-nodes[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<maxDist){
+          const alpha=(1-d/maxDist)*.12;
+          ctx.strokeStyle=`rgba(0,255,242,${alpha})`;
+          ctx.lineWidth=.5;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x,nodes[i].y);
+          ctx.lineTo(nodes[j].x,nodes[j].y);
+          ctx.stroke();
         }
       }
     }
+    // Draw nodes with mouse proximity glow
+    for(const n of nodes){
+      const dx=n.x-mouseX,dy=n.y-mouseY;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      const prox=Math.max(0,1-dist/200);
+      const glow=prox*.8+n.pulse;
+      const alpha=.3+glow*.7;
+      ctx.fillStyle=`rgba(0,255,242,${Math.min(1,alpha)})`;
+      ctx.shadowColor='rgba(0,255,242,.6)';
+      ctx.shadowBlur=glow*15;
+      ctx.beginPath();
+      ctx.arc(n.x,n.y,n.r+glow*2,0,Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur=0;
+    }
+    // Draw packets
+    for(let i=packets.length-1;i>=0;i--){
+      const p=packets[i];
+      p.t+=p.speed;
+      if(p.t>=1){
+        // Pulse target node
+        let closest=null,closestDist=Infinity;
+        for(const n of nodes){
+          const d=Math.abs(n.x-p.bx)+Math.abs(n.y-p.by);
+          if(d<closestDist){closestDist=d;closest=n}
+        }
+        if(closest)closest.pulse=1;
+        packets.splice(i,1);continue;
+      }
+      const x=p.ax+(p.bx-p.ax)*p.t;
+      const y=p.ay+(p.by-p.ay)*p.t;
+      ctx.fillStyle='rgba(0,255,242,.9)';
+      ctx.shadowColor='rgba(0,255,242,.8)';
+      ctx.shadowBlur=8;
+      ctx.beginPath();
+      ctx.arc(x,y,2,0,Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur=0;
+    }
+    requestAnimationFrame(draw);
   }
-  // Nodes
-  nodes.forEach(n=>{
-    n.x+=n.vx;n.y+=n.vy;
-    if(n.x<0||n.x>cW)n.vx*=-1;
-    if(n.y<0||n.y>cH)n.vy*=-1;
-    const glow=.3+.3*Math.sin(t/800+n.pulse);
-    circuitCtx.fillStyle=`rgba(0,255,242,${glow})`;
-    circuitCtx.beginPath();circuitCtx.arc(n.x,n.y,n.r,0,Math.PI*2);circuitCtx.fill();
-  });
-}
+  draw();
+})();
 
-/* ================================================================
-   MATRIX RAIN
-   ================================================================ */
-const matrixC=document.getElementById('matrixCanvas');
-const matrixCtx=matrixC.getContext('2d');
-function resizeMatrix(){matrixC.width=window.innerWidth;matrixC.height=window.innerHeight}
-resizeMatrix();
-window.addEventListener('resize',resizeMatrix);
-const katakana='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-const fontSize=14;
-const columns=Math.floor(matrixC.width/fontSize);
-const drops=new Array(columns).fill(1).map(()=>Math.random()*matrixC.height/fontSize|0);
-const speeds=new Array(columns).fill(0).map(()=>.5+Math.random()*1.5);
-function drawMatrix(){
-  matrixCtx.fillStyle='rgba(3,3,8,.1)';
-  matrixCtx.fillRect(0,0,matrixC.width,matrixC.height);
-  matrixCtx.font=fontSize+'px monospace';
-  for(let i=0;i<drops.length;i++){
-    const char=katakana[Math.random()*katakana.length|0];
-    const green=Math.random()>.3;
-    matrixCtx.fillStyle=green?`rgba(0,255,136,${.3+Math.random()*.5})`:`rgba(0,255,242,${.2+Math.random()*.4})`;
-    matrixCtx.fillText(char,i*fontSize,drops[i]*fontSize);
-    drops[i]+=speeds[i];
-    if(drops[i]*fontSize>matrixC.height&&Math.random()>.975)drops[i]=0;
+// ================================================================
+// MATRIX RAIN (Layer 2)
+// ================================================================
+(function(){
+  const c=document.getElementById('matrixCanvas');
+  const ctx=c.getContext('2d');
+  let W,H;
+  const katakana='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+  const nums='0123456789';
+  const chars=katakana+nums;
+  const columns=[];
+  const fontSize=14;
+
+  function resize(){
+    W=c.width=window.innerWidth;
+    H=c.height=window.innerHeight;
+    const colCount=Math.floor(W/fontSize);
+    while(columns.length<colCount)columns.push({y:Math.random()*H/fontSize|0,speed:.5+Math.random()*1.5,opacity:.3+Math.random()*.7});
   }
-}
+  resize();
+  window.addEventListener('resize',resize);
 
-/* ================================================================
-   FLOATING GEOMETRY
-   ================================================================ */
-const geoC=document.getElementById('geoCanvas');
-const geoCtx=geoC.getContext('2d');
-function resizeGeo(){geoC.width=window.innerWidth;geoC.height=window.innerHeight}
-resizeGeo();
-window.addEventListener('resize',resizeGeo);
-const shapes=[];
-for(let i=0;i<15;i++){
-  shapes.push({
-    x:Math.random()*geoC.width,y:Math.random()*geoC.height,
-    size:30+Math.random()*60,rot:Math.random()*Math.PI*2,
-    rotSpeed:(Math.random()-.5)*.01,
-    type:['hex','tri','diamond'][Math.random()*3|0],
-    color:[`rgba(0,255,242,.12)`,`rgba(255,0,255,.1)`,`rgba(0,102,255,.1)`,`rgba(139,0,255,.08)`][Math.random()*4|0],
-    vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,
-  });
-}
-function drawHex(ctx,x,y,r,rot){ctx.beginPath();for(let i=0;i<6;i++){const a=rot+i*Math.PI/3;ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a))}ctx.closePath()}
-function drawTri(ctx,x,y,r,rot){ctx.beginPath();for(let i=0;i<3;i++){const a=rot+i*Math.PI*2/3;ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a))}ctx.closePath()}
-function drawDiamond(ctx,x,y,r,rot){ctx.beginPath();for(let i=0;i<4;i++){const a=rot+i*Math.PI/2;ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a))}ctx.closePath()}
-function drawGeo(t){
-  geoCtx.clearRect(0,0,geoC.width,geoC.height);
-  shapes.forEach(s=>{
-    s.x+=s.vx;s.y+=s.vy;s.rot+=s.rotSpeed;
-    if(s.x<-100)s.x=geoC.width+100;if(s.x>geoC.width+100)s.x=-100;
-    if(s.y<-100)s.y=geoC.height+100;if(s.y>geoC.height+100)s.y=-100;
-    geoCtx.strokeStyle=s.color;geoCtx.lineWidth=1;
-    if(s.type==='hex')drawHex(geoCtx,s.x,s.y,s.size,s.rot);
-    else if(s.type==='tri')drawTri(geoCtx,s.x,s.y,s.size,s.rot);
-    else drawDiamond(geoCtx,s.x,s.y,s.size,s.rot);
-    geoCtx.stroke();
-  });
-}
+  function draw(){
+    ctx.fillStyle='rgba(3,3,8,.08)';
+    ctx.fillRect(0,0,W,H);
+    for(let i=0;i<columns.length;i++){
+      const col=columns[i];
+      const ch=chars[Math.floor(Math.random()*chars.length)];
+      const x=i*fontSize;
+      const y=col.y*fontSize;
+      ctx.fillStyle=`rgba(0,255,242,${col.opacity})`;
+      ctx.font=`${fontSize}px monospace`;
+      ctx.fillText(ch,x,y);
+      // Head glow
+      ctx.fillStyle=`rgba(200,255,255,${col.opacity})`;
+      ctx.fillText(ch,x,y);
+      col.y+=col.speed;
+      if(col.y*fontSize>H&&Math.random()>.98){
+        col.y=0;col.speed=.5+Math.random()*1.5;
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
 
-/* ================================================================
-   MOUSE TRAIL PARTICLES
-   ================================================================ */
-const pCanvas=document.getElementById('particle-canvas');
-const pCtx=pCanvas.getContext('2d');
-function resizeP(){pCanvas.width=window.innerWidth;pCanvas.height=window.innerHeight}
-resizeP();
-window.addEventListener('resize',resizeP);
-const particles=[];
-let mouseX=0,mouseY=0;
-document.addEventListener('mousemove',e=>{
-  mouseX=e.clientX;mouseY=e.clientY;
-  for(let i=0;i<2;i++){
+// ================================================================
+// PARTICLE NEBULA (Layer 3)
+// ================================================================
+(function(){
+  const c=document.getElementById('nebulaCanvas');
+  const ctx=c.getContext('2d');
+  let W,H;
+  const particles=[];
+  const COUNT=250;
+  const colors=['0,255,242','255,0,255','0,102,255','139,0,255'];
+
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
+  resize();
+  window.addEventListener('resize',resize);
+
+  for(let i=0;i<COUNT;i++){
     particles.push({
-      x:mouseX,y:mouseY,
-      vx:(Math.random()-.5)*2,vy:(Math.random()-.5)*2,
-      life:1,decay:.015+Math.random()*.02,
-      color:['#00fff2','#ff00ff','#00ff88','#0066ff'][Math.random()*4|0],
-      size:1+Math.random()*2,
+      x:Math.random()*2000,y:Math.random()*2000,
+      vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,
+      r:Math.random()*1.5+.5,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      alpha:.1+Math.random()*.4
     });
   }
-});
-function drawParticles(){
-  pCtx.clearRect(0,0,pCanvas.width,pCanvas.height);
-  for(let i=particles.length-1;i>=0;i--){
-    const p=particles[i];
-    p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;
-    if(p.life<=0){particles.splice(i,1);continue}
-    pCtx.globalAlpha=p.life;
-    pCtx.fillStyle=p.color;
-    pCtx.shadowColor=p.color;pCtx.shadowBlur=8;
-    pCtx.beginPath();pCtx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);pCtx.fill();
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(const p of particles){
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      ctx.fillStyle=`rgba(${p.color},${p.alpha})`;
+      ctx.shadowColor=`rgba(${p.color},.3)`;
+      ctx.shadowBlur=6;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.shadowBlur=0;
+    requestAnimationFrame(draw);
   }
-  pCtx.globalAlpha=1;pCtx.shadowBlur=0;
+  draw();
+})();
+
+// ================================================================
+// SCAN GRID (Layer 4)
+// ================================================================
+(function(){
+  const c=document.getElementById('gridCanvas');
+  const ctx=c.getContext('2d');
+  let W,H;
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
+  resize();
+  window.addEventListener('resize',resize);
+
+  let offset=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(0,255,242,.15)';
+    ctx.lineWidth=.5;
+    const gridSize=40;
+    const vanishY=H*.3;
+    const horizon=H*.6;
+    // Horizontal lines (perspective)
+    for(let i=0;i<20;i++){
+      const t=i/20;
+      const y=horizon+Math.pow(t,1.5)*(H-horizon);
+      const spread=t*W*.3;
+      ctx.globalAlpha=t*.3;
+      ctx.beginPath();
+      ctx.moveTo(-spread,y);
+      ctx.lineTo(W+spread,y);
+      ctx.stroke();
+    }
+    // Vertical lines
+    const vLines=30;
+    for(let i=0;i<=vLines;i++){
+      const x=W/2+(i-vLines/2)*gridSize;
+      ctx.globalAlpha=.1;
+      ctx.beginPath();
+      ctx.moveTo(W/2,horizon);
+      ctx.lineTo(x,H);
+      ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+    // Moving scan line
+    offset=(offset+.5)%H;
+    ctx.strokeStyle='rgba(0,255,242,.2)';
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(0,horizon+offset*.4);
+    ctx.lineTo(W,horizon+offset*.4);
+    ctx.stroke();
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ================================================================
+// HOLOGRAPHIC GEOMETRY (Layer 5 - CSS)
+// ================================================================
+(function(){
+  const container=document.getElementById('holoGeo');
+  const shapes=12;
+  for(let i=0;i<shapes;i++){
+    const el=document.createElement('div');
+    el.className='holo-shape';
+    const size=40+Math.random()*80;
+    el.style.cssText=`
+      width:${size}px;height:${size}px;
+      top:${Math.random()*100}vh;left:${Math.random()*100}vw;
+      animation-duration:${15+Math.random()*25}s;
+      animation-delay:${-Math.random()*10}s;
+      border-radius:${Math.random()>.5?'50%':'0'};
+    `;
+    container.appendChild(el);
+  }
+})();
+
+// ================================================================
+// LIVE CLOCK
+// ================================================================
+(function(){
+  const el=document.getElementById('hudClock');
+  const days=['日','月','火','水','木','金','土'];
+  function update(){
+    const now=new Date();
+    const h=String(now.getHours()).padStart(2,'0');
+    const m=String(now.getMinutes()).padStart(2,'0');
+    const s=String(now.getSeconds()).padStart(2,'0');
+    const ms=String(now.getMilliseconds()).padStart(3,'0');
+    const y=now.getFullYear();
+    const mo=String(now.getMonth()+1).padStart(2,'0');
+    const d=String(now.getDate()).padStart(2,'0');
+    const day=days[now.getDay()];
+    el.innerHTML=`<div class="time">${h}:${m}:${s}.<span style="opacity:.5">${ms}</span></div><div class="date">${y}年${mo}月${d}日（${day}）</div>`;
+    requestAnimationFrame(update);
+  }
+  update();
+})();
+
+// ================================================================
+// SUBTITLE TYPEWRITER
+// ================================================================
+(function(){
+  const text='VERIFIED AGENT EXCHANGE ── サイバーパンク・ダッシュボード';
+  const el=document.getElementById('subtitleTyped');
+  let i=0;
+  function type(){
+    if(i<=text.length){
+      el.innerHTML=text.substring(0,i)+'<span class="typed-cursor">|</span>';
+      i++;
+      setTimeout(type,50);
+    }
+  }
+  setTimeout(type,800);
+})();
+
+// ================================================================
+// TAB SWITCHING
+// ================================================================
+const navTabs=document.querySelectorAll('.nav-tab');
+const panels=document.querySelectorAll('.tab-panel');
+const staticFlash=document.getElementById('staticFlash');
+
+function switchTab(tabId){
+  // Static noise flash
+  staticFlash.classList.add('show');
+  setTimeout(()=>staticFlash.classList.remove('show'),80);
+
+  navTabs.forEach(t=>t.classList.remove('active'));
+  panels.forEach(p=>{p.classList.remove('active');p.style.display='none'});
+
+  const btn=document.querySelector(`[data-tab="${tabId}"]`);
+  const panel=document.getElementById(tabId);
+  if(btn)btn.classList.add('active');
+  if(panel){
+    panel.style.display='block';
+    // Re-trigger animation
+    panel.classList.remove('active');
+    void panel.offsetWidth;
+    panel.classList.add('active');
+  }
+
+  // Animate elements in new tab
+  setTimeout(()=>{
+    animateCounters(panel);
+    animateBars();
+    animateProgressBars();
+    animateRings();
+  },100);
 }
 
-/* ================================================================
-   CLICK RIPPLE
-   ================================================================ */
-document.addEventListener('click',e=>{
-  const r1=document.createElement('div');r1.className='click-ripple';
-  r1.style.left=e.clientX+'px';r1.style.top=e.clientY+'px';
-  document.body.appendChild(r1);
-  const r2=document.createElement('div');r2.className='click-ripple-inner';
-  r2.style.left=e.clientX+'px';r2.style.top=e.clientY+'px';
-  document.body.appendChild(r2);
-  setTimeout(()=>{r1.remove();r2.remove()},900);
+navTabs.forEach(btn=>{
+  btn.addEventListener('click',()=>switchTab(btn.dataset.tab));
 });
 
-/* ================================================================
-   3D TILT ON CARDS
-   ================================================================ */
-document.querySelectorAll('.glass-card').forEach(card=>{
+// Keyboard shortcuts 1-7
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  const num=parseInt(e.key);
+  if(num>=1&&num<=7){
+    const tabs=['tab-dash','tab-tasks','tab-agents','tab-roadmap','tab-sprint','tab-biz','tab-market'];
+    switchTab(tabs[num-1]);
+  }
+});
+
+// ================================================================
+// COUNTER ANIMATION
+// ================================================================
+function animateCounters(scope){
+  const counters=(scope||document).querySelectorAll('.counter');
+  counters.forEach(el=>{
+    const target=parseInt(el.dataset.target);
+    const duration=1500;
+    const start=performance.now();
+    function update(now){
+      const elapsed=now-start;
+      const progress=Math.min(elapsed/duration,1);
+      const eased=1-Math.pow(1-progress,3);
+      el.textContent=Math.round(target*eased);
+      if(progress<1)requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  });
+}
+
+// ================================================================
+// RING CHART ANIMATION
+// ================================================================
+function animateRings(){
+  document.querySelectorAll('.ring-fill[data-pct],.ring-glow[data-pct]').forEach(el=>{
+    const pct=parseFloat(el.dataset.pct)/100;
+    const circumference=326.7;
+    const offset=circumference*(1-pct);
+    el.style.strokeDashoffset=offset;
+  });
+}
+
+// ================================================================
+// BAR CHART ANIMATION
+// ================================================================
+function animateBars(){
+  document.querySelectorAll('.bar-fill[data-height]').forEach(el=>{
+    setTimeout(()=>{
+      el.style.height=el.dataset.height+'%';
+    },100);
+  });
+}
+
+// ================================================================
+// PROGRESS BAR ANIMATION
+// ================================================================
+function animateProgressBars(){
+  document.querySelectorAll('.phase-progress-fill[data-width]').forEach(el=>{
+    setTimeout(()=>{
+      el.style.width=el.dataset.width+'%';
+    },200);
+  });
+}
+
+// ================================================================
+// TASK TABLE RENDERING
+// ================================================================
+function renderTasks(tasks){
+  const tbody=document.getElementById('taskBody');
+  tbody.innerHTML='';
+  tasks.forEach(t=>{
+    const statusClass=t.status==='done'?'done':t.status==='wip'?'wip':'todo';
+    const statusText=t.status==='done'?'完了':t.status==='wip'?'進行中':'未着手';
+    const tr=document.createElement('tr');
+    tr.dataset.taskId=t.id;
+    tr.innerHTML=`
+      <td class="task-id">${t.id}</td>
+      <td>${t.name}</td>
+      <td><span class="task-status ${statusClass}">${statusText}</span></td>
+      <td class="task-priority">P${t.priority}</td>
+      <td class="task-deps">${t.deps.length?t.deps.join(', '):'—'}</td>
+    `;
+    tr.addEventListener('click',()=>toggleExpand(t.id));
+    tbody.appendChild(tr);
+
+    // Expandable row
+    const expTr=document.createElement('tr');
+    expTr.className='task-expand';
+    expTr.id='expand-'+t.id;
+    expTr.innerHTML=`<td colspan="5"><strong>受入基準:</strong> ${t.criteria}<br><strong>依存関係:</strong> ${t.deps.length?t.deps.join(' → '):'なし'}</td>`;
+    tbody.appendChild(expTr);
+  });
+}
+
+function toggleExpand(id){
+  const el=document.getElementById('expand-'+id);
+  if(el)el.classList.toggle('open');
+}
+
+// Search
+document.getElementById('taskSearch').addEventListener('input',e=>{
+  const q=e.target.value.toLowerCase();
+  const filtered=TASKS.filter(t=>
+    t.id.toLowerCase().includes(q)||
+    t.name.toLowerCase().includes(q)
+  );
+  applyFiltersAndSort(filtered);
+});
+
+// Filter
+let currentFilter='all';
+function filterTasks(filter,btn){
+  currentFilter=filter;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  applyFiltersAndSort();
+}
+
+// Sort
+function sortTasks(){
+  applyFiltersAndSort();
+}
+
+function applyFiltersAndSort(taskList){
+  let tasks=taskList||TASKS;
+  // Filter
+  if(currentFilter!=='all'){
+    tasks=tasks.filter(t=>t.status===currentFilter);
+  }
+  // Search
+  const q=document.getElementById('taskSearch').value.toLowerCase();
+  if(q){
+    tasks=tasks.filter(t=>t.id.toLowerCase().includes(q)||t.name.toLowerCase().includes(q));
+  }
+  // Sort
+  const sortBy=document.getElementById('taskSort').value;
+  tasks=[...tasks].sort((a,b)=>{
+    if(sortBy==='priority')return a.priority-b.priority;
+    if(sortBy==='status'){
+      const order={done:0,wip:1,todo:2};
+      return order[a.status]-order[b.status];
+    }
+    return a.priority-b.priority;
+  });
+  renderTasks(tasks);
+}
+
+// Initial render
+renderTasks(TASKS);
+
+// ================================================================
+// CARD 3D TILT + HOLOGRAPHIC
+// ================================================================
+document.querySelectorAll('.cyber-card').forEach(card=>{
   card.addEventListener('mousemove',e=>{
     const rect=card.getBoundingClientRect();
-    const x=(e.clientX-rect.left)/rect.width-.5;
-    const y=(e.clientY-rect.top)/rect.height-.5;
-    card.style.transform=`perspective(800px) rotateY(${x*8}deg) rotateX(${-y*8}deg) translateY(-4px)`;
+    const x=(e.clientX-rect.left)/rect.width;
+    const y=(e.clientY-rect.top)/rect.height;
+    const tiltX=(y-.5)*8;
+    const tiltY=(x-.5)*-8;
+    card.style.transform=`perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-4px)`;
+    // Holographic shift
+    if(card.querySelector('::after')){
+      card.style.setProperty('--holo-x',x*100+'%');
+      card.style.setProperty('--holo-y',y*100+'%');
+    }
   });
   card.addEventListener('mouseleave',()=>{
     card.style.transform='';
   });
+  // Click ripple + screen flash
+  card.addEventListener('click',e=>{
+    const rect=card.getBoundingClientRect();
+    const ripple=document.createElement('div');
+    ripple.className='ripple';
+    ripple.style.left=(e.clientX-rect.left)+'px';
+    ripple.style.top=(e.clientY-rect.top)+'px';
+    ripple.style.width=ripple.style.height=Math.max(rect.width,rect.height)+'px';
+    card.appendChild(ripple);
+    setTimeout(()=>ripple.remove(),600);
+    // Screen flash
+    const flash=document.getElementById('screenFlash');
+    flash.classList.add('active');
+    setTimeout(()=>flash.classList.remove('active'),80);
+  });
 });
 
-/* ================================================================
-   COUNTUP ANIMATION
-   ================================================================ */
-function animateCountUps(){
-  document.querySelectorAll('.countup').forEach(el=>{
-    const target=parseInt(el.dataset.target)||0;
-    if(el.dataset.done)return;
-    el.dataset.done='1';
-    let current=0;
-    const step=Math.max(1,Math.ceil(target/40));
-    const iv=setInterval(()=>{
-      current+=step;
-      if(current>=target){current=target;clearInterval(iv)}
-      el.textContent=current;
-    },40);
-  });
-}
-
-/* ================================================================
-   RING ANIMATION
-   ================================================================ */
-function animateRings(){
-  document.querySelectorAll('.ring-fill').forEach(circle=>{
-    const target=parseInt(circle.dataset.target)||0;
-    setTimeout(()=>{circle.style.strokeDashoffset=220-target},300);
-  });
-}
-
-/* ================================================================
-   BAR CHART ANIMATION
-   ================================================================ */
-function animateBars(){
-  document.querySelectorAll('.bar-fill').forEach(bar=>{
-    const h=parseInt(bar.dataset.height)||0;
-    setTimeout(()=>{bar.style.height=h+'px'},300);
-  });
-}
-
-/* ================================================================
-   ACTIVITY FEED — TYPING ANIMATION
-   ================================================================ */
-function buildActivityFeed(){
-  const feed=document.getElementById('activityFeed');
-  if(!feed||feed.children.length>0)return;
-  ACTIVITY.forEach((item,i)=>{
-    const div=document.createElement('div');
-    div.className='activity-item';
-    div.style.animationDelay=(i*0.3)+'s';
-    div.innerHTML=`<span class="${item.type}">[${item.type.toUpperCase()}]</span> ${item.text}`;
-    feed.appendChild(div);
-  });
-}
-
-/* ================================================================
-   TASK TABLE
-   ================================================================ */
-function buildTaskTable(){
-  const tbody=document.querySelector('#taskTable tbody');
-  if(!tbody||tbody.children.length>0)return;
-  TASKS.forEach(t=>{
-    const statusClass=t.status==='完了'?'badge-done':t.status==='進行中'?'badge-progress':'badge-todo';
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td class="neon-cyan">${t.id}</td>
-      <td>${t.name}</td>
-      <td><span class="badge ${statusClass}">${t.status}</span></td>
-      <td>${t.pri}</td>
-      <td>${t.sprint}</td>
-      <td><button class="expand-btn" data-id="${t.id}">&#x25BC;</button></td>`;
-    tbody.appendChild(tr);
-    const ctr=document.createElement('tr');
-    ctr.className='criteria-row';
-    ctr.id='criteria-'+t.id;
-    ctr.innerHTML=`<td colspan="6"><strong>受入条件:</strong><br>${t.criteria.map(c=>'&#x25B8; '+c).join('<br>')}</td>`;
-    tbody.appendChild(ctr);
-  });
-  tbody.addEventListener('click',e=>{
-    if(e.target.classList.contains('expand-btn')){
-      const id=e.target.dataset.id;
-      document.getElementById('criteria-'+id).classList.toggle('open');
-      e.target.textContent=e.target.textContent==='▼'?'▲':'▼';
-    }
-  });
-}
-
-/* ================================================================
-   SPRINT GRID
-   ================================================================ */
-function buildSprintGrid(){
-  const grid=document.getElementById('sprintGrid');
-  if(!grid||grid.children.length>0)return;
-  SPRINTS.forEach(s=>{
-    const card=document.createElement('div');
-    card.className='glass-card sprint-card glitch-hover data-corrupt';
-    card.innerHTML=`
-      <div class="sprint-pass">&#x2714;</div>
-      <div class="sprint-id neon-cyan">${s.id}</div>
-      <div style="font-weight:700;margin:.3rem 0;letter-spacing:.1em">${s.name}</div>
-      <div class="sprint-label">タスク: ${s.tasks.join(', ')}</div>
-      <div class="sprint-label" style="margin-top:.3rem">結果: <span class="neon-green">PASS</span></div>
-      <div class="sound-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>`;
-    grid.appendChild(card);
-  });
-}
-
-/* ================================================================
-   ANIMATE VISIBLE ELEMENTS
-   ================================================================ */
-function animateVisibleElements(){
-  animateCountUps();
-  animateRings();
-  animateBars();
-  buildActivityFeed();
-  buildTaskTable();
-  buildSprintGrid();
-  // re-apply 3D tilt to new cards
-  document.querySelectorAll('.glass-card').forEach(card=>{
-    if(card.dataset.tilt)return;
-    card.dataset.tilt='1';
-    card.addEventListener('mousemove',e=>{
-      const rect=card.getBoundingClientRect();
-      const x=(e.clientX-rect.left)/rect.width-.5;
-      const y=(e.clientY-rect.top)/rect.height-.5;
-      card.style.transform=`perspective(800px) rotateY(${x*8}deg) rotateX(${-y*8}deg) translateY(-4px)`;
+// ================================================================
+// SPARKLE PARTICLES ON KPI VALUES
+// ================================================================
+(function(){
+  function spawnSparkle(){
+    document.querySelectorAll('.kpi-value').forEach(el=>{
+      if(Math.random()>.7)return;
+      const rect=el.getBoundingClientRect();
+      const s=document.createElement('div');
+      s.className='sparkle';
+      s.style.left=Math.random()*rect.width+'px';
+      s.style.top=Math.random()*rect.height+'px';
+      s.style.setProperty('--sx',(Math.random()-.5)*30+'px');
+      s.style.setProperty('--sy',(Math.random()-.5)*30+'px');
+      const colors=['var(--cyan)','var(--magenta)','var(--green)','var(--amber)'];
+      s.style.background=colors[Math.floor(Math.random()*colors.length)];
+      el.style.position='relative';
+      el.appendChild(s);
+      setTimeout(()=>s.remove(),1000);
     });
-    card.addEventListener('mouseleave',()=>{card.style.transform=''});
-  });
-}
-
-/* ================================================================
-   MAIN ANIMATION LOOP
-   ================================================================ */
-let frame=0;
-function animate(t){
-  frame++;
-  drawCircuit(t);
-  if(frame%2===0)drawMatrix();
-  drawGeo(t);
-  drawParticles();
-  requestAnimationFrame(animate);
-}
-requestAnimationFrame(animate);
-
-/* ================================================================
-   PARALLAX ON SCROLL
-   ================================================================ */
-window.addEventListener('scroll',()=>{
-  const s=window.scrollY;
-  const circuit=document.getElementById('circuit-bg');
-  const matrix=document.getElementById('matrix-rain');
-  const geo=document.getElementById('geo-layer');
-  if(circuit)circuit.style.transform=`translateY(${s*.05}px)`;
-  if(matrix)matrix.style.transform=`translateY(${s*.1}px)`;
-  if(geo)geo.style.transform=`translateY(${s*.15}px)`;
-});
-
-/* ================================================================
-   INIT
-   ================================================================ */
-animateVisibleElements();
-
+  }
+  setInterval(spawnSparkle,800);
 })();
+
+// ================================================================
+// MINIMAP
+// ================================================================
+(function(){
+  const minimap=document.getElementById('minimap');
+  const viewport=document.getElementById('minimapViewport');
+  function updateMinimap(){
+    const scrollH=document.documentElement.scrollHeight;
+    const viewH=window.innerHeight;
+    const scrollTop=window.scrollY;
+    const ratio=100/scrollH;
+    viewport.style.top=(scrollTop*ratio)+'px';
+    viewport.style.height=(viewH*ratio)+'px';
+    requestAnimationFrame(updateMinimap);
+  }
+  updateMinimap();
+})();
+
+// ================================================================
+// BOTTOM BAR METRICS ANIMATION
+// ================================================================
+(function(){
+  function randomize(){
+    const cpu=20+Math.random()*15;
+    const mem=(4+Math.random()*.5).toFixed(1);
+    const net=(1+Math.random()*.5).toFixed(1);
+    const lat=Math.floor(10+Math.random()*8);
+    document.getElementById('sysMetric1').innerHTML='CPU: <span class="text-cyan">'+cpu.toFixed(0)+'%</span>';
+    document.getElementById('sysMetric2').innerHTML='MEM: <span class="text-magenta">'+mem+'GB</span>';
+    document.getElementById('sysMetric3').innerHTML='NET: <span class="text-green">'+net+'Gbps</span>';
+    document.getElementById('sysMetric4').innerHTML='LATENCY: <span class="text-amber">'+lat+'ms</span>';
+  }
+  setInterval(randomize,2000);
+})();
+
+// ================================================================
+// INITIAL ANIMATIONS
+// ================================================================
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    animateCounters();
+    animateRings();
+    animateBars();
+    animateProgressBars();
+  },300);
+});
 </script>
 </body>
 </html>
