@@ -1,80 +1,46 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VAX — Verified Agent Exchange</title>
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #08080f;
-      color: #e2e8f0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.5rem;
-    }
-    h1 span { color: #6366f1; }
-    .subtitle {
-      font-size: 1.125rem;
-      color: #94a3b8;
-      margin-bottom: 3rem;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      width: 100%;
-      max-width: 720px;
-    }
-    .grid a {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1.25rem 1.5rem;
-      background: #12121c;
-      border: 1px solid #1e1e2e;
-      border-radius: 12px;
-      color: #e2e8f0;
-      text-decoration: none;
-      font-size: 1rem;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .grid a:hover {
-      border-color: #6366f1;
-      background: #16162a;
-    }
-    .grid a .icon { font-size: 1.5rem; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VAX — Verified Agent Exchange</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:#06060c;color:#f0f0f0;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.container{text-align:center;padding:40px 20px}
+h1{font-size:48px;font-weight:900;margin-bottom:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:#64748b;font-size:16px;margin-bottom:48px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:700px;margin:0 auto}
+@media(max-width:600px){.cards{grid-template-columns:1fr}}
+.card{background:rgba(13,13,26,.8);border:1px solid #1a1a3e;border-radius:20px;padding:32px;text-decoration:none;color:#f0f0f0;transition:all .3s;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:-2px;border-radius:22px;padding:2px;background:linear-gradient(135deg,transparent,transparent);z-index:-1;transition:all .5s}
+.card:hover{transform:translateY(-4px);border-color:transparent}
+.card:hover::before{background:linear-gradient(135deg,#6366f1,#8b5cf6,#3b82f6)}
+.card.sf:hover::before{background:linear-gradient(135deg,#00fff2,#ff00ff,#0066ff)}
+.card.wa:hover::before{background:linear-gradient(135deg,#c9a84c,#d4af37,#c43e3e)}
+.card-icon{font-size:48px;margin-bottom:16px}
+.card-title{font-size:20px;font-weight:700;margin-bottom:8px}
+.card-desc{font-size:14px;color:#64748b;line-height:1.6}
+.footer{margin-top:48px;color:#64748b;font-size:12px}
+</style>
 </head>
 <body>
-  <h1><span>VAX</span> — Verified Agent Exchange</h1>
-  <p class="subtitle">Proven ROI Agents Only</p>
-  <div class="grid">
-    <a href="dashboard/index.html">
-      <span class="icon">📊</span> Dashboard
-    </a>
-    <a href="dashboard/hp.html">
-      <span class="icon">🏠</span> Homepage
-    </a>
-    <a href="dashboard/lp.html">
-      <span class="icon">🚀</span> For Sellers (LP)
-    </a>
-    <a href="dashboard/overview.html">
-      <span class="icon">📋</span> Business Overview
-    </a>
-    <a href="dashboard/plan.html">
-      <span class="icon">📈</span> Business Plan
-    </a>
-  </div>
+<div class="container">
+<h1>VAX</h1>
+<div class="sub">Verified Agent Exchange — AI労働の成果分配インフラ</div>
+<div class="cards">
+<a href="dashboard/" class="card sf">
+<div class="card-icon">🌌</div>
+<div class="card-title">SF / サイバーパンク版</div>
+<div class="card-desc">ネオンとホログラム。近未来のコマンドセンター。回路基板、マトリックス、グリッチエフェクト。</div>
+</a>
+<a href="dashboard/wa.html" class="card wa">
+<div class="card-icon">🏯</div>
+<div class="card-title">和風 / 侘び寂び版</div>
+<div class="card-desc">漆黒に金箔。日本の美意識。桜吹雪、墨流し、金継ぎ、枯山水。明朝体の静謐な世界。</div>
+</a>
+</div>
+<div class="footer">VAX Project Command Center</div>
+</div>
 </body>
 </html>
