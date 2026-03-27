@@ -3,2121 +3,1111 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>和 — 事業統括之儀</title>
+<title>和 — プロジェクト統括ダッシュボード</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-/* ===== 基盤 ===== */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;500;600;700;800&display=swap');
+/* ============================================================
+   基盤リセット・変数
+   ============================================================ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --urushi:#0a0908;--sumi:#1a1815;--sumi2:#231f1a;
+  --gold:#c9a84c;--gold-bright:#d4af37;--gold-light:#f0d060;--gold-pale:#e8d5a3;
+  --shu:#c43e3e;--shu-dark:#b33030;
+  --ai:#1a3a5c;--ai-light:#2a5a8c;
+  --matsu:#2d5a3d;--matsu-light:#3d7a5d;
+  --washi:#f5f0e8;--washi-dim:#d4cbbe;--washi-dark:#a09585;
+  --sakura:#ffb7c5;--sakura-deep:#ff8fa3;
+  --fuji:#6a5acd;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--urushi);color:var(--washi-dim);
+  font-family:'Noto Sans JP',sans-serif;font-weight:300;
+  line-height:1.8;overflow-x:hidden;min-height:100vh;
+}
+h1,h2,h3,h4{font-family:'Shippori Mincho B1',serif;font-weight:600;color:var(--washi)}
+a{color:var(--gold);text-decoration:none}
 
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
-:root {
-  --urushi: #0a0908;
-  --urushi-deep: #060504;
-  --sumi: #1a1a1a;
-  --sumi-light: #2a2520;
-  --gold: #c9a84c;
-  --gold-bright: #d4af37;
-  --gold-light: #f0d060;
-  --gold-pale: #e8d5a3;
-  --shu: #c43e3e;
-  --shu-dark: #b33030;
-  --washi: #f5f0e8;
-  --washi-dark: #d4cbbe;
-  --fuji: #8b7ec8;
-  --matcha: #7a9a6d;
-  --ai: #4a6fa5;
-  --sakura-pink: #f4b4c6;
-  --sakura-light: #fce4ec;
-  --cloud: rgba(200,190,175,0.03);
+/* ============================================================
+   レイヤー1: 和紙テクスチャオーバーレイ
+   ============================================================ */
+.washi-overlay{
+  position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E") repeat;
+  mix-blend-mode:overlay;
 }
 
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--urushi);
-  color: var(--washi-dark);
-  font-family: 'Noto Sans JP', sans-serif;
-  font-weight: 300;
-  line-height: 1.8;
-  overflow-x: hidden;
-  min-height: 100vh;
+/* ============================================================
+   レイヤー2: 墨流し (suminagashi)
+   ============================================================ */
+@keyframes suminagashi{
+  0%{background-position:0% 50%,100% 0%,50% 100%}
+  33%{background-position:100% 30%,0% 80%,80% 20%}
+  66%{background-position:30% 100%,70% 10%,10% 60%}
+  100%{background-position:0% 50%,100% 0%,50% 100%}
 }
-
-/* ===== 和紙テクスチャ ===== */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+.suminagashi{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E") repeat;
-  pointer-events: none;
-  z-index: 0;
+    radial-gradient(ellipse at 25% 40%,rgba(201,168,76,0.04) 0%,transparent 55%),
+    radial-gradient(ellipse at 75% 25%,rgba(196,62,62,0.025) 0%,transparent 50%),
+    radial-gradient(ellipse at 50% 80%,rgba(26,58,92,0.03) 0%,transparent 55%);
+  background-size:250% 250%;
+  animation:suminagashi 40s ease-in-out infinite;
 }
 
-/* ===== 墨流し背景 ===== */
-@keyframes suminagashi {
-  0%   { background-position: 0% 50%, 50% 0%; }
-  50%  { background-position: 100% 50%, 50% 100%; }
-  100% { background-position: 0% 50%, 50% 0%; }
+/* ============================================================
+   レイヤー3: 薄雲
+   ============================================================ */
+@keyframes cloud-drift{
+  0%{transform:translateX(-30%) translateY(0);opacity:0.015}
+  50%{transform:translateX(10%) translateY(-2%);opacity:0.03}
+  100%{transform:translateX(-30%) translateY(0);opacity:0.015}
+}
+@keyframes cloud-drift2{
+  0%{transform:translateX(20%) translateY(2%);opacity:0.02}
+  50%{transform:translateX(-20%) translateY(-1%);opacity:0.01}
+  100%{transform:translateX(20%) translateY(2%);opacity:0.02}
+}
+.clouds{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.cloud{
+  position:absolute;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(245,240,232,0.5),transparent 70%);
+  filter:blur(60px);
+}
+.cloud:nth-child(1){width:900px;height:200px;top:10%;left:-10%;animation:cloud-drift 80s ease-in-out infinite}
+.cloud:nth-child(2){width:700px;height:150px;top:40%;left:30%;animation:cloud-drift2 100s ease-in-out infinite}
+.cloud:nth-child(3){width:1100px;height:180px;top:70%;left:-20%;animation:cloud-drift 120s ease-in-out infinite 20s}
+
+/* ============================================================
+   レイヤー4: 桜吹雪 (30枚)
+   ============================================================ */
+.sakura-container{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.sakura-petal{
+  position:absolute;
+  width:var(--size,12px);height:var(--size,12px);
+  background:var(--sakura);
+  border-radius:50% 0 50% 0;
+  opacity:0;
+  animation:sakura-fall var(--dur,12s) var(--delay,0s) infinite ease-in;
+  left:var(--x,50%);
+  filter:blur(var(--blur,0px));
+}
+@keyframes sakura-fall{
+  0%{transform:translateY(-5vh) rotate(0deg) scale(1);opacity:0}
+  8%{opacity:var(--peak-op,0.7)}
+  85%{opacity:var(--peak-op,0.5)}
+  100%{transform:translateY(110vh) translateX(var(--drift,40px)) rotate(var(--spin,360deg)) scale(0.4);opacity:0}
 }
 
-body::after {
-  content: '';
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(201,168,76,0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(196,62,62,0.02) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(74,111,165,0.02) 0%, transparent 50%);
-  background-size: 200% 200%, 200% 200%;
-  animation: suminagashi 30s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
+/* ============================================================
+   レイヤー5: 金粉パーティクル
+   ============================================================ */
+.kinpun-container{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.kinpun{
+  position:absolute;width:var(--ks,2px);height:var(--ks,2px);
+  background:var(--gold-light);border-radius:50%;
+  opacity:0;
+  animation:kinpun-rise var(--kd,18s) var(--kdel,0s) infinite linear;
+  left:var(--kx,50%);bottom:-2%;
+  filter:blur(var(--kb,0px));
+}
+@keyframes kinpun-rise{
+  0%{transform:translateY(0) translateX(0);opacity:0}
+  10%{opacity:var(--kop,0.6)}
+  80%{opacity:var(--kop,0.3)}
+  100%{transform:translateY(-110vh) translateX(var(--kdrift,20px));opacity:0}
 }
 
-/* ===== 桜吹雪 ===== */
-@keyframes sakura-fall {
-  0%   { transform: translateY(-10vh) translateX(0) rotate(0deg) scale(1); opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 0.8; }
-  100% { transform: translateY(105vh) translateX(var(--drift)) rotate(var(--spin)) scale(0.6); opacity: 0; }
+/* ============================================================
+   レイヤー6: 鶴シルエット
+   ============================================================ */
+@keyframes crane-fly{
+  0%{transform:translateX(-200px) translateY(0) scale(0.8);opacity:0}
+  15%{opacity:0.04}
+  85%{opacity:0.04}
+  100%{transform:translateX(calc(100vw + 200px)) translateY(-80px) scale(1);opacity:0}
+}
+.crane{
+  position:fixed;top:15%;pointer-events:none;z-index:1;
+  width:80px;height:40px;opacity:0;
+  animation:crane-fly 60s 10s infinite linear;
+}
+.crane svg{width:100%;height:100%;fill:var(--washi-dark);opacity:0.5}
+
+/* ============================================================
+   青海波アニメーション境界線
+   ============================================================ */
+@keyframes seigaiha-scroll{0%{background-position:0 0}100%{background-position:60px 0}}
+.seigaiha-border{
+  height:16px;width:100%;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='16' viewBox='0 0 60 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 16 C10 16 10 0 20 0 S30 16 30 16' fill='none' stroke='%23c9a84c' stroke-width='0.5' opacity='0.4'/%3E%3Cpath d='M30 16 C40 16 40 0 50 0 S60 16 60 16' fill='none' stroke='%23c9a84c' stroke-width='0.5' opacity='0.4'/%3E%3C/svg%3E") repeat-x;
+  animation:seigaiha-scroll 4s linear infinite;
+  opacity:0.6;
 }
 
-@keyframes sakura-sway {
-  0%, 100% { margin-left: 0; }
-  25%  { margin-left: 15px; }
-  75%  { margin-left: -15px; }
+/* ============================================================
+   金継ぎ区切り線
+   ============================================================ */
+@keyframes kintsugi-shimmer{
+  0%{background-position:-200% 0}
+  100%{background-position:200% 0}
+}
+.kintsugi-line{
+  height:2px;margin:2rem 0;position:relative;
+  background:linear-gradient(90deg,transparent,var(--gold),var(--gold-light),var(--gold),transparent);
+  background-size:200% 100%;
+  animation:kintsugi-shimmer 4s ease-in-out infinite;
+  opacity:0.5;
+}
+.kintsugi-line::before,.kintsugi-line::after{
+  content:'';position:absolute;top:-3px;width:8px;height:8px;
+  background:var(--gold);border-radius:50%;opacity:0.6;
+}
+.kintsugi-line::before{left:20%}
+.kintsugi-line::after{right:25%}
+
+/* ============================================================
+   灯籠グロー
+   ============================================================ */
+@keyframes lantern-glow{
+  0%,100%{box-shadow:0 0 20px rgba(201,168,76,0.08),0 0 60px rgba(201,168,76,0.03)}
+  50%{box-shadow:0 0 30px rgba(201,168,76,0.15),0 0 80px rgba(201,168,76,0.06)}
 }
 
-.sakura-container {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 1;
-  overflow: hidden;
+/* ============================================================
+   金テキストシマー
+   ============================================================ */
+@keyframes gold-shimmer{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+.gold-num{
+  background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold-bright),var(--gold-light),var(--gold));
+  background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:gold-shimmer 3s ease-in-out infinite;
+  font-weight:700;
 }
 
-.sakura-petal {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: radial-gradient(ellipse at 30% 30%, var(--sakura-light), var(--sakura-pink));
-  border-radius: 50% 0 50% 0;
-  opacity: 0;
-  animation: sakura-fall var(--duration) linear infinite, sakura-sway var(--sway) ease-in-out infinite;
-  animation-delay: var(--delay);
-  left: var(--x);
-  filter: blur(0.5px);
-  box-shadow: 0 0 3px rgba(244,180,198,0.3);
+/* ============================================================
+   水紋ホバー
+   ============================================================ */
+@keyframes ripple{
+  0%{transform:scale(0);opacity:0.3}
+  100%{transform:scale(4);opacity:0}
+}
+.card{position:relative;overflow:hidden}
+.card::after{
+  content:'';position:absolute;top:50%;left:50%;width:100px;height:100px;
+  border-radius:50%;border:1px solid var(--gold);
+  transform:scale(0);opacity:0;pointer-events:none;
+  transition:none;
+}
+.card:hover::after{animation:ripple 0.8s ease-out}
+
+/* ============================================================
+   墨滴り登場アニメーション
+   ============================================================ */
+@keyframes ink-reveal{
+  0%{clip-path:circle(0% at 50% 50%);opacity:0}
+  100%{clip-path:circle(75% at 50% 50%);opacity:1}
+}
+.ink-reveal{animation:ink-reveal 0.8s ease-out forwards}
+
+/* ============================================================
+   筆ストローク下線
+   ============================================================ */
+.brush-underline{
+  position:relative;display:inline-block;
+}
+.brush-underline::after{
+  content:'';position:absolute;bottom:-4px;left:0;width:100%;height:6px;
+  background:linear-gradient(90deg,transparent,var(--gold) 15%,var(--gold-light) 50%,var(--gold) 85%,transparent);
+  border-radius:3px;opacity:0.5;
+  mask:url("data:image/svg+xml,%3Csvg width='200' height='6' viewBox='0 0 200 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4 Q20 1 40 3 T80 2 T120 4 T160 2 T200 3' fill='none' stroke='white' stroke-width='6'/%3E%3C/svg%3E") no-repeat center/100% 100%;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg width='200' height='6' viewBox='0 0 200 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4 Q20 1 40 3 T80 2 T120 4 T160 2 T200 3' fill='none' stroke='white' stroke-width='6'/%3E%3C/svg%3E") no-repeat center/100% 100%;
 }
 
-.sakura-petal:nth-child(odd) {
-  border-radius: 0 50% 0 50%;
-  width: 10px;
-  height: 10px;
+/* ============================================================
+   菱形パターン
+   ============================================================ */
+.hishi-bg{
+  background-image:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0 L40 20 L20 40 L0 20Z' fill='none' stroke='%23c9a84c' stroke-width='0.3' opacity='0.08'/%3E%3C/svg%3E");
 }
 
-/* ===== 雲 ===== */
-@keyframes cloud-drift {
-  0%   { transform: translateX(-100px); opacity: 0; }
-  10%  { opacity: 0.04; }
-  90%  { opacity: 0.04; }
-  100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
+/* ============================================================
+   組紐プログレスバー
+   ============================================================ */
+@keyframes kumihimo{0%{background-position:0 0}100%{background-position:24px 0}}
+.kumihimo-bar{
+  height:10px;border-radius:5px;overflow:hidden;
+  background:var(--sumi2);position:relative;
 }
-
-.cloud {
-  position: fixed;
-  pointer-events: none;
-  z-index: 1;
-  background: radial-gradient(ellipse, rgba(200,190,175,0.05) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: cloud-drift var(--cloud-dur) linear infinite;
-  animation-delay: var(--cloud-delay);
-  top: var(--cloud-y);
-}
-
-/* ===== ナビゲーション ===== */
-.nav-wrap {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(10,9,8,0.92);
-  backdrop-filter: blur(20px) saturate(1.2);
-  border-bottom: 1px solid rgba(201,168,76,0.15);
-}
-
-.nav-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  padding: 0 2rem;
-  height: 64px;
-}
-
-.nav-brand {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 800;
-  font-size: 1.5rem;
-  color: var(--gold);
-  letter-spacing: 0.3em;
-  margin-right: 3rem;
-  text-shadow: 0 0 20px rgba(201,168,76,0.3);
-  position: relative;
-}
-
-.nav-brand::after {
-  content: '〜';
-  position: absolute;
-  right: -1.5rem;
-  color: rgba(201,168,76,0.3);
-}
-
-.nav-tabs {
-  display: flex;
-  gap: 0;
-  flex: 1;
-  list-style: none;
-}
-
-.nav-tab {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 500;
-  font-size: 0.85rem;
-  color: var(--washi-dark);
-  opacity: 0.5;
-  padding: 0 1.2rem;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.5s ease;
-  position: relative;
-  letter-spacing: 0.15em;
-  border: none;
-  background: none;
-  white-space: nowrap;
-}
-
-.nav-tab:hover {
-  opacity: 0.8;
-  color: var(--gold-pale);
-}
-
-.nav-tab.active {
-  opacity: 1;
-  color: var(--gold);
-}
-
-.nav-tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-}
-
-.nav-tab.active::before {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  background: var(--gold);
-  border-radius: 50%;
-  box-shadow: 0 0 10px var(--gold);
-}
-
-/* ===== メインコンテナ ===== */
-.main-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 3rem 2rem 6rem;
-  position: relative;
-  z-index: 2;
-}
-
-/* ===== セクションヘッダ ===== */
-.section-header {
-  text-align: center;
-  margin-bottom: 3rem;
-  position: relative;
-}
-
-.section-title {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 800;
-  font-size: 2.5rem;
-  color: var(--gold);
-  letter-spacing: 0.5em;
-  text-shadow: 0 0 30px rgba(201,168,76,0.2);
-  margin-bottom: 0.5rem;
-}
-
-.section-subtitle {
-  font-family: 'Noto Sans JP', sans-serif;
-  font-weight: 300;
-  font-size: 0.8rem;
-  color: var(--washi-dark);
-  opacity: 0.4;
-  letter-spacing: 0.3em;
-}
-
-/* 枯山水 波紋ディバイダー */
-.zen-divider {
-  width: 200px;
-  height: 30px;
-  margin: 1.5rem auto;
-  position: relative;
-  overflow: hidden;
-}
-
-.zen-divider::before,
-.zen-divider::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 1px solid rgba(201,168,76,0.15);
-  border-radius: 50%;
-  animation: zen-wave 4s ease-in-out infinite;
-}
-
-.zen-divider::before {
-  width: 80px;
-  height: 16px;
-  top: 2px;
-}
-
-.zen-divider::after {
-  width: 120px;
-  height: 20px;
-  top: 5px;
-  animation-delay: 0.5s;
-}
-
-@keyframes zen-wave {
-  0%, 100% { transform: translateX(-50%) scaleX(1); }
-  50% { transform: translateX(-50%) scaleX(1.1); }
-}
-
-/* ===== 金継ぎ区切り ===== */
-.kintsugi-line {
-  width: 100%;
-  height: 2px;
-  margin: 3rem 0;
-  position: relative;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(201,168,76,0.1) 10%,
-    rgba(201,168,76,0.4) 20%,
-    rgba(201,168,76,0.1) 25%,
-    transparent 30%,
-    transparent 40%,
-    rgba(201,168,76,0.2) 45%,
-    rgba(212,175,55,0.5) 50%,
-    rgba(201,168,76,0.2) 55%,
-    transparent 60%,
-    transparent 70%,
-    rgba(201,168,76,0.1) 75%,
-    rgba(201,168,76,0.4) 80%,
-    rgba(201,168,76,0.1) 90%,
-    transparent 100%
+.kumihimo-fill{
+  height:100%;border-radius:5px;
+  background:repeating-linear-gradient(
+    -45deg,
+    var(--gold) 0px,var(--gold) 4px,
+    var(--gold-bright) 4px,var(--gold-bright) 8px,
+    var(--gold-light) 8px,var(--gold-light) 12px,
+    var(--gold-bright) 12px,var(--gold-bright) 16px,
+    var(--gold) 16px,var(--gold) 20px,
+    var(--shu) 20px,var(--shu) 24px
   );
-  filter: drop-shadow(0 0 4px rgba(201,168,76,0.3));
+  background-size:24px 100%;
+  animation:kumihimo 1.5s linear infinite;
+  transition:width 1s ease;
 }
 
-.kintsugi-line::before {
-  content: '◆';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 8px;
-  color: var(--gold);
-  text-shadow: 0 0 8px rgba(201,168,76,0.5);
-}
-
-/* ===== 掛け軸カード ===== */
-.scroll-card {
-  background: linear-gradient(180deg, rgba(26,26,26,0.9) 0%, rgba(20,18,15,0.95) 100%);
-  border: 1px solid rgba(201,168,76,0.12);
-  border-radius: 2px;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.scroll-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  opacity: 0.5;
-}
-
-.scroll-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  opacity: 0.3;
-}
-
-/* 水紋ホバー */
-.scroll-card:hover {
-  border-color: rgba(201,168,76,0.3);
-  box-shadow:
-    0 0 30px rgba(201,168,76,0.05),
-    inset 0 0 30px rgba(201,168,76,0.02);
-  transform: translateY(-2px);
-}
-
-/* 格子パターン */
-.koushi-overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+/* ============================================================
+   竹ディバイダー
+   ============================================================ */
+.bamboo-divider{
+  width:3px;min-height:100%;
   background:
-    linear-gradient(0deg, rgba(201,168,76,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
-  background-size: 20px 20px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-
-.scroll-card:hover .koushi-overlay {
-  opacity: 1;
-}
-
-/* ===== タブパネル ===== */
-.tab-panel {
-  display: none;
-  animation: fadeIn 0.8s ease;
-}
-
-.tab-panel.active {
-  display: block;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ===== 概観 (Overview) ===== */
-
-/* 床の間 KPI */
-.tokonoma-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-}
-
-@media (max-width: 900px) {
-  .tokonoma-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-.kpi-scroll {
-  padding: 2rem 1.5rem;
-  text-align: center;
-  position: relative;
-}
-
-.kpi-scroll .kpi-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.8rem;
-  display: block;
-  filter: drop-shadow(0 0 6px rgba(201,168,76,0.3));
-}
-
-.kpi-scroll .kpi-value {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 700;
-  font-size: 2.8rem;
-  color: var(--gold);
-  line-height: 1;
-  margin-bottom: 0.3rem;
-  text-shadow: 0 0 15px rgba(201,168,76,0.3);
-}
-
-@keyframes gold-shimmer {
-  0%, 100% { text-shadow: 0 0 15px rgba(201,168,76,0.3); }
-  50% { text-shadow: 0 0 25px rgba(240,208,96,0.5), 0 0 40px rgba(201,168,76,0.2); }
-}
-
-.kpi-scroll .kpi-value.shimmer {
-  animation: gold-shimmer 3s ease-in-out infinite;
-}
-
-.kpi-scroll .kpi-label {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 0.85rem;
-  color: var(--washi-dark);
-  opacity: 0.6;
-  letter-spacing: 0.3em;
-}
-
-.kpi-scroll .kpi-sub {
-  font-size: 0.7rem;
-  color: var(--washi-dark);
-  opacity: 0.3;
-  margin-top: 0.3rem;
-  letter-spacing: 0.1em;
-}
-
-/* 巻物 活動記録 */
-.emaki-section {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-@media (max-width: 900px) {
-  .emaki-section { grid-template-columns: 1fr; }
-}
-
-.emaki-scroll {
-  padding: 2rem;
-}
-
-.emaki-title {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: var(--gold);
-  letter-spacing: 0.3em;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.8rem;
-  border-bottom: 1px solid rgba(201,168,76,0.1);
-}
-
-.activity-item {
-  display: flex;
-  align-items: flex-start;
-  padding: 0.8rem 0;
-  border-bottom: 1px solid rgba(201,168,76,0.04);
-  transition: all 0.3s ease;
-}
-
-.activity-item:hover {
-  padding-left: 0.5rem;
-  border-bottom-color: rgba(201,168,76,0.1);
-}
-
-.activity-time {
-  font-size: 0.7rem;
-  color: var(--gold);
-  opacity: 0.5;
-  width: 80px;
-  flex-shrink: 0;
-  font-family: 'Shippori Mincho', serif;
-  letter-spacing: 0.1em;
-  padding-top: 2px;
-}
-
-.activity-text {
-  font-size: 0.82rem;
-  color: var(--washi-dark);
-  opacity: 0.7;
-  line-height: 1.6;
-}
-
-.activity-text .highlight {
-  color: var(--gold);
-  opacity: 1;
-}
-
-/* 三つ巴 代行者状態 */
-.mitsudomoe-wrap {
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.mitsudomoe-symbol {
-  width: 120px;
-  height: 120px;
-  margin: 1rem 0 1.5rem;
-  position: relative;
-}
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-.mitsudomoe-symbol svg {
-  width: 100%;
-  height: 100%;
-  animation: spin-slow 20s linear infinite;
-}
-
-.agent-status-list {
-  width: 100%;
-}
-
-.agent-status-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.6rem 0;
-  border-bottom: 1px solid rgba(201,168,76,0.06);
-  font-size: 0.82rem;
-}
-
-.agent-name {
-  font-family: 'Shippori Mincho', serif;
-  color: var(--washi-dark);
-  opacity: 0.7;
-  letter-spacing: 0.15em;
-}
-
-.agent-badge {
-  font-size: 0.65rem;
-  padding: 2px 10px;
-  border-radius: 1px;
-  letter-spacing: 0.1em;
-}
-
-.badge-active {
-  background: rgba(201,168,76,0.1);
-  color: var(--gold);
-  border: 1px solid rgba(201,168,76,0.2);
-}
-
-.badge-idle {
-  background: rgba(200,190,175,0.05);
-  color: var(--washi-dark);
-  opacity: 0.4;
-  border: 1px solid rgba(200,190,175,0.1);
-}
-
-/* ===== 任務帳 (Tasks) ===== */
-.tanzaku-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.tanzaku-strip {
-  display: grid;
-  grid-template-columns: 80px 1fr 120px 100px 100px;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  background: linear-gradient(90deg, rgba(26,26,26,0.8) 0%, rgba(20,18,15,0.9) 100%);
-  border-left: 3px solid rgba(201,168,76,0.2);
-  border-right: 1px solid rgba(201,168,76,0.05);
-  border-top: 1px solid rgba(201,168,76,0.03);
-  border-bottom: 1px solid rgba(201,168,76,0.03);
-  transition: all 0.5s ease;
-  position: relative;
-}
-
-.tanzaku-strip:hover {
-  border-left-color: var(--gold);
-  background: linear-gradient(90deg, rgba(201,168,76,0.03) 0%, rgba(20,18,15,0.9) 100%);
-  transform: translateX(4px);
-}
-
-.tanzaku-strip::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--gold);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  box-shadow: 0 0 10px var(--gold);
-}
-
-.tanzaku-strip:hover::before { opacity: 1; }
-
-.tanzaku-id {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 0.75rem;
-  color: var(--gold);
-  opacity: 0.6;
-  letter-spacing: 0.1em;
-}
-
-.tanzaku-name {
-  font-size: 0.85rem;
-  color: var(--washi-dark);
-  opacity: 0.8;
-  letter-spacing: 0.05em;
-}
-
-.tanzaku-sprint {
-  font-size: 0.7rem;
-  color: var(--washi-dark);
-  opacity: 0.4;
-  text-align: center;
-  font-family: 'Shippori Mincho', serif;
-}
-
-.tanzaku-priority {
-  text-align: center;
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  font-family: 'Shippori Mincho', serif;
-}
-
-.priority-high {
-  color: var(--shu);
-  text-shadow: 0 0 8px rgba(196,62,62,0.3);
-}
-
-.priority-medium { color: var(--gold); opacity: 0.7; }
-.priority-low { color: var(--washi-dark); opacity: 0.4; }
-
-.tanzaku-status {
-  text-align: right;
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-}
-
-.status-done {
-  color: var(--gold);
-  text-shadow: 0 0 8px rgba(201,168,76,0.3);
-}
-
-.status-pending {
-  color: var(--washi-dark);
-  opacity: 0.35;
-}
-
-/* ===== 代行者 (Agents) ===== */
-.agent-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-}
-
-@media (max-width: 900px) {
-  .agent-cards { grid-template-columns: 1fr; }
-}
-
-.agent-card {
-  padding: 2.5rem 2rem;
-  text-align: center;
-  position: relative;
-}
-
-.agent-card .agent-emblem {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  display: block;
-  filter: drop-shadow(0 0 15px rgba(201,168,76,0.2));
-}
-
-.agent-card .agent-title {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 700;
-  font-size: 1.3rem;
-  color: var(--gold);
-  letter-spacing: 0.4em;
-  margin-bottom: 0.3rem;
-}
-
-.agent-card .agent-role {
-  font-size: 0.75rem;
-  color: var(--washi-dark);
-  opacity: 0.4;
-  letter-spacing: 0.2em;
-  margin-bottom: 1.5rem;
-}
-
-.agent-card .agent-desc {
-  font-size: 0.82rem;
-  color: var(--washi-dark);
-  opacity: 0.6;
-  line-height: 1.8;
-  margin-bottom: 1.5rem;
-}
-
-.agent-stat {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.4rem 0;
-  border-bottom: 1px solid rgba(201,168,76,0.05);
-  font-size: 0.78rem;
-}
-
-.agent-stat-label {
-  color: var(--washi-dark);
-  opacity: 0.4;
-  letter-spacing: 0.1em;
-}
-
-.agent-stat-value {
-  color: var(--gold);
-  font-family: 'Shippori Mincho', serif;
-}
-
-/* ===== 道程 (Roadmap) ===== */
-.tokaido-path {
-  position: relative;
-  padding: 2rem 0;
-}
-
-.tokaido-line {
-  position: absolute;
-  left: 30px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(180deg,
-    transparent 0%,
-    rgba(201,168,76,0.3) 10%,
-    rgba(201,168,76,0.3) 90%,
-    transparent 100%
-  );
-}
-
-.tokaido-station {
-  position: relative;
-  padding: 2rem 0 2rem 80px;
-  transition: all 0.5s ease;
-}
-
-.tokaido-station:hover {
-  padding-left: 85px;
-}
-
-.tokaido-marker {
-  position: absolute;
-  left: 20px;
-  top: 2.2rem;
-  width: 22px;
-  height: 22px;
-  border: 2px solid var(--gold);
-  border-radius: 50%;
-  background: var(--urushi);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-  transition: all 0.5s ease;
-}
-
-.tokaido-marker::after {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--gold);
-  opacity: 0.5;
-}
-
-.tokaido-station.current .tokaido-marker {
-  box-shadow: 0 0 15px rgba(201,168,76,0.4);
-}
-
-@keyframes lantern-glow {
-  0%, 100% { box-shadow: 0 0 15px rgba(201,168,76,0.3); }
-  50% { box-shadow: 0 0 25px rgba(201,168,76,0.5), 0 0 40px rgba(201,168,76,0.1); }
-}
-
-.tokaido-station.current .tokaido-marker {
-  animation: lantern-glow 3s ease-in-out infinite;
-}
-
-.tokaido-station.current .tokaido-marker::after {
-  opacity: 1;
-  background: var(--gold-bright);
-}
-
-.station-content {
-  padding: 1.5rem 2rem;
-}
-
-.station-phase {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 0.7rem;
-  color: var(--gold);
-  opacity: 0.5;
-  letter-spacing: 0.3em;
-  margin-bottom: 0.3rem;
-}
-
-.station-name {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: var(--gold);
-  letter-spacing: 0.3em;
-  margin-bottom: 0.8rem;
-}
-
-.station-desc {
-  font-size: 0.82rem;
-  color: var(--washi-dark);
-  opacity: 0.6;
-  line-height: 1.8;
-  margin-bottom: 1rem;
-}
-
-.station-tasks {
-  list-style: none;
-}
-
-.station-tasks li {
-  font-size: 0.78rem;
-  color: var(--washi-dark);
-  opacity: 0.5;
-  padding: 0.3rem 0;
-  padding-left: 1.2rem;
-  position: relative;
-}
-
-.station-tasks li::before {
-  content: '・';
-  position: absolute;
-  left: 0;
-  color: var(--gold);
-  opacity: 0.5;
-}
-
-/* ===== 巡回記 (Sprints) ===== */
-.goshuin-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.goshuin-card {
-  padding: 2rem 1.5rem;
-  text-align: center;
-  position: relative;
-}
-
-/* 御朱印スタンプ効果 */
-.goshuin-card::after {
-  content: attr(data-stamp);
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-15deg);
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 900;
-  font-size: 3.5rem;
-  color: rgba(196,62,62,0.06);
-  pointer-events: none;
-  letter-spacing: 0.1em;
-}
-
-.goshuin-number {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 0.7rem;
-  color: var(--gold);
-  opacity: 0.4;
-  letter-spacing: 0.3em;
-  margin-bottom: 0.5rem;
-}
-
-.goshuin-title {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--gold);
-  letter-spacing: 0.3em;
-  margin-bottom: 1rem;
-}
-
-.goshuin-period {
-  font-size: 0.7rem;
-  color: var(--washi-dark);
-  opacity: 0.35;
-  margin-bottom: 1rem;
-  letter-spacing: 0.1em;
-}
-
-.goshuin-tasks {
-  font-size: 0.8rem;
-  color: var(--washi-dark);
-  opacity: 0.5;
-  margin-bottom: 0.5rem;
-}
-
-.goshuin-status {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.2em;
-  margin-top: 1rem;
-  padding: 4px 14px;
-  display: inline-block;
-  border-radius: 1px;
-}
-
-.goshuin-complete {
-  color: var(--gold);
-  background: rgba(201,168,76,0.08);
-  border: 1px solid rgba(201,168,76,0.15);
-}
-
-.goshuin-planned {
-  color: var(--washi-dark);
-  opacity: 0.4;
-  background: rgba(200,190,175,0.03);
-  border: 1px solid rgba(200,190,175,0.08);
-}
-
-/* ===== 事業設計書 (Business Plan) ===== */
-.kobunsho {
-  padding: 3rem;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.kobunsho h3 {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: var(--gold);
-  letter-spacing: 0.4em;
-  margin: 2.5rem 0 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(201,168,76,0.1);
-}
-
-.kobunsho h3:first-child { margin-top: 0; }
-
-.kobunsho p {
-  font-size: 0.85rem;
-  color: var(--washi-dark);
-  opacity: 0.65;
-  line-height: 2;
-  margin-bottom: 1rem;
-  text-align: justify;
-}
-
-.kobunsho strong {
-  color: var(--gold);
-  opacity: 1;
-  font-weight: 500;
-}
-
-/* 帳簿テーブル */
-.choubo-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1.5rem 0;
-  font-size: 0.8rem;
-}
-
-.choubo-table th {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 600;
-  color: var(--gold);
-  letter-spacing: 0.15em;
-  padding: 0.8rem 1rem;
-  border-bottom: 2px solid rgba(201,168,76,0.2);
-  text-align: left;
-  font-size: 0.75rem;
-}
-
-.choubo-table td {
-  padding: 0.7rem 1rem;
-  border-bottom: 1px solid rgba(201,168,76,0.05);
-  color: var(--washi-dark);
-  opacity: 0.6;
-}
-
-.choubo-table tr:hover td {
-  opacity: 0.8;
-  background: rgba(201,168,76,0.02);
-}
-
-.choubo-table .num {
-  text-align: right;
-  font-family: 'Shippori Mincho', serif;
-  color: var(--gold);
-  opacity: 0.7;
-}
-
-/* ===== 市場見聞 (Market) ===== */
-.ukiyoe-section {
-  padding: 2rem;
-}
-
-.ukiyoe-title {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--gold);
-  letter-spacing: 0.3em;
-  margin-bottom: 1.5rem;
-}
-
-.market-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.market-stat-card {
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.market-stat-card .stat-val {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 700;
-  font-size: 1.8rem;
-  color: var(--gold);
-  animation: gold-shimmer 4s ease-in-out infinite;
-}
-
-.market-stat-card .stat-label {
-  font-size: 0.75rem;
-  color: var(--washi-dark);
-  opacity: 0.5;
-  letter-spacing: 0.2em;
-  margin-top: 0.3rem;
-}
-
-/* 浮世絵風グラフ */
-.ukiyoe-chart {
-  display: flex;
-  align-items: flex-end;
-  gap: 1rem;
-  height: 200px;
-  padding: 1.5rem;
-  margin: 2rem 0;
-  border-bottom: 1px solid rgba(201,168,76,0.15);
-}
-
-.chart-bar-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-  justify-content: flex-end;
-}
-
-.chart-bar {
-  width: 100%;
-  max-width: 60px;
-  border-radius: 2px 2px 0 0;
-  position: relative;
-  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  background: linear-gradient(180deg, var(--gold) 0%, rgba(201,168,76,0.3) 100%);
-}
-
-.chart-bar:hover {
-  filter: brightness(1.3);
-  box-shadow: 0 0 15px rgba(201,168,76,0.3);
-}
-
-.chart-bar .bar-value {
-  position: absolute;
-  top: -22px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: 'Shippori Mincho', serif;
-  font-size: 0.7rem;
-  color: var(--gold);
-  white-space: nowrap;
-}
-
-.chart-bar-label {
-  font-size: 0.65rem;
-  color: var(--washi-dark);
-  opacity: 0.4;
-  margin-top: 0.5rem;
-  text-align: center;
-  letter-spacing: 0.1em;
-}
-
-/* 障子スクリーンボーダー */
-.shoji-border {
-  border: 1px solid rgba(201,168,76,0.08);
-  position: relative;
-}
-
-.shoji-border::before {
-  content: '';
-  position: absolute;
-  top: 6px; left: 6px; right: 6px; bottom: 6px;
-  border: 1px solid rgba(201,168,76,0.04);
-  pointer-events: none;
-}
-
-/* ===== 提灯プログレス ===== */
-.tourou-progress {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.tourou-bar {
-  flex: 1;
-  height: 4px;
-  background: rgba(201,168,76,0.08);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.tourou-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--shu-dark), var(--gold));
-  border-radius: 2px;
-  position: relative;
-  transition: width 1s ease;
-}
-
-.tourou-fill::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: -3px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--gold);
-  box-shadow: 0 0 10px var(--gold), 0 0 20px rgba(201,168,76,0.3);
-  animation: lantern-glow 2s ease-in-out infinite;
-}
-
-.tourou-percent {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 0.75rem;
-  color: var(--gold);
-  opacity: 0.6;
-  min-width: 35px;
-  text-align: right;
-}
-
-/* ===== 水紋リップルエフェクト ===== */
-@keyframes ripple {
-  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.5; }
-  100% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
-}
-
-.ripple-effect {
-  position: absolute;
-  border-radius: 50%;
-  width: 100px;
-  height: 100px;
-  border: 1px solid rgba(201,168,76,0.3);
-  animation: ripple 1.2s ease-out forwards;
-  pointer-events: none;
-}
-
-/* ===== フッター ===== */
-.footer {
-  text-align: center;
-  padding: 3rem 0 2rem;
-  position: relative;
-  z-index: 2;
-}
-
-.footer-text {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 0.75rem;
-  color: var(--washi-dark);
-  opacity: 0.2;
-  letter-spacing: 0.3em;
-}
-
-.footer-mon {
-  font-size: 1.5rem;
-  display: block;
-  margin-bottom: 0.5rem;
-  opacity: 0.15;
-  filter: drop-shadow(0 0 10px rgba(201,168,76,0.2));
-}
-
-/* ===== ユーティリティ ===== */
-.text-gold { color: var(--gold); }
-.text-shu { color: var(--shu); }
-.text-muted { opacity: 0.4; }
-.mt-1 { margin-top: 0.5rem; }
-.mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 2rem; }
-.mb-2 { margin-bottom: 1rem; }
-
-/* ===== スクロールバー ===== */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--urushi); }
-::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(201,168,76,0.3); }
-
-/* ===== 選択 ===== */
-::selection {
-  background: rgba(201,168,76,0.2);
-  color: var(--gold-light);
-}
+    repeating-linear-gradient(180deg,
+      var(--matsu) 0px,var(--matsu) 30px,
+      var(--matsu-light) 30px,var(--matsu-light) 32px,
+      var(--matsu) 32px,var(--matsu) 62px
+    );
+  opacity:0.3;border-radius:2px;
+}
+
+/* ============================================================
+   レイアウト: ヘッダー
+   ============================================================ */
+.wa-header{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(180deg,rgba(10,9,8,0.98),rgba(10,9,8,0.92));
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(201,168,76,0.15);
+  padding:0.8rem 2rem;
+}
+.header-inner{
+  max-width:1400px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+}
+
+/* 家紋ロゴ */
+.kamon{
+  width:44px;height:44px;margin-right:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.kamon svg{width:40px;height:40px}
+.header-title{font-family:'Shippori Mincho B1',serif;font-size:1.3rem;color:var(--washi);letter-spacing:0.2em}
+.header-left{display:flex;align-items:center;gap:0.5rem}
+.header-date{font-size:0.8rem;color:var(--washi-dark);opacity:0.7}
+
+/* ============================================================
+   タブナビゲーション
+   ============================================================ */
+.tab-nav{
+  display:flex;gap:0;overflow-x:auto;scrollbar-width:none;
+  background:rgba(26,24,21,0.6);
+  border-bottom:1px solid rgba(201,168,76,0.1);
+  padding:0 2rem;
+}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-btn{
+  padding:0.8rem 1.4rem;font-size:0.85rem;color:var(--washi-dark);
+  background:none;border:none;cursor:pointer;white-space:nowrap;
+  font-family:'Noto Sans JP',sans-serif;position:relative;
+  transition:color 0.3s;letter-spacing:0.05em;
+}
+.tab-btn:hover{color:var(--washi)}
+.tab-btn.active{color:var(--gold)}
+.tab-btn.active::after{
+  content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+
+/* ============================================================
+   メインコンテンツ
+   ============================================================ */
+.main-content{
+  max-width:1400px;margin:0 auto;padding:2rem;
+  position:relative;z-index:10;
+}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:ink-reveal 0.6s ease-out}
+
+/* ============================================================
+   掛け軸カード
+   ============================================================ */
+.card{
+  background:linear-gradient(135deg,rgba(26,24,21,0.85),rgba(35,31,26,0.75));
+  border:1px solid rgba(201,168,76,0.1);
+  border-radius:4px;padding:1.5rem;
+  transition:all 0.4s ease;
+  position:relative;overflow:hidden;
+}
+.card:hover{
+  border-color:rgba(201,168,76,0.25);
+  animation:lantern-glow 2s ease-in-out infinite;
+}
+
+/* 掛け軸トップバー */
+.scroll-card{position:relative;padding-top:2rem}
+.scroll-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:6px;
+  background:linear-gradient(90deg,var(--sumi2),var(--gold) 20%,var(--gold-light) 50%,var(--gold) 80%,var(--sumi2));
+  border-radius:3px 3px 0 0;opacity:0.4;
+}
+.scroll-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--sumi2),var(--gold) 30%,var(--gold) 70%,var(--sumi2));
+  border-radius:0 0 3px 3px;opacity:0.25;
+}
+
+/* 障子カード */
+.shoji-card{
+  background:linear-gradient(135deg,rgba(35,31,26,0.5),rgba(26,24,21,0.7));
+  border:1px solid rgba(201,168,76,0.08);
+  box-shadow:inset 0 0 40px rgba(245,240,232,0.02);
+  border-radius:2px;
+}
+.shoji-card:hover{
+  box-shadow:inset 0 0 60px rgba(245,240,232,0.04),0 0 30px rgba(201,168,76,0.05);
+}
+
+/* ============================================================
+   Tab1: ダッシュボード
+   ============================================================ */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.2rem;margin-bottom:2rem}
+.kpi-card{text-align:center;padding:1.5rem 1rem}
+.kpi-label{font-size:0.75rem;color:var(--washi-dark);letter-spacing:0.15em;margin-bottom:0.5rem;text-transform:uppercase}
+.kpi-value{font-size:2.2rem;font-family:'Shippori Mincho B1',serif}
+.kpi-sub{font-size:0.7rem;color:var(--washi-dark);margin-top:0.3rem;opacity:0.6}
+
+/* 金リング */
+.gold-ring{
+  width:100px;height:100px;margin:0 auto 0.5rem;
+  border-radius:50%;position:relative;
+  background:conic-gradient(var(--gold) 0%,var(--gold-light) var(--pct,50%),rgba(26,24,21,0.5) var(--pct,50%));
+  display:flex;align-items:center;justify-content:center;
+}
+.gold-ring::before{
+  content:'';position:absolute;inset:6px;border-radius:50%;background:var(--sumi);
+}
+.gold-ring span{position:relative;z-index:1;font-size:1.3rem}
+
+/* 活動フィード: 巻物 */
+.emaki{
+  background:linear-gradient(90deg,rgba(201,168,76,0.03),transparent 5%,transparent 95%,rgba(201,168,76,0.03));
+  border-left:2px solid rgba(201,168,76,0.2);
+  padding:1rem 1.5rem;margin-bottom:1.5rem;
+}
+.feed-item{
+  padding:0.6rem 0;border-bottom:1px solid rgba(201,168,76,0.05);
+  display:flex;align-items:center;gap:0.8rem;font-size:0.85rem;
+}
+.feed-item:last-child{border-bottom:none}
+.feed-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;
+  box-shadow:0 0 8px rgba(201,168,76,0.4)}
+.feed-time{color:var(--washi-dark);opacity:0.5;font-size:0.75rem;min-width:80px}
+
+/* エージェントカード */
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem}
+.agent-card{padding:1.5rem}
+.agent-card.active-agent{animation:lantern-glow 3s ease-in-out infinite}
+.agent-emoji{font-size:2rem;margin-bottom:0.5rem}
+.agent-name{font-family:'Shippori Mincho B1',serif;font-size:1.1rem;color:var(--washi);margin-bottom:0.3rem}
+.agent-role{font-size:0.8rem;color:var(--washi-dark);margin-bottom:0.8rem}
+.status-badge{
+  display:inline-block;padding:0.2rem 0.8rem;border-radius:2px;font-size:0.7rem;
+  letter-spacing:0.1em;
+}
+.status-done{background:rgba(201,168,76,0.15);color:var(--gold)}
+.status-stopped{background:rgba(196,62,62,0.15);color:var(--shu)}
+.status-waiting{background:rgba(26,58,92,0.2);color:var(--ai-light)}
+.status-progress{background:rgba(212,175,55,0.12);color:var(--gold-pale)}
+.status-notstarted{background:rgba(26,58,92,0.15);color:var(--ai-light)}
+
+/* ============================================================
+   Tab2: タスク管理
+   ============================================================ */
+.task-table{width:100%;border-collapse:collapse}
+.task-table th{
+  font-family:'Shippori Mincho B1',serif;font-weight:500;
+  text-align:left;padding:0.8rem 1rem;font-size:0.8rem;
+  color:var(--gold);border-bottom:1px solid rgba(201,168,76,0.2);
+  letter-spacing:0.1em;
+}
+.task-table td{
+  padding:0.7rem 1rem;font-size:0.85rem;
+  border-bottom:1px solid rgba(201,168,76,0.04);
+  vertical-align:middle;
+}
+.task-table tr:hover td{background:rgba(201,168,76,0.02)}
+.task-id{font-family:monospace;color:var(--gold);font-size:0.8rem;opacity:0.8}
+.priority-high{color:var(--shu)}
+.priority-mid{color:var(--gold)}
+.priority-low{color:var(--ai-light)}
+
+/* ============================================================
+   Tab4: ロードマップ参道
+   ============================================================ */
+.sando{position:relative;padding-left:3rem}
+.sando::before{
+  content:'';position:absolute;left:14px;top:0;bottom:0;width:3px;
+  background:repeating-linear-gradient(180deg,
+    var(--gold) 0px,var(--gold) 12px,transparent 12px,transparent 16px);
+  opacity:0.3;
+}
+.sando-phase{position:relative;padding:1.5rem 0;padding-left:2rem}
+.sando-phase::before{
+  content:'';position:absolute;left:-2.4rem;top:1.8rem;
+  width:16px;height:16px;border-radius:50%;
+  border:2px solid var(--gold);background:var(--sumi);
+}
+.sando-phase.completed::before{background:var(--gold);box-shadow:0 0 12px rgba(201,168,76,0.4)}
+.sando-phase.current::before{background:var(--gold-bright);box-shadow:0 0 16px rgba(201,168,76,0.6);animation:lantern-glow 2s infinite}
+
+/* ============================================================
+   Tab5: 御朱印スプリント
+   ============================================================ */
+.goshuin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}
+.goshuin{
+  text-align:center;padding:2rem 1.5rem;
+  border:2px solid rgba(201,168,76,0.15);
+  background:linear-gradient(135deg,rgba(26,24,21,0.9),rgba(35,31,26,0.8));
+  position:relative;
+}
+.goshuin::before{
+  content:'印';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%) rotate(-15deg);
+  font-size:5rem;font-family:'Shippori Mincho B1',serif;
+  color:var(--shu);opacity:0.06;pointer-events:none;
+}
+.goshuin-id{font-family:'Shippori Mincho B1',serif;color:var(--gold);font-size:1.1rem;margin-bottom:0.5rem}
+.goshuin-title{color:var(--washi);font-size:0.95rem;margin-bottom:0.8rem}
+.goshuin-date{font-size:0.75rem;color:var(--washi-dark);opacity:0.6}
+
+/* ============================================================
+   Tab6: 帳簿スタイル
+   ============================================================ */
+.ledger-section{margin-bottom:2.5rem}
+.ledger-section h3{margin-bottom:1rem}
+.ledger-table{width:100%;border-collapse:collapse;margin-bottom:1rem}
+.ledger-table th{
+  text-align:left;padding:0.6rem 1rem;font-size:0.8rem;
+  color:var(--gold);border-bottom:2px solid rgba(201,168,76,0.2);
+  font-family:'Shippori Mincho B1',serif;font-weight:500;
+}
+.ledger-table td{
+  padding:0.5rem 1rem;font-size:0.85rem;
+  border-bottom:1px solid rgba(201,168,76,0.05);
+}
+.ledger-table tr:hover td{background:rgba(201,168,76,0.02)}
+
+/* ============================================================
+   Tab7: 市場分析
+   ============================================================ */
+.market-card{padding:2rem}
+.tam-visual{display:flex;flex-direction:column;align-items:center;gap:0.5rem;margin:2rem 0}
+.tam-circle{
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;border:1px solid rgba(201,168,76,0.2);
+  text-align:center;
+}
+.competitor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+
+/* ============================================================
+   レスポンシブ
+   ============================================================ */
+@media(max-width:768px){
+  .wa-header{padding:0.6rem 1rem}
+  .main-content{padding:1rem}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .tab-nav{padding:0 0.5rem}
+  .tab-btn{padding:0.6rem 0.8rem;font-size:0.75rem}
+  .task-table{font-size:0.75rem}
+  .task-table th,.task-table td{padding:0.5rem}
+}
+
+/* ============================================================
+   スクロールバー
+   ============================================================ */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--urushi)}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(201,168,76,0.35)}
+
+/* ============================================================
+   セクション見出し
+   ============================================================ */
+.section-title{
+  font-family:'Shippori Mincho B1',serif;font-size:1.2rem;
+  color:var(--washi);margin-bottom:1.5rem;
+  display:flex;align-items:center;gap:0.8rem;
+}
+.section-title .icon{font-size:1.4rem}
+
+.subsection{margin-bottom:2rem}
+.subsection h3{font-size:1rem;color:var(--washi);margin-bottom:0.8rem}
+.text-block{font-size:0.85rem;line-height:2;color:var(--washi-dim)}
+.text-block p{margin-bottom:0.8rem}
+.text-gold{color:var(--gold)}
+.text-shu{color:var(--shu)}
+
+/* ユーティリティ */
+.mb-1{margin-bottom:0.5rem}.mb-2{margin-bottom:1rem}.mb-3{margin-bottom:1.5rem}.mb-4{margin-bottom:2rem}
+.mt-2{margin-top:1rem}.mt-3{margin-top:1.5rem}
+.flex{display:flex}.gap-1{gap:0.5rem}.gap-2{gap:1rem}.items-center{align-items:center}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:768px){.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- 桜吹雪 -->
-<div class="sakura-container" id="sakuraContainer"></div>
+<!-- ===== 背景レイヤー ===== -->
+<div class="suminagashi"></div>
+<div class="washi-overlay"></div>
+<div class="clouds"><div class="cloud"></div><div class="cloud"></div><div class="cloud"></div></div>
 
-<!-- 雲 -->
-<div class="cloud" style="--cloud-dur:45s;--cloud-delay:0s;--cloud-y:10%;width:300px;height:80px;"></div>
-<div class="cloud" style="--cloud-dur:60s;--cloud-delay:15s;--cloud-y:25%;width:400px;height:100px;"></div>
-<div class="cloud" style="--cloud-dur:55s;--cloud-delay:8s;--cloud-y:60%;width:350px;height:90px;"></div>
+<!-- 桜吹雪 30枚 -->
+<div class="sakura-container" id="sakura"></div>
 
-<!-- ナビゲーション -->
-<nav class="nav-wrap">
-  <div class="nav-inner">
-    <div class="nav-brand">和</div>
-    <ul class="nav-tabs">
-      <li><button class="nav-tab active" data-tab="overview">概　観</button></li>
-      <li><button class="nav-tab" data-tab="tasks">任務帳</button></li>
-      <li><button class="nav-tab" data-tab="agents">代行者</button></li>
-      <li><button class="nav-tab" data-tab="roadmap">道　程</button></li>
-      <li><button class="nav-tab" data-tab="sprints">巡回記</button></li>
-      <li><button class="nav-tab" data-tab="business">事業設計書</button></li>
-      <li><button class="nav-tab" data-tab="market">市場見聞</button></li>
-    </ul>
+<!-- 金粉 -->
+<div class="kinpun-container" id="kinpun"></div>
+
+<!-- 鶴 -->
+<div class="crane"><svg viewBox="0 0 80 40"><path d="M5 30 Q15 10 30 15 Q38 17 42 20 L60 12 Q65 10 70 12 L75 15 Q72 14 68 15 L58 20 Q50 24 42 22 Q35 20 30 22 Q20 28 15 35 Q10 38 5 30Z"/></svg></div>
+
+<!-- ===== ヘッダー ===== -->
+<header class="wa-header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="kamon">
+        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gold)">
+          <circle cx="50" cy="50" r="45" opacity="0.4"/>
+          <circle cx="50" cy="50" r="35" opacity="0.3"/>
+          <circle cx="50" cy="30" r="12" opacity="0.6"/>
+          <circle cx="32" cy="55" r="12" opacity="0.6"/>
+          <circle cx="68" cy="55" r="12" opacity="0.6"/>
+          <circle cx="50" cy="50" r="6" fill="currentColor" opacity="0.4"/>
+        </svg>
+      </div>
+      <div>
+        <div class="header-title">和 プロジェクト統括</div>
+        <div class="header-date">2026年3月27日</div>
+      </div>
+    </div>
   </div>
+</header>
+
+<!-- タブナビ -->
+<nav class="tab-nav" id="tabNav">
+  <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
+  <button class="tab-btn" data-tab="tasks">タスク管理</button>
+  <button class="tab-btn" data-tab="agents">エージェント</button>
+  <button class="tab-btn" data-tab="roadmap">ロードマップ</button>
+  <button class="tab-btn" data-tab="sprints">スプリント</button>
+  <button class="tab-btn" data-tab="business">事業計画</button>
+  <button class="tab-btn" data-tab="market">市場分析</button>
 </nav>
 
-<main class="main-container">
+<div class="seigaiha-border"></div>
 
-  <!-- ==================== 概観 ==================== -->
-  <div class="tab-panel active" id="tab-overview">
-    <div class="section-header">
-      <div class="section-title">概　観</div>
-      <div class="section-subtitle">— 床の間 —</div>
-      <div class="zen-divider"></div>
+<!-- ===== メインコンテンツ ===== -->
+<main class="main-content">
+
+<!-- ━━━ Tab1: ダッシュボード ━━━ -->
+<div class="tab-content active" id="tab-dashboard">
+
+  <div class="section-title"><span class="icon">鑑</span><span class="brush-underline">プロジェクト概況</span></div>
+
+  <div class="kpi-grid">
+    <div class="card scroll-card shoji-card kpi-card hishi-bg">
+      <div class="kpi-label">総タスク</div>
+      <div class="kpi-value gold-num">10</div>
+      <div class="kpi-sub">全機能合計</div>
     </div>
+    <div class="card scroll-card shoji-card kpi-card hishi-bg">
+      <div class="kpi-label">完了</div>
+      <div class="kpi-value gold-num">5</div>
+      <div class="kpi-sub">実装済み</div>
+    </div>
+    <div class="card scroll-card shoji-card kpi-card hishi-bg">
+      <div class="kpi-label">進行中</div>
+      <div class="kpi-value" style="color:var(--washi-dark)">0</div>
+      <div class="kpi-sub">作業中なし</div>
+    </div>
+    <div class="card scroll-card shoji-card kpi-card hishi-bg">
+      <div class="kpi-label">未着手</div>
+      <div class="kpi-value" style="color:var(--ai-light)">5</div>
+      <div class="kpi-sub">残り機能</div>
+    </div>
+    <div class="card scroll-card shoji-card kpi-card hishi-bg">
+      <div class="kpi-label">完了率</div>
+      <div class="gold-ring" style="--pct:50%"><span class="gold-num">50%</span></div>
+    </div>
+    <div class="card scroll-card shoji-card kpi-card hishi-bg">
+      <div class="kpi-label">スプリント完了</div>
+      <div class="kpi-value gold-num">5</div>
+      <div class="kpi-sub">S001–S005</div>
+    </div>
+    <div class="card scroll-card shoji-card kpi-card hishi-bg">
+      <div class="kpi-label">エージェント</div>
+      <div class="kpi-value gold-num">3</div>
+      <div class="kpi-sub">体制</div>
+    </div>
+    <div class="card scroll-card shoji-card kpi-card hishi-bg">
+      <div class="kpi-label">レベニューシェア</div>
+      <div class="kpi-value"><span class="gold-num">60</span><span style="color:var(--washi-dark);font-size:1rem">/</span><span class="gold-num">30</span><span style="color:var(--washi-dark);font-size:1rem">/</span><span class="gold-num">10</span></div>
+      <div class="kpi-sub">開発/運営/マーケ</div>
+    </div>
+  </div>
 
-    <div class="tokonoma-grid">
-      <div class="scroll-card kpi-scroll">
-        <div class="koushi-overlay"></div>
-        <span class="kpi-icon">📋</span>
-        <div class="kpi-value">10</div>
-        <div class="kpi-label">総　務</div>
-        <div class="kpi-sub">全任務数</div>
-      </div>
-      <div class="scroll-card kpi-scroll">
-        <div class="koushi-overlay"></div>
-        <span class="kpi-icon">✦</span>
-        <div class="kpi-value shimmer">5</div>
-        <div class="kpi-label">成　就</div>
-        <div class="kpi-sub">完了任務</div>
-      </div>
-      <div class="scroll-card kpi-scroll">
-        <div class="koushi-overlay"></div>
-        <span class="kpi-icon">⟳</span>
-        <div class="kpi-value">0</div>
-        <div class="kpi-label">進　行</div>
-        <div class="kpi-sub">実行中</div>
-      </div>
-      <div class="scroll-card kpi-scroll">
-        <div class="koushi-overlay"></div>
-        <span class="kpi-icon">◯</span>
-        <div class="kpi-value">5</div>
-        <div class="kpi-label">未　着</div>
-        <div class="kpi-sub">待機中</div>
-      </div>
-      <div class="scroll-card kpi-scroll">
-        <div class="koushi-overlay"></div>
-        <span class="kpi-icon">◈</span>
-        <div class="kpi-value shimmer">50%</div>
-        <div class="kpi-label">達　成</div>
-        <div class="kpi-sub">達成率</div>
-        <div class="mt-1">
-          <div class="tourou-progress">
-            <div class="tourou-bar"><div class="tourou-fill" style="width:50%"></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="scroll-card kpi-scroll">
-        <div class="koushi-overlay"></div>
-        <span class="kpi-icon">🏮</span>
-        <div class="kpi-value">5</div>
-        <div class="kpi-label">奉　行</div>
-        <div class="kpi-sub">巡回数</div>
+  <div class="kintsugi-line"></div>
+
+  <div class="section-title"><span class="icon">巻</span><span class="brush-underline">活動履歴</span></div>
+
+  <div class="card shoji-card emaki mb-4">
+    <div class="feed-item"><span class="feed-dot"></span><span class="feed-time">S005</span><span>認証システム — <strong style="color:var(--gold)">PASS</strong></span></div>
+    <div class="feed-item"><span class="feed-dot"></span><span class="feed-time">S004</span><span>決済基盤 — <strong style="color:var(--gold)">PASS</strong></span></div>
+    <div class="feed-item"><span class="feed-dot"></span><span class="feed-time">S003</span><span>通知機能 — <strong style="color:var(--gold)">PASS</strong></span></div>
+    <div class="feed-item"><span class="feed-dot"></span><span class="feed-time">S002</span><span>ユーザー管理 — <strong style="color:var(--gold)">PASS</strong></span></div>
+    <div class="feed-item"><span class="feed-dot"></span><span class="feed-time">S001</span><span>DB設計・マイグレーション — <strong style="color:var(--gold)">PASS</strong></span></div>
+  </div>
+
+  <div class="section-title"><span class="icon">燈</span><span class="brush-underline">エージェント状況</span></div>
+
+  <div class="agent-grid">
+    <div class="card shoji-card agent-card active-agent hishi-bg">
+      <div class="agent-emoji">🎯</div>
+      <div class="agent-name">Planner</div>
+      <div class="agent-role">仕様定義・タスク分解を担当</div>
+      <span class="status-badge status-done">完了</span>
+    </div>
+    <div class="card shoji-card agent-card hishi-bg">
+      <div class="agent-emoji">⚡</div>
+      <div class="agent-name">Generator</div>
+      <div class="agent-role">1スプリント=1機能を実装</div>
+      <span class="status-badge status-stopped">停止中</span>
+    </div>
+    <div class="card shoji-card agent-card hishi-bg">
+      <div class="agent-emoji">🔍</div>
+      <div class="agent-name">Evaluator</div>
+      <div class="agent-role">厳格なコードレビュー</div>
+      <span class="status-badge status-waiting">待機中</span>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ Tab2: タスク管理 ━━━ -->
+<div class="tab-content" id="tab-tasks">
+  <div class="section-title"><span class="icon">帳</span><span class="brush-underline">タスク一覧</span></div>
+  <div class="card shoji-card" style="overflow-x:auto">
+    <table class="task-table">
+      <thead>
+        <tr><th>ID</th><th>機能名</th><th>優先度</th><th>状態</th><th>スプリント</th><th>進捗</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="task-id">F001</td><td>DB設計・マイグレーション</td><td class="priority-high">高</td><td><span class="status-badge status-done">完了</span></td><td>S001</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:100%"></div></div></td></tr>
+        <tr><td class="task-id">F002</td><td>ユーザー管理API</td><td class="priority-high">高</td><td><span class="status-badge status-done">完了</span></td><td>S002</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:100%"></div></div></td></tr>
+        <tr><td class="task-id">F003</td><td>通知機能</td><td class="priority-mid">中</td><td><span class="status-badge status-done">完了</span></td><td>S003</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:100%"></div></div></td></tr>
+        <tr><td class="task-id">F004</td><td>決済基盤</td><td class="priority-high">高</td><td><span class="status-badge status-done">完了</span></td><td>S004</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:100%"></div></div></td></tr>
+        <tr><td class="task-id">F005</td><td>認証システム</td><td class="priority-high">高</td><td><span class="status-badge status-done">完了</span></td><td>S005</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:100%"></div></div></td></tr>
+        <tr><td class="task-id">F006</td><td>管理画面</td><td class="priority-mid">中</td><td><span class="status-badge status-notstarted">未着手</span></td><td>—</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:0%"></div></div></td></tr>
+        <tr><td class="task-id">F007</td><td>分析ダッシュボード</td><td class="priority-mid">中</td><td><span class="status-badge status-notstarted">未着手</span></td><td>—</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:0%"></div></div></td></tr>
+        <tr><td class="task-id">F008</td><td>メール配信</td><td class="priority-low">低</td><td><span class="status-badge status-notstarted">未着手</span></td><td>—</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:0%"></div></div></td></tr>
+        <tr><td class="task-id">F009</td><td>外部API連携</td><td class="priority-mid">中</td><td><span class="status-badge status-notstarted">未着手</span></td><td>—</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:0%"></div></div></td></tr>
+        <tr><td class="task-id">F010</td><td>パフォーマンス最適化</td><td class="priority-low">低</td><td><span class="status-badge status-notstarted">未着手</span></td><td>—</td><td><div class="kumihimo-bar"><div class="kumihimo-fill" style="width:0%"></div></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ━━━ Tab3: エージェント ━━━ -->
+<div class="tab-content" id="tab-agents">
+  <div class="section-title"><span class="icon">匠</span><span class="brush-underline">エージェント体制</span></div>
+
+  <div class="agent-grid mb-4">
+    <div class="card scroll-card shoji-card hishi-bg" style="padding:2rem">
+      <div style="font-size:2.5rem;margin-bottom:0.8rem">🎯</div>
+      <h3 style="font-size:1.2rem;margin-bottom:0.5rem">Planner</h3>
+      <p class="text-block" style="margin-bottom:1rem">仕様定義とタスク分解を担当。プロジェクト全体の設計図を描き、各スプリントの方針を決定する。</p>
+      <div class="mb-2"><span class="status-badge status-done">完了</span></div>
+      <div style="font-size:0.8rem;color:var(--washi-dark)">
+        <div>担当: 全体設計、仕様書作成、タスク粒度調整</div>
+        <div>成果: 10機能の分解完了</div>
       </div>
     </div>
-
-    <div class="kintsugi-line"></div>
-
-    <div class="emaki-section">
-      <div class="scroll-card emaki-scroll">
-        <div class="koushi-overlay"></div>
-        <div class="emaki-title">巻物 — 活動記録</div>
-        <div class="activity-item">
-          <div class="activity-time">子の刻</div>
-          <div class="activity-text"><span class="highlight">軍師</span>が第五巡回の任務を策定</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-time">丑の刻</div>
-          <div class="activity-text"><span class="highlight">工匠</span>がF005「認証基盤」を完成</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-time">寅の刻</div>
-          <div class="activity-text"><span class="highlight">目付</span>がF004の検証を通過</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-time">卯の刻</div>
-          <div class="activity-text"><span class="highlight">工匠</span>がF003「通知機構」を完成</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-time">辰の刻</div>
-          <div class="activity-text"><span class="highlight">軍師</span>が事業設計書を更新</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-time">巳の刻</div>
-          <div class="activity-text">第四巡回が<span class="highlight">成就</span></div>
-        </div>
+    <div class="card scroll-card shoji-card hishi-bg" style="padding:2rem">
+      <div style="font-size:2.5rem;margin-bottom:0.8rem">⚡</div>
+      <h3 style="font-size:1.2rem;margin-bottom:0.5rem">Generator</h3>
+      <p class="text-block" style="margin-bottom:1rem">1スプリント=1機能の実装を高速で遂行。コード生成、テスト作成、ドキュメント自動生成まで一貫して行う。</p>
+      <div class="mb-2"><span class="status-badge status-stopped">停止中</span></div>
+      <div style="font-size:0.8rem;color:var(--washi-dark)">
+        <div>担当: コード実装、テスト、ドキュメント</div>
+        <div>成果: 5スプリント完了</div>
       </div>
-
-      <div class="scroll-card mitsudomoe-wrap">
-        <div class="koushi-overlay"></div>
-        <div class="emaki-title" style="width:100%">三位一体 — 代行者</div>
-        <div class="mitsudomoe-symbol">
-          <svg viewBox="0 0 100 100">
-            <defs>
-              <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#c9a84c;stop-opacity:0.8"/>
-                <stop offset="100%" style="stop-color:#d4af37;stop-opacity:0.4"/>
-              </linearGradient>
-            </defs>
-            <circle cx="50" cy="50" r="45" fill="none" stroke="url(#goldGrad)" stroke-width="1"/>
-            <path d="M50 5 A45 45 0 0 1 89 72.5 A22.5 22.5 0 0 1 67 60 A22.5 22.5 0 0 0 50 5Z" fill="url(#goldGrad)" opacity="0.6"/>
-            <path d="M89 72.5 A45 45 0 0 1 11 72.5 A22.5 22.5 0 0 1 33 60 A22.5 22.5 0 0 0 89 72.5Z" fill="url(#goldGrad)" opacity="0.4"/>
-            <path d="M11 72.5 A45 45 0 0 1 50 5 A22.5 22.5 0 0 1 50 50 A22.5 22.5 0 0 0 11 72.5Z" fill="url(#goldGrad)" opacity="0.5"/>
-          </svg>
-        </div>
-        <div class="agent-status-list">
-          <div class="agent-status-item">
-            <span class="agent-name">軍師（策定）</span>
-            <span class="agent-badge badge-active">稼働中</span>
-          </div>
-          <div class="agent-status-item">
-            <span class="agent-name">工匠（生成）</span>
-            <span class="agent-badge badge-idle">待機中</span>
-          </div>
-          <div class="agent-status-item">
-            <span class="agent-name">目付（検証）</span>
-            <span class="agent-badge badge-idle">待機中</span>
-          </div>
-        </div>
+    </div>
+    <div class="card scroll-card shoji-card hishi-bg" style="padding:2rem">
+      <div style="font-size:2.5rem;margin-bottom:0.8rem">🔍</div>
+      <h3 style="font-size:1.2rem;margin-bottom:0.5rem">Evaluator</h3>
+      <p class="text-block" style="margin-bottom:1rem">厳格なコードレビューと品質保証を実施。セキュリティ、パフォーマンス、設計パターンの各観点から評価する。</p>
+      <div class="mb-2"><span class="status-badge status-waiting">待機中</span></div>
+      <div style="font-size:0.8rem;color:var(--washi-dark)">
+        <div>担当: レビュー、品質評価、改善提案</div>
+        <div>成果: 全5スプリントPASS</div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== 任務帳 ==================== -->
-  <div class="tab-panel" id="tab-tasks">
-    <div class="section-header">
-      <div class="section-title">任務帳</div>
-      <div class="section-subtitle">— 短冊 —</div>
-      <div class="zen-divider"></div>
-    </div>
+  <div class="kintsugi-line"></div>
 
-    <div class="tanzaku-list">
-      <div class="tanzaku-strip">
-        <div class="tanzaku-id">F001</div>
-        <div class="tanzaku-name">利用者認証機構</div>
-        <div class="tanzaku-sprint">第一巡回</div>
-        <div class="tanzaku-priority priority-high">高</div>
-        <div class="tanzaku-status status-done">成就 ✦</div>
-      </div>
-      <div class="tanzaku-strip">
-        <div class="tanzaku-id">F002</div>
-        <div class="tanzaku-name">情報管理基盤</div>
-        <div class="tanzaku-sprint">第一巡回</div>
-        <div class="tanzaku-priority priority-high">高</div>
-        <div class="tanzaku-status status-done">成就 ✦</div>
-      </div>
-      <div class="tanzaku-strip">
-        <div class="tanzaku-id">F003</div>
-        <div class="tanzaku-name">通知機構</div>
-        <div class="tanzaku-sprint">第二巡回</div>
-        <div class="tanzaku-priority priority-medium">中</div>
-        <div class="tanzaku-status status-done">成就 ✦</div>
-      </div>
-      <div class="tanzaku-strip">
-        <div class="tanzaku-id">F004</div>
-        <div class="tanzaku-name">報告書生成</div>
-        <div class="tanzaku-sprint">第二巡回</div>
-        <div class="tanzaku-priority priority-medium">中</div>
-        <div class="tanzaku-status status-done">成就 ✦</div>
-      </div>
-      <div class="tanzaku-strip">
-        <div class="tanzaku-id">F005</div>
-        <div class="tanzaku-name">外部連携口</div>
-        <div class="tanzaku-sprint">第三巡回</div>
-        <div class="tanzaku-priority priority-high">高</div>
-        <div class="tanzaku-status status-done">成就 ✦</div>
-      </div>
-      <div class="tanzaku-strip">
-        <div class="tanzaku-id">F006</div>
-        <div class="tanzaku-name">検索最適化</div>
-        <div class="tanzaku-sprint">第四巡回</div>
-        <div class="tanzaku-priority priority-medium">中</div>
-        <div class="tanzaku-status status-pending">未着 ◯</div>
-      </div>
-      <div class="tanzaku-strip">
-        <div class="tanzaku-id">F007</div>
-        <div class="tanzaku-name">実績分析盤</div>
-        <div class="tanzaku-sprint">第四巡回</div>
-        <div class="tanzaku-priority priority-medium">中</div>
-        <div class="tanzaku-status status-pending">未着 ◯</div>
-      </div>
-      <div class="tanzaku-strip">
-        <div class="tanzaku-id">F008</div>
-        <div class="tanzaku-name">権限管理</div>
-        <div class="tanzaku-sprint">第四巡回</div>
-        <div class="tanzaku-priority priority-low">低</div>
-        <div class="tanzaku-status status-pending">未着 ◯</div>
-      </div>
-      <div class="tanzaku-strip">
-        <div class="tanzaku-id">F009</div>
-        <div class="tanzaku-name">帳票出力</div>
-        <div class="tanzaku-sprint">第五巡回</div>
-        <div class="tanzaku-priority priority-low">低</div>
-        <div class="tanzaku-status status-pending">未着 ◯</div>
-      </div>
-      <div class="tanzaku-strip">
-        <div class="tanzaku-id">F010</div>
-        <div class="tanzaku-name">多言語対応</div>
-        <div class="tanzaku-sprint">第五巡回</div>
-        <div class="tanzaku-priority priority-low">低</div>
-        <div class="tanzaku-status status-pending">未着 ◯</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== 代行者 ==================== -->
-  <div class="tab-panel" id="tab-agents">
-    <div class="section-header">
-      <div class="section-title">代行者</div>
-      <div class="section-subtitle">— 三位一体 —</div>
-      <div class="zen-divider"></div>
-    </div>
-
-    <div class="agent-cards">
-      <div class="scroll-card agent-card">
-        <div class="koushi-overlay"></div>
-        <span class="agent-emblem">🎯</span>
-        <div class="agent-title">軍　師</div>
-        <div class="agent-role">Planner — 策定者</div>
-        <div class="agent-desc">
-          全体の道筋を見定め、任務を策定し、<br>
-          各代行者に指示を与える知恵の要。<br>
-          戦略と計画の中枢を担う。
+  <div class="subsection">
+    <h3 class="brush-underline" style="display:inline-block;margin-bottom:1.5rem">ワークフロー</h3>
+    <div class="card shoji-card" style="padding:2rem;text-align:center">
+      <div style="display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap">
+        <div style="padding:1rem 1.5rem;border:1px solid rgba(201,168,76,0.2);border-radius:4px">
+          <div style="font-size:1.5rem">🎯</div>
+          <div style="font-size:0.85rem;color:var(--washi);margin-top:0.3rem">Planner</div>
+          <div style="font-size:0.7rem;color:var(--washi-dark)">設計・分解</div>
         </div>
-        <div class="agent-stat">
-          <span class="agent-stat-label">状態</span>
-          <span class="agent-stat-value">稼働中</span>
+        <div style="color:var(--gold);font-size:1.5rem">→</div>
+        <div style="padding:1rem 1.5rem;border:1px solid rgba(201,168,76,0.2);border-radius:4px">
+          <div style="font-size:1.5rem">⚡</div>
+          <div style="font-size:0.85rem;color:var(--washi);margin-top:0.3rem">Generator</div>
+          <div style="font-size:0.7rem;color:var(--washi-dark)">実装</div>
         </div>
-        <div class="agent-stat">
-          <span class="agent-stat-label">策定数</span>
-          <span class="agent-stat-value">15</span>
+        <div style="color:var(--gold);font-size:1.5rem">→</div>
+        <div style="padding:1rem 1.5rem;border:1px solid rgba(201,168,76,0.2);border-radius:4px">
+          <div style="font-size:1.5rem">🔍</div>
+          <div style="font-size:0.85rem;color:var(--washi);margin-top:0.3rem">Evaluator</div>
+          <div style="font-size:0.7rem;color:var(--washi-dark)">レビュー</div>
         </div>
-        <div class="agent-stat">
-          <span class="agent-stat-label">成功率</span>
-          <span class="agent-stat-value">100%</span>
-        </div>
-      </div>
-
-      <div class="scroll-card agent-card">
-        <div class="koushi-overlay"></div>
-        <span class="agent-emblem">⚡</span>
-        <div class="agent-title">工　匠</div>
-        <div class="agent-role">Generator — 生成者</div>
-        <div class="agent-desc">
-          軍師の策に従い、実際の成果物を<br>
-          生み出す技の者。コードと設計を<br>
-          精緻に仕上げる。
-        </div>
-        <div class="agent-stat">
-          <span class="agent-stat-label">状態</span>
-          <span class="agent-stat-value" style="opacity:0.4">待機中</span>
-        </div>
-        <div class="agent-stat">
-          <span class="agent-stat-label">生成数</span>
-          <span class="agent-stat-value">23</span>
-        </div>
-        <div class="agent-stat">
-          <span class="agent-stat-label">成功率</span>
-          <span class="agent-stat-value">96%</span>
-        </div>
-      </div>
-
-      <div class="scroll-card agent-card">
-        <div class="koushi-overlay"></div>
-        <span class="agent-emblem">🔍</span>
-        <div class="agent-title">目　付</div>
-        <div class="agent-role">Evaluator — 検証者</div>
-        <div class="agent-desc">
-          工匠の成果を厳しく検め、品質を<br>
-          保証する番人。不備あらば差し戻し、<br>
-          完璧を期す。
-        </div>
-        <div class="agent-stat">
-          <span class="agent-stat-label">状態</span>
-          <span class="agent-stat-value" style="opacity:0.4">待機中</span>
-        </div>
-        <div class="agent-stat">
-          <span class="agent-stat-label">検証数</span>
-          <span class="agent-stat-value">18</span>
-        </div>
-        <div class="agent-stat">
-          <span class="agent-stat-label">合格率</span>
-          <span class="agent-stat-value">89%</span>
+        <div style="color:var(--gold);font-size:1.5rem">→</div>
+        <div style="padding:1rem 1.5rem;border:1px solid rgba(201,168,76,0.15);border-radius:4px;background:rgba(201,168,76,0.05)">
+          <div style="font-size:1.5rem">✅</div>
+          <div style="font-size:0.85rem;color:var(--gold);margin-top:0.3rem">完了</div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ==================== 道程 ==================== -->
-  <div class="tab-panel" id="tab-roadmap">
-    <div class="section-header">
-      <div class="section-title">道　程</div>
-      <div class="section-subtitle">— 東海道五十三次 —</div>
-      <div class="zen-divider"></div>
+<!-- ━━━ Tab4: ロードマップ ━━━ -->
+<div class="tab-content" id="tab-roadmap">
+  <div class="section-title"><span class="icon">道</span><span class="brush-underline">開発ロードマップ</span></div>
+
+  <div class="sando">
+    <div class="sando-phase completed">
+      <div class="card scroll-card shoji-card" style="padding:1.5rem 2rem">
+        <h3 style="margin-bottom:0.5rem">第一期 — 基盤構築</h3>
+        <p class="text-block mb-2">データベース設計、認証基盤、基本APIの構築</p>
+        <div class="flex items-center gap-2">
+          <div class="kumihimo-bar" style="flex:1"><div class="kumihimo-fill" style="width:100%"></div></div>
+          <span class="gold-num" style="font-size:0.9rem">100%</span>
+        </div>
+        <div style="font-size:0.75rem;color:var(--washi-dark);margin-top:0.5rem;opacity:0.6">完了: F001, F002, F005</div>
+      </div>
     </div>
 
-    <div class="tokaido-path">
-      <div class="tokaido-line"></div>
-
-      <div class="tokaido-station">
-        <div class="tokaido-marker"></div>
-        <div class="scroll-card station-content">
-          <div class="koushi-overlay"></div>
-          <div class="station-phase">第壱章</div>
-          <div class="station-name">基盤構築</div>
-          <div class="station-desc">事業の礎を築く段階。認証機構と情報管理の基盤を整備し、堅固な土台を構える。</div>
-          <div class="tourou-progress mb-2">
-            <div class="tourou-bar"><div class="tourou-fill" style="width:100%"></div></div>
-            <span class="tourou-percent">100%</span>
-          </div>
-          <ul class="station-tasks">
-            <li>利用者認証機構の設計と実装</li>
-            <li>情報管理基盤の構築</li>
-            <li>開発環境の整備</li>
-          </ul>
+    <div class="sando-phase current">
+      <div class="card scroll-card shoji-card" style="padding:1.5rem 2rem">
+        <h3 style="margin-bottom:0.5rem">第二期 — コアMVP</h3>
+        <p class="text-block mb-2">決済、通知、管理画面など中核機能の実装</p>
+        <div class="flex items-center gap-2">
+          <div class="kumihimo-bar" style="flex:1"><div class="kumihimo-fill" style="width:50%"></div></div>
+          <span class="gold-num" style="font-size:0.9rem">50%</span>
         </div>
+        <div style="font-size:0.75rem;color:var(--washi-dark);margin-top:0.5rem;opacity:0.6">完了: F003, F004 | 残: F006, F007</div>
       </div>
+    </div>
 
-      <div class="tokaido-station">
-        <div class="tokaido-marker"></div>
-        <div class="scroll-card station-content">
-          <div class="koushi-overlay"></div>
-          <div class="station-phase">第弐章</div>
-          <div class="station-name">機能拡張</div>
-          <div class="station-desc">基盤の上に主要機能を積み上げる段階。通知と報告の仕組みを完成させる。</div>
-          <div class="tourou-progress mb-2">
-            <div class="tourou-bar"><div class="tourou-fill" style="width:100%"></div></div>
-            <span class="tourou-percent">100%</span>
-          </div>
-          <ul class="station-tasks">
-            <li>通知機構の実装</li>
-            <li>報告書生成機能</li>
-            <li>外部連携口の開発</li>
-          </ul>
+    <div class="sando-phase">
+      <div class="card scroll-card shoji-card" style="padding:1.5rem 2rem">
+        <h3 style="margin-bottom:0.5rem">第三期 — 収益基盤</h3>
+        <p class="text-block mb-2">外部連携、メール配信、収益化機能の実装</p>
+        <div class="flex items-center gap-2">
+          <div class="kumihimo-bar" style="flex:1"><div class="kumihimo-fill" style="width:20%"></div></div>
+          <span style="font-size:0.9rem;color:var(--washi-dark)">20%</span>
         </div>
+        <div style="font-size:0.75rem;color:var(--washi-dark);margin-top:0.5rem;opacity:0.6">対象: F008, F009</div>
       </div>
+    </div>
 
-      <div class="tokaido-station current">
-        <div class="tokaido-marker"></div>
-        <div class="scroll-card station-content">
-          <div class="koushi-overlay"></div>
-          <div class="station-phase">第参章</div>
-          <div class="station-name">最適化</div>
-          <div class="station-desc">完成した機能を磨き上げ、性能と使い勝手を向上させる段階。現在進行中の章。</div>
-          <div class="tourou-progress mb-2">
-            <div class="tourou-bar"><div class="tourou-fill" style="width:30%"></div></div>
-            <span class="tourou-percent">30%</span>
-          </div>
-          <ul class="station-tasks">
-            <li>検索最適化</li>
-            <li>実績分析盤の構築</li>
-            <li>権限管理の精緻化</li>
-          </ul>
+    <div class="sando-phase">
+      <div class="card scroll-card shoji-card" style="padding:1.5rem 2rem">
+        <h3 style="margin-bottom:0.5rem">第四期 — ローンチ</h3>
+        <p class="text-block mb-2">パフォーマンス最適化、最終テスト、本番リリース</p>
+        <div class="flex items-center gap-2">
+          <div class="kumihimo-bar" style="flex:1"><div class="kumihimo-fill" style="width:0%"></div></div>
+          <span style="font-size:0.9rem;color:var(--washi-dark)">0%</span>
         </div>
-      </div>
-
-      <div class="tokaido-station">
-        <div class="tokaido-marker"></div>
-        <div class="scroll-card station-content">
-          <div class="koushi-overlay"></div>
-          <div class="station-phase">第肆章</div>
-          <div class="station-name">完成之儀</div>
-          <div class="station-desc">最終調整と多言語対応を経て、事業を完成の境地へと導く。</div>
-          <div class="tourou-progress mb-2">
-            <div class="tourou-bar"><div class="tourou-fill" style="width:0%"></div></div>
-            <span class="tourou-percent">0%</span>
-          </div>
-          <ul class="station-tasks">
-            <li>帳票出力機能</li>
-            <li>多言語対応</li>
-            <li>総合試験と公開</li>
-          </ul>
-        </div>
+        <div style="font-size:0.75rem;color:var(--washi-dark);margin-top:0.5rem;opacity:0.6">対象: F010 + 統合テスト</div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ==================== 巡回記 ==================== -->
-  <div class="tab-panel" id="tab-sprints">
-    <div class="section-header">
-      <div class="section-title">巡回記</div>
-      <div class="section-subtitle">— 御朱印帳 —</div>
-      <div class="zen-divider"></div>
+<!-- ━━━ Tab5: スプリント ━━━ -->
+<div class="tab-content" id="tab-sprints">
+  <div class="section-title"><span class="icon">朱</span><span class="brush-underline">スプリント履歴</span></div>
+
+  <div class="goshuin-grid">
+    <div class="card goshuin">
+      <div class="goshuin-id">S001</div>
+      <div class="goshuin-title">DB設計・マイグレーション</div>
+      <div class="mb-2"><span class="status-badge status-done">PASS</span></div>
+      <div class="goshuin-date">Planner → Generator → Evaluator</div>
+      <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--washi-dark)">スキーマ設計、マイグレーション、シード作成</div>
     </div>
+    <div class="card goshuin">
+      <div class="goshuin-id">S002</div>
+      <div class="goshuin-title">ユーザー管理API</div>
+      <div class="mb-2"><span class="status-badge status-done">PASS</span></div>
+      <div class="goshuin-date">CRUD、バリデーション、権限管理</div>
+      <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--washi-dark)">REST API + テスト完備</div>
+    </div>
+    <div class="card goshuin">
+      <div class="goshuin-id">S003</div>
+      <div class="goshuin-title">通知機能</div>
+      <div class="mb-2"><span class="status-badge status-done">PASS</span></div>
+      <div class="goshuin-date">リアルタイム通知、プッシュ通知</div>
+      <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--washi-dark)">WebSocket + FCM対応</div>
+    </div>
+    <div class="card goshuin">
+      <div class="goshuin-id">S004</div>
+      <div class="goshuin-title">決済基盤</div>
+      <div class="mb-2"><span class="status-badge status-done">PASS</span></div>
+      <div class="goshuin-date">Stripe連携、サブスクリプション</div>
+      <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--washi-dark)">課金・返金・Webhook処理</div>
+    </div>
+    <div class="card goshuin">
+      <div class="goshuin-id">S005</div>
+      <div class="goshuin-title">認証システム</div>
+      <div class="mb-2"><span class="status-badge status-done">PASS</span></div>
+      <div class="goshuin-date">JWT、OAuth2.0、MFA</div>
+      <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--washi-dark)">セキュリティ監査済み</div>
+    </div>
+  </div>
+</div>
 
-    <div class="goshuin-grid">
-      <div class="scroll-card goshuin-card" data-stamp="壱">
-        <div class="koushi-overlay"></div>
-        <div class="goshuin-number">S001</div>
-        <div class="goshuin-title">第壱巡回</div>
-        <div class="goshuin-period">令和八年 一月 一日 〜 十四日</div>
-        <div class="goshuin-tasks">任務: F001, F002</div>
-        <div class="goshuin-tasks">成就: 2 / 2</div>
-        <div class="goshuin-status goshuin-complete">成就</div>
-      </div>
+<!-- ━━━ Tab6: 事業計画 ━━━ -->
+<div class="tab-content" id="tab-business">
+  <div class="section-title"><span class="icon">策</span><span class="brush-underline">事業計画書</span></div>
 
-      <div class="scroll-card goshuin-card" data-stamp="弐">
-        <div class="koushi-overlay"></div>
-        <div class="goshuin-number">S002</div>
-        <div class="goshuin-title">第弐巡回</div>
-        <div class="goshuin-period">令和八年 一月 十五日 〜 二十八日</div>
-        <div class="goshuin-tasks">任務: F003, F004</div>
-        <div class="goshuin-tasks">成就: 2 / 2</div>
-        <div class="goshuin-status goshuin-complete">成就</div>
-      </div>
-
-      <div class="scroll-card goshuin-card" data-stamp="参">
-        <div class="koushi-overlay"></div>
-        <div class="goshuin-number">S003</div>
-        <div class="goshuin-title">第参巡回</div>
-        <div class="goshuin-period">令和八年 一月 二十九日 〜 二月 十一日</div>
-        <div class="goshuin-tasks">任務: F005</div>
-        <div class="goshuin-tasks">成就: 1 / 1</div>
-        <div class="goshuin-status goshuin-complete">成就</div>
-      </div>
-
-      <div class="scroll-card goshuin-card" data-stamp="肆">
-        <div class="koushi-overlay"></div>
-        <div class="goshuin-number">S004</div>
-        <div class="goshuin-title">第肆巡回</div>
-        <div class="goshuin-period">令和八年 二月 十二日 〜 二十五日</div>
-        <div class="goshuin-tasks">任務: F006, F007, F008</div>
-        <div class="goshuin-tasks">成就: 0 / 3</div>
-        <div class="goshuin-status goshuin-planned">策定中</div>
-      </div>
-
-      <div class="scroll-card goshuin-card" data-stamp="伍">
-        <div class="koushi-overlay"></div>
-        <div class="goshuin-number">S005</div>
-        <div class="goshuin-title">第伍巡回</div>
-        <div class="goshuin-period">令和八年 二月 二十六日 〜 三月 十一日</div>
-        <div class="goshuin-tasks">任務: F009, F010</div>
-        <div class="goshuin-tasks">成就: 0 / 2</div>
-        <div class="goshuin-status goshuin-planned">策定中</div>
-      </div>
+  <div class="ledger-section">
+    <h3 class="brush-underline" style="display:inline-block">事業概要</h3>
+    <div class="card shoji-card text-block" style="padding:2rem;margin-top:1rem">
+      <p>AI駆動型SaaSプラットフォームの開発・運営事業。3つの自律エージェント（Planner / Generator / Evaluator）による高速開発サイクルを核に、従来の10倍速でプロダクト開発を実現する。</p>
+      <p>市場のDX需要とAI活用ニーズの急拡大を背景に、中小企業向けのオールインワン業務プラットフォームを提供する。</p>
     </div>
   </div>
 
-  <!-- ==================== 事業設計書 ==================== -->
-  <div class="tab-panel" id="tab-business">
-    <div class="section-header">
-      <div class="section-title">事業設計書</div>
-      <div class="section-subtitle">— 公文書 —</div>
-      <div class="zen-divider"></div>
-    </div>
+  <div class="kintsugi-line"></div>
 
-    <div class="scroll-card kobunsho shoji-border">
-      <div class="koushi-overlay"></div>
-
-      <h3>壱、事業概要</h3>
-      <p>本事業は、AIエージェントを活用した次世代型プロジェクト管理基盤の構築を目指す。複数の自律型代行者が協調し、ソフトウェア開発の全工程を効率化する。市場における<strong>生産性革命</strong>を牽引し、開発チームの負担を大幅に軽減することを使命とする。</p>
-
-      <h3>弐、市場規模分析</h3>
-      <table class="choubo-table">
-        <thead>
-          <tr>
-            <th>区分</th>
-            <th>名称</th>
-            <th class="num">規模（億円）</th>
-            <th>備考</th>
-          </tr>
-        </thead>
+  <div class="ledger-section">
+    <h3 class="brush-underline" style="display:inline-block">収益モデル</h3>
+    <div class="card shoji-card" style="padding:2rem;margin-top:1rem;overflow-x:auto">
+      <table class="ledger-table">
+        <thead><tr><th>プラン</th><th>月額</th><th>対象</th><th>想定比率</th></tr></thead>
         <tbody>
-          <tr>
-            <td>TAM</td>
-            <td>世界AI開発ツール市場</td>
-            <td class="num">¥45,000</td>
-            <td>全世界対象</td>
-          </tr>
-          <tr>
-            <td>SAM</td>
-            <td>AIプロジェクト管理市場</td>
-            <td class="num">¥8,500</td>
-            <td>対象セグメント</td>
-          </tr>
-          <tr>
-            <td>SOM</td>
-            <td>初期獲得可能市場</td>
-            <td class="num">¥850</td>
-            <td>初年度目標</td>
-          </tr>
+          <tr><td>スタータープラン</td><td class="gold-num">¥4,980</td><td>個人・フリーランス</td><td>40%</td></tr>
+          <tr><td>ビジネスプラン</td><td class="gold-num">¥19,800</td><td>中小企業（10〜50名）</td><td>45%</td></tr>
+          <tr><td>エンタープライズ</td><td class="gold-num">¥98,000</td><td>大企業・カスタム</td><td>15%</td></tr>
         </tbody>
       </table>
-
-      <h3>参、収益予測 — 三段階試算</h3>
-      <table class="choubo-table">
-        <thead>
-          <tr>
-            <th>想定</th>
-            <th class="num">月間利用者</th>
-            <th class="num">月額単価</th>
-            <th class="num">年間収益</th>
-            <th class="num">年間利益</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>楽観</td>
-            <td class="num">5,000</td>
-            <td class="num">¥15,000</td>
-            <td class="num">¥9.0億</td>
-            <td class="num">¥3.6億</td>
-          </tr>
-          <tr>
-            <td><strong>基本</strong></td>
-            <td class="num"><strong>2,000</strong></td>
-            <td class="num"><strong>¥12,000</strong></td>
-            <td class="num"><strong>¥2.9億</strong></td>
-            <td class="num"><strong>¥1.0億</strong></td>
-          </tr>
-          <tr>
-            <td>悲観</td>
-            <td class="num">500</td>
-            <td class="num">¥10,000</td>
-            <td class="num">¥0.6億</td>
-            <td class="num">¥0.1億</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>肆、十二ヶ月行動計画</h3>
-      <table class="choubo-table">
-        <thead>
-          <tr>
-            <th>四半期</th>
-            <th>主要施策</th>
-            <th>目標</th>
-            <th class="num">予算</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>第一（1-3月）</td>
-            <td>MVP開発・基盤構築</td>
-            <td>製品公開</td>
-            <td class="num">¥2,000万</td>
-          </tr>
-          <tr>
-            <td>第二（4-6月）</td>
-            <td>初期顧客獲得・改善</td>
-            <td>100社導入</td>
-            <td class="num">¥3,000万</td>
-          </tr>
-          <tr>
-            <td>第三（7-9月）</td>
-            <td>機能拡張・市場拡大</td>
-            <td>500社導入</td>
-            <td class="num">¥4,000万</td>
-          </tr>
-          <tr>
-            <td>第四（10-12月）</td>
-            <td>収益化・次期計画</td>
-            <td>黒字化</td>
-            <td class="num">¥3,000万</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>伍、危機管理</h3>
-      <table class="choubo-table">
-        <thead>
-          <tr>
-            <th>危機要因</th>
-            <th>発生度</th>
-            <th>影響度</th>
-            <th>対応策</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>競合参入</td>
-            <td class="text-shu">高</td>
-            <td class="text-shu">高</td>
-            <td>技術的優位性の維持、特許取得</td>
-          </tr>
-          <tr>
-            <td>AI規制強化</td>
-            <td class="text-gold">中</td>
-            <td class="text-shu">高</td>
-            <td>法務体制の強化、適応性設計</td>
-          </tr>
-          <tr>
-            <td>技術的障壁</td>
-            <td class="text-gold">中</td>
-            <td class="text-gold">中</td>
-            <td>段階的開発、外部連携の活用</td>
-          </tr>
-          <tr>
-            <td>人材確保</td>
-            <td class="text-gold">中</td>
-            <td class="text-gold">中</td>
-            <td>遠隔勤務推進、報酬体系の整備</td>
-          </tr>
-          <tr>
-            <td>資金不足</td>
-            <td style="opacity:0.4">低</td>
-            <td class="text-shu">高</td>
-            <td>段階的投資、早期収益化</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>六、競争優位性</h3>
-      <p>本事業の核心は、三位一体の<strong>自律型AI代行者</strong>による協調開発にある。軍師（策定）・工匠（生成）・目付（検証）の三者が有機的に連携し、人間の介在を最小限に抑えつつ、高品質な成果物を継続的に産出する。この<strong>自己完結型開発基盤</strong>は、現存する競合製品にはない独自の価値を提供する。</p>
     </div>
   </div>
 
-  <!-- ==================== 市場見聞 ==================== -->
-  <div class="tab-panel" id="tab-market">
-    <div class="section-header">
-      <div class="section-title">市場見聞</div>
-      <div class="section-subtitle">— 浮世絵 —</div>
-      <div class="zen-divider"></div>
+  <div class="kintsugi-line"></div>
+
+  <div class="ledger-section">
+    <h3 class="brush-underline" style="display:inline-block">売上予測</h3>
+    <div class="card shoji-card" style="padding:2rem;margin-top:1rem;overflow-x:auto">
+      <table class="ledger-table">
+        <thead><tr><th>期間</th><th>ユーザー数</th><th>MRR</th><th>ARR</th></tr></thead>
+        <tbody>
+          <tr><td>1年目（立ち上げ）</td><td>200</td><td class="gold-num">¥1,500,000</td><td class="gold-num">¥18,000,000</td></tr>
+          <tr><td>2年目（成長期）</td><td>1,200</td><td class="gold-num">¥9,000,000</td><td class="gold-num">¥108,000,000</td></tr>
+          <tr><td>3年目（拡大期）</td><td>5,000</td><td class="gold-num">¥35,000,000</td><td class="gold-num">¥420,000,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="kintsugi-line"></div>
+
+  <div class="ledger-section">
+    <h3 class="brush-underline" style="display:inline-block">レベニューシェア</h3>
+    <div class="card shoji-card" style="padding:2rem;margin-top:1rem;overflow-x:auto">
+      <table class="ledger-table">
+        <thead><tr><th>部門</th><th>配分</th><th>内容</th></tr></thead>
+        <tbody>
+          <tr><td>開発チーム</td><td class="gold-num">60%</td><td>プロダクト開発、インフラ運用</td></tr>
+          <tr><td>運営・CS</td><td class="gold-num">30%</td><td>カスタマーサクセス、サポート</td></tr>
+          <tr><td>マーケティング</td><td class="gold-num">10%</td><td>広告、コンテンツ、PR</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="kintsugi-line"></div>
+
+  <div class="ledger-section">
+    <h3 class="brush-underline" style="display:inline-block">リスク要因</h3>
+    <div class="card shoji-card" style="padding:2rem;margin-top:1rem;overflow-x:auto">
+      <table class="ledger-table">
+        <thead><tr><th>リスク</th><th>影響度</th><th>対策</th></tr></thead>
+        <tbody>
+          <tr><td>競合の参入加速</td><td class="text-shu">高</td><td>AI開発速度の優位性維持、独自機能の強化</td></tr>
+          <tr><td>技術的負債の蓄積</td><td class="text-shu">中</td><td>Evaluatorによる継続的品質管理</td></tr>
+          <tr><td>顧客獲得コスト上昇</td><td style="color:var(--gold)">中</td><td>コンテンツマーケティング、紹介制度</td></tr>
+          <tr><td>規制変更</td><td style="color:var(--ai-light)">低</td><td>法務チーム早期設置、コンプライアンス体制</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="kintsugi-line"></div>
+
+  <div class="ledger-section">
+    <h3 class="brush-underline" style="display:inline-block">マイルストーン</h3>
+    <div class="card shoji-card text-block" style="padding:2rem;margin-top:1rem">
+      <p><span class="gold-num">2026年Q2</span> — MVP完成・クローズドベータ開始（招待制100社）</p>
+      <p><span class="gold-num">2026年Q3</span> — パブリックベータ公開・初期マーケティング</p>
+      <p><span class="gold-num">2026年Q4</span> — 正式ローンチ・有料プラン開始</p>
+      <p><span class="gold-num">2027年Q2</span> — ユーザー数1,000突破・シリーズA検討</p>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ Tab7: 市場分析 ━━━ -->
+<div class="tab-content" id="tab-market">
+  <div class="section-title"><span class="icon">析</span><span class="brush-underline">市場分析</span></div>
+
+  <div class="grid-2 mb-4">
+    <div class="card scroll-card shoji-card market-card">
+      <h3 class="brush-underline mb-3" style="display:inline-block">市場規模（TAM / SAM / SOM）</h3>
+      <div class="tam-visual">
+        <div class="tam-circle" style="width:220px;height:220px;background:rgba(201,168,76,0.05)">
+          <div style="font-size:0.7rem;color:var(--washi-dark)">TAM</div>
+          <div class="gold-num" style="font-size:1.3rem">¥2.4兆</div>
+          <div style="font-size:0.65rem;color:var(--washi-dark);opacity:0.6">国内SaaS市場全体</div>
+        </div>
+        <div class="tam-circle" style="width:170px;height:170px;background:rgba(201,168,76,0.08)">
+          <div style="font-size:0.7rem;color:var(--washi-dark)">SAM</div>
+          <div class="gold-num" style="font-size:1.2rem">¥3,600億</div>
+          <div style="font-size:0.65rem;color:var(--washi-dark);opacity:0.6">中小向け業務SaaS</div>
+        </div>
+        <div class="tam-circle" style="width:120px;height:120px;background:rgba(201,168,76,0.12)">
+          <div style="font-size:0.7rem;color:var(--washi-dark)">SOM</div>
+          <div class="gold-num" style="font-size:1.1rem">¥42億</div>
+          <div style="font-size:0.65rem;color:var(--washi-dark);opacity:0.6">初期獲得可能</div>
+        </div>
+      </div>
     </div>
 
-    <div class="market-stat-grid">
-      <div class="scroll-card market-stat-card">
-        <div class="koushi-overlay"></div>
-        <div class="stat-val">¥4.5兆</div>
-        <div class="stat-label">TAM — 全体市場</div>
-      </div>
-      <div class="scroll-card market-stat-card">
-        <div class="koushi-overlay"></div>
-        <div class="stat-val">¥8,500億</div>
-        <div class="stat-label">SAM — 対象市場</div>
-      </div>
-      <div class="scroll-card market-stat-card">
-        <div class="koushi-overlay"></div>
-        <div class="stat-val">¥850億</div>
-        <div class="stat-label">SOM — 獲得可能</div>
-      </div>
-      <div class="scroll-card market-stat-card">
-        <div class="koushi-overlay"></div>
-        <div class="stat-val">32%</div>
-        <div class="stat-label">年間成長率</div>
-      </div>
-    </div>
-
-    <div class="kintsugi-line"></div>
-
-    <div class="scroll-card ukiyoe-section">
-      <div class="koushi-overlay"></div>
-      <div class="ukiyoe-title">市場成長推移（浮世絵風）</div>
-      <div class="ukiyoe-chart">
-        <div class="chart-bar-wrap">
-          <div class="chart-bar" style="height:25%"><span class="bar-value">¥1.2兆</span></div>
-          <div class="chart-bar-label">令和五年</div>
-        </div>
-        <div class="chart-bar-wrap">
-          <div class="chart-bar" style="height:35%"><span class="bar-value">¥1.8兆</span></div>
-          <div class="chart-bar-label">令和六年</div>
-        </div>
-        <div class="chart-bar-wrap">
-          <div class="chart-bar" style="height:50%"><span class="bar-value">¥2.5兆</span></div>
-          <div class="chart-bar-label">令和七年</div>
-        </div>
-        <div class="chart-bar-wrap">
-          <div class="chart-bar" style="height:70%"><span class="bar-value">¥3.5兆</span></div>
-          <div class="chart-bar-label">令和八年</div>
-        </div>
-        <div class="chart-bar-wrap">
-          <div class="chart-bar" style="height:90%;background:linear-gradient(180deg, var(--gold-bright) 0%, rgba(212,175,55,0.4) 100%);">
-            <span class="bar-value">¥4.5兆</span>
-          </div>
-          <div class="chart-bar-label">令和九年</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="kintsugi-line"></div>
-
-    <div class="emaki-section">
-      <div class="scroll-card ukiyoe-section">
-        <div class="koushi-overlay"></div>
-        <div class="ukiyoe-title">競合分析</div>
-        <table class="choubo-table">
-          <thead>
-            <tr>
-              <th>競合</th>
-              <th>特徴</th>
-              <th>脅威度</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>GitHub Copilot</td>
-              <td>コード補完に特化</td>
-              <td class="text-shu">高</td>
-            </tr>
-            <tr>
-              <td>Cursor</td>
-              <td>IDE統合型AI</td>
-              <td class="text-gold">中</td>
-            </tr>
-            <tr>
-              <td>Devin</td>
-              <td>自律型エンジニア</td>
-              <td class="text-shu">高</td>
-            </tr>
-            <tr>
-              <td>従来型PM</td>
-              <td>Jira, Linear等</td>
-              <td style="opacity:0.4">低</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="scroll-card ukiyoe-section">
-        <div class="koushi-overlay"></div>
-        <div class="ukiyoe-title">差別化要因</div>
-        <div style="padding: 0.5rem 0;">
-          <div class="activity-item">
-            <div class="activity-time" style="width:auto;margin-right:1rem;">壱</div>
-            <div class="activity-text">三位一体の<span class="highlight">自律型代行者</span>協調</div>
-          </div>
-          <div class="activity-item">
-            <div class="activity-time" style="width:auto;margin-right:1rem;">弐</div>
-            <div class="activity-text"><span class="highlight">端から端まで</span>の開発工程自動化</div>
-          </div>
-          <div class="activity-item">
-            <div class="activity-time" style="width:auto;margin-right:1rem;">参</div>
-            <div class="activity-text">自己<span class="highlight">検証・改善</span>循環の内蔵</div>
-          </div>
-          <div class="activity-item">
-            <div class="activity-time" style="width:auto;margin-right:1rem;">肆</div>
-            <div class="activity-text"><span class="highlight">事業設計</span>から実装まで一貫支援</div>
-          </div>
-        </div>
+    <div class="card scroll-card shoji-card market-card">
+      <h3 class="brush-underline mb-3" style="display:inline-block">市場トレンド</h3>
+      <div class="text-block">
+        <p>国内SaaS市場は年率<span class="gold-num">13%</span>で成長中。特にAI活用型SaaSは前年比<span class="gold-num">42%</span>増と急拡大。</p>
+        <p>中小企業のDX投資意欲は過去最高水準。しかし導入の複雑さが障壁となっており、「簡単に始められるオールインワン」への需要が高い。</p>
+        <p>2025年のAI規制整備により、信頼性の高いAIプロダクトへの需要がさらに加速している。</p>
       </div>
     </div>
   </div>
+
+  <div class="kintsugi-line"></div>
+
+  <div class="subsection">
+    <h3 class="brush-underline mb-3" style="display:inline-block">競合マトリックス</h3>
+    <div class="card shoji-card" style="padding:2rem;overflow-x:auto">
+      <table class="ledger-table">
+        <thead><tr><th>企業/製品</th><th>強み</th><th>弱み</th><th>価格帯</th><th>脅威度</th></tr></thead>
+        <tbody>
+          <tr><td>Notion</td><td>UI/UX、ブランド力</td><td>業務特化機能が弱い</td><td>中</td><td class="text-shu">高</td></tr>
+          <tr><td>kintone</td><td>国内シェア、カスタマイズ性</td><td>UIが古い、AI機能なし</td><td>中</td><td style="color:var(--gold)">中</td></tr>
+          <tr><td>Salesforce</td><td>機能網羅性</td><td>高額、複雑</td><td>高</td><td style="color:var(--ai-light)">低</td></tr>
+          <tr><td>freee</td><td>会計特化、知名度</td><td>業務全般はカバー外</td><td>低〜中</td><td style="color:var(--gold)">中</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="kintsugi-line"></div>
+
+  <div class="subsection">
+    <h3 class="brush-underline mb-3" style="display:inline-block">ポジショニング</h3>
+    <div class="card shoji-card text-block" style="padding:2rem">
+      <p>当プロダクトのポジション: <strong style="color:var(--gold)">「AI駆動 × 中小企業特化 × オールインワン」</strong></p>
+      <p>既存SaaSは「機能特化型」か「大企業向け」に偏っている。中小企業が求める「手軽に導入でき、業務全体をカバーし、AIで効率化される」プラットフォームは空白地帯。</p>
+      <p>差別化要因:</p>
+      <p>・AI自動化による運用コスト<span class="gold-num">70%</span>削減</p>
+      <p>・3エージェント体制による開発速度<span class="gold-num">10倍</span></p>
+      <p>・日本企業の商習慣に最適化された設計</p>
+      <p>・初期費用<span class="gold-num">¥0</span>、即日利用開始可能</p>
+    </div>
+  </div>
+</div>
 
 </main>
 
-<!-- フッター -->
-<footer class="footer">
-  <span class="footer-mon">◉</span>
-  <div class="footer-text">和 — 侘寂之美 — 令和八年</div>
-</footer>
-
+<!-- ===== JavaScript ===== -->
 <script>
-// ===== 桜吹雪生成 =====
-(function() {
-  const container = document.getElementById('sakuraContainer');
-  const petalCount = 18;
-  for (let i = 0; i < petalCount; i++) {
-    const petal = document.createElement('div');
-    petal.className = 'sakura-petal';
-    petal.style.setProperty('--x', Math.random() * 100 + '%');
-    petal.style.setProperty('--delay', (Math.random() * 15) + 's');
-    petal.style.setProperty('--duration', (12 + Math.random() * 10) + 's');
-    petal.style.setProperty('--sway', (3 + Math.random() * 4) + 's');
-    petal.style.setProperty('--drift', (Math.random() * 100 - 50) + 'px');
-    petal.style.setProperty('--spin', (Math.random() * 720 - 360) + 'deg');
-    petal.style.width = (8 + Math.random() * 8) + 'px';
-    petal.style.height = (8 + Math.random() * 8) + 'px';
-    container.appendChild(petal);
+// タブ切替
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+// 桜吹雪生成 (30枚)
+(function(){
+  const c=document.getElementById('sakura');
+  for(let i=0;i<30;i++){
+    const p=document.createElement('div');
+    p.className='sakura-petal';
+    const size=6+Math.random()*14;
+    const dur=10+Math.random()*15;
+    const delay=Math.random()*dur;
+    const drift=-60+Math.random()*120;
+    const spin=180+Math.random()*540;
+    const blur=Math.random()>0.6?Math.random()*2:0;
+    const op=0.3+Math.random()*0.5;
+    const hue=Math.random()>0.5?'#ffb7c5':'#ff8fa3';
+    p.style.cssText=`
+      --size:${size}px;--dur:${dur}s;--delay:${delay}s;
+      --drift:${drift}px;--spin:${spin}deg;--blur:${blur}px;
+      --peak-op:${op};--x:${Math.random()*100}%;
+      background:${hue};
+    `;
+    c.appendChild(p);
   }
 })();
 
-// ===== タブ切り替え =====
-(function() {
-  const tabs = document.querySelectorAll('.nav-tab');
-  const panels = document.querySelectorAll('.tab-panel');
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      panels.forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
-    });
-  });
-})();
-
-// ===== 水紋リップル =====
-(function() {
-  document.querySelectorAll('.scroll-card').forEach(card => {
-    card.style.position = 'relative';
-    card.style.overflow = 'hidden';
-    card.addEventListener('click', function(e) {
-      const rect = this.getBoundingClientRect();
-      const ripple = document.createElement('div');
-      ripple.className = 'ripple-effect';
-      ripple.style.left = (e.clientX - rect.left) + 'px';
-      ripple.style.top = (e.clientY - rect.top) + 'px';
-      this.appendChild(ripple);
-      setTimeout(() => ripple.remove(), 1200);
-    });
-  });
-})();
-
-// ===== 提灯プログレスアニメーション =====
-(function() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const fill = entry.target;
-        const width = fill.style.width;
-        fill.style.width = '0%';
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            fill.style.width = width;
-          });
-        });
-        observer.unobserve(fill);
-      }
-    });
-  }, { threshold: 0.3 });
-
-  document.querySelectorAll('.tourou-fill').forEach(fill => {
-    observer.observe(fill);
-  });
+// 金粉生成 (20粒)
+(function(){
+  const c=document.getElementById('kinpun');
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');
+    p.className='kinpun';
+    const size=1+Math.random()*3;
+    const dur=14+Math.random()*20;
+    const delay=Math.random()*dur;
+    const drift=-30+Math.random()*60;
+    const blur=Math.random()>0.5?0.5:0;
+    const op=0.2+Math.random()*0.5;
+    p.style.cssText=`
+      --ks:${size}px;--kd:${dur}s;--kdel:${delay}s;
+      --kdrift:${drift}px;--kb:${blur}px;--kop:${op};
+      --kx:${Math.random()*100}%;
+    `;
+    c.appendChild(p);
+  }
 })();
 </script>
 </body>
